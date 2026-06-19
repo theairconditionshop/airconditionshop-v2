@@ -4,7 +4,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import type { UserRole } from '@/types/database'
 
 const ADMIN_ROLES: UserRole[] = ['super_admin', 'admin', 'staff']
-const SUPER_ADMIN_ONLY: UserRole[] = ['super_admin']
 const SETTINGS_ROLES: UserRole[] = ['super_admin', 'admin']
 
 async function getProfileRole(userId: string): Promise<{ role: UserRole; trade_status: string | null } | null> {
@@ -21,7 +20,7 @@ export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
-  // ── Public routes — no auth needed ──────────────────────────────
+  // ── Static / public ─────────────────────────────────────────────
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api/webhooks') ||
@@ -32,75 +31,91 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── Auth routes — redirect if already logged in ──────────────────
-  const isAuthRoute = pathname.startsWith('/login') ||
+  // ── Auth routes (/login, /register, /reset-password) ───────────
+  // Only auto-redirect logged-in users if they have fully completed auth.
+  // Admin users who still need 2FA must NOT be bounced back to /admin —
+  // they need to stay on /login to receive and complete the OTP flow.
+  const isAuthRoute =
+    pathname.startsWith('/login') ||
     pathname.startsWith('/register') ||
     pathname.startsWith('/reset-password')
 
   if (isAuthRoute && user) {
     const profile = await getProfileRole(user.id)
+
     if (profile && ADMIN_ROLES.includes(profile.role)) {
-      return NextResponse.redirect(new URL('/admin', request.url))
+      // Only redirect admins to /admin when 2FA is already verified for this user.
+      // If verified_2fa is absent or belongs to a different user, keep them on /login
+      // so the OTP flow can be triggered and completed normally.
+      const verified2fa = request.cookies.get('verified_2fa')
+      if (verified2fa?.value === user.id) {
+        return NextResponse.redirect(new URL('/admin', request.url))
+      }
+      return supabaseResponse
     }
+
     if (profile?.role === 'trade' && profile.trade_status === 'approved') {
       return NextResponse.redirect(new URL('/trade/dashboard', request.url))
     }
+
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // ── /verify-otp — needs pending_2fa cookie ──────────────────────
+  // ── /verify-otp — requires pending_2fa cookie ──────────────────
   if (pathname.startsWith('/verify-otp')) {
-    const pending = request.cookies.get('pending_2fa')
-    if (!pending) {
+    if (!request.cookies.get('pending_2fa')) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
     return supabaseResponse
   }
 
-  // ── /admin/* — requires admin role + completed 2FA ───────────────
+  // ── /admin/* — requires admin role + valid verified_2fa ─────────
   if (pathname.startsWith('/admin')) {
     if (!user) {
-      return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, request.url))
+      const url = new URL('/login', request.url)
+      url.searchParams.set('next', pathname)
+      return NextResponse.redirect(url)
     }
 
     const profile = await getProfileRole(user.id)
 
     if (!profile || !ADMIN_ROLES.includes(profile.role)) {
-      return NextResponse.redirect(new URL('/?error=forbidden', request.url))
+      return NextResponse.redirect(new URL('/', request.url))
     }
 
-    // Enforce 2FA: if no verified_2fa cookie redirect to OTP
+    // 2FA gate: verified_2fa must exist and belong to the current user.
+    // When missing or stale, redirect to /login so the admin re-authenticates
+    // and receives a fresh OTP via /api/auth/post-login.
+    // We do NOT redirect to /verify-otp here because no OTP session would exist.
     const verified2fa = request.cookies.get('verified_2fa')
-    if (!verified2fa) {
-      // Set pending cookie so /verify-otp knows who to verify
-      const response = NextResponse.redirect(new URL('/verify-otp', request.url))
-      response.cookies.set('pending_2fa', user.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 600, // 10 minutes to complete OTP
-        path: '/',
-      })
+    if (!verified2fa || verified2fa.value !== user.id) {
+      const url = new URL('/login', request.url)
+      url.searchParams.set('next', pathname)
+      const response = NextResponse.redirect(url)
+      // Clear a stale cookie so the value mismatch doesn't persist
+      if (verified2fa) response.cookies.delete('verified_2fa')
       return response
     }
 
     // /admin/users — super_admin only
     if (pathname.startsWith('/admin/users') && profile.role !== 'super_admin') {
-      return NextResponse.redirect(new URL('/admin?error=forbidden', request.url))
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
 
     // /admin/settings — admin + super_admin only
     if (pathname.startsWith('/admin/settings') && !SETTINGS_ROLES.includes(profile.role)) {
-      return NextResponse.redirect(new URL('/admin?error=forbidden', request.url))
+      return NextResponse.redirect(new URL('/admin', request.url))
     }
 
     return supabaseResponse
   }
 
-  // ── /trade/dashboard — requires approved trade ───────────────────
+  // ── /trade/dashboard — requires approved trade account ──────────
   if (pathname.startsWith('/trade/dashboard')) {
     if (!user) {
-      return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, request.url))
+      const url = new URL('/login', request.url)
+      url.searchParams.set('next', pathname)
+      return NextResponse.redirect(url)
     }
     const profile = await getProfileRole(user.id)
     if (!profile || profile.role !== 'trade' || profile.trade_status !== 'approved') {
@@ -109,10 +124,12 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── /account/* — requires any authenticated user ─────────────────
+  // ── /account/* — any authenticated user ─────────────────────────
   if (pathname.startsWith('/account')) {
     if (!user) {
-      return NextResponse.redirect(new URL(`/login?next=${encodeURIComponent(pathname)}`, request.url))
+      const url = new URL('/login', request.url)
+      url.searchParams.set('next', pathname)
+      return NextResponse.redirect(url)
     }
     return supabaseResponse
   }

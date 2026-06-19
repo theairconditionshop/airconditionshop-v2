@@ -6,7 +6,10 @@ import AdminHeader  from '@/components/admin/admin-header'
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getSession()
-  if (!user) redirect('/login')
+  // Redirect to / (not /login) — middleware owns the /login redirect.
+  // Sending to /login here would create a loop: middleware sees a
+  // logged-in admin on /login and bounces them back to /admin.
+  if (!user) redirect('/')
 
   const profile = await getProfile()
   if (!profile || !['super_admin', 'admin', 'staff'].includes(profile.role)) {
