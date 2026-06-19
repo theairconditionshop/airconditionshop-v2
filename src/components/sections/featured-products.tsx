@@ -1,0 +1,124 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowRight, Star } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { resolvePrice, formatPrice } from '@/lib/pricing/resolver'
+import type { Product, UserRole } from '@/types/database'
+
+interface Props {
+  products: Product[]
+  userRole?: UserRole | null
+}
+
+export default function FeaturedProducts({ products, userRole }: Props) {
+  if (!products.length) return null
+
+  return (
+    <section className="py-20 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-end justify-between mb-12">
+          <div>
+            <p className="text-xs font-semibold text-sky-600 uppercase tracking-widest mb-2">Handpicked Selection</p>
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900">Featured Products</h2>
+          </div>
+          <Link href="/products" className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors">
+            View all <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map((product, i) => {
+            const priceResult = resolvePrice(product, userRole ?? null)
+            const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
+
+            return (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <Link href={`/products/${product.slug}`} className="group block bg-white rounded-2xl border border-slate-100 overflow-hidden hover:border-sky-200 hover:shadow-xl transition-all duration-300">
+                  {/* Image */}
+                  <div className="relative aspect-square bg-slate-50 overflow-hidden">
+                    {primaryImage ? (
+                      <Image
+                        src={primaryImage.url}
+                        alt={primaryImage.alt_text || product.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="flex-1 h-full flex items-center justify-center">
+                        <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center">
+                          <span className="text-3xl">❄️</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                      {product.is_featured && (
+                        <Badge variant="default" className="gap-1 text-xs">
+                          <Star className="w-2.5 h-2.5" /> Featured
+                        </Badge>
+                      )}
+                      {product.energy_rating && (
+                        <Badge variant="success" className="text-xs">
+                          {product.energy_rating}
+                        </Badge>
+                      )}
+                      {product.availability !== 'in_stock' && (
+                        <Badge variant="warning" className="text-xs capitalize">
+                          {product.availability.replace('_', ' ')}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="p-4">
+                    {product.brand && (
+                      <p className="text-xs font-medium text-sky-600 mb-1">{product.brand.name}</p>
+                    )}
+                    <h3 className="font-semibold text-slate-900 text-sm leading-tight line-clamp-2 group-hover:text-sky-700 transition-colors">
+                      {product.name}
+                    </h3>
+                    {product.model_number && (
+                      <p className="mt-1 text-xs text-slate-400">Model: {product.model_number}</p>
+                    )}
+
+                    <div className="mt-3 flex items-center justify-between">
+                      <div>
+                        {priceResult.price != null ? (
+                          <div>
+                            <p className="text-base font-bold text-slate-900">
+                              {formatPrice(priceResult.price, product.currency)}
+                            </p>
+                            {priceResult.isTrade && (
+                              <Badge variant="trade" className="mt-1 text-xs">{priceResult.label}</Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-slate-500 italic">Contact for price</p>
+                        )}
+                      </div>
+                      <span className="text-sky-500 group-hover:translate-x-1 transition-transform duration-200">
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
