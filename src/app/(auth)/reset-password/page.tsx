@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -28,8 +27,12 @@ function RequestForm() {
   async function onSubmit(data: RequestData) {
     const supabase = createClient()
     setError(null)
+    // redirectTo must point to /auth/callback so the PKCE code can be exchanged
+    // for a session before the user reaches /reset-password to set a new password.
+    // Pointing directly to /reset-password skips the code exchange and leaves the
+    // user with no session, so supabase.auth.updateUser() would fail.
     const { error: e } = await supabase.auth.resetPasswordForEmail(data.email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
     })
     if (e) setError(e.message)
     else setSent(true)
@@ -92,8 +95,23 @@ function NewPasswordForm() {
 }
 
 function ResetPasswordInner() {
-  const params = useSearchParams()
-  const hasToken = params.has('access_token') || params.has('code')
+  // After the auth/callback route exchanges the PKCE code for a session, the user
+  // is redirected here with no token in the URL — the session lives in the cookie.
+  // We detect the active session to decide which form to show, not URL params.
+  // (The old approach checked params.has('code') which is always false at this point
+  // because the callback already consumed it.)
+  const [hasSession, setHasSession] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setHasSession(!!user)
+    })
+  }, [])
+
+  if (hasSession === null) {
+    return <div className="py-8 text-center text-slate-400 text-sm">Loading…</div>
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
@@ -101,11 +119,11 @@ function ResetPasswordInner() {
         <div className="text-center mb-8">
           <Link href="/" className="text-xl font-bold text-slate-900 tracking-tight">THE AIRCONDITION SHOP</Link>
           <h1 className="mt-4 text-2xl font-bold text-slate-900">
-            {hasToken ? 'Set new password' : 'Reset your password'}
+            {hasSession ? 'Set new password' : 'Reset your password'}
           </h1>
         </div>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-          {hasToken ? <NewPasswordForm /> : <RequestForm />}
+          {hasSession ? <NewPasswordForm /> : <RequestForm />}
           <p className="mt-6 text-sm text-center text-slate-500">
             <Link href="/login" className="text-sky-600 hover:underline">Back to sign in</Link>
           </p>
