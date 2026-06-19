@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 import { createOtpSession } from '@/lib/auth/otp'
 import { requiresTwoFactor } from '@/lib/auth/permissions'
 import type { UserRole } from '@/types/database'
@@ -7,20 +8,26 @@ import type { UserRole } from '@/types/database'
 export async function POST(request: Request) {
   console.log('[post-login] Request received')
 
-  let body: { userId?: string; next?: string }
+  // SECURITY: derive userId from the verified Supabase session, NOT from the
+  // request body. Accepting userId from the client would allow any authenticated
+  // user to supply an admin's UUID and DoS their OTP sessions.
+  const supabase = await createClient()
+  const { data: { user }, error: sessionError } = await supabase.auth.getUser()
+
+  if (sessionError || !user) {
+    console.error('[post-login] No authenticated session:', sessionError?.message)
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+  }
+
+  const userId = user.id
+
+  let body: { next?: string }
   try {
     body = await request.json()
   } catch {
-    console.error('[post-login] Failed to parse request body')
-    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    body = {}
   }
-
-  const { userId, next } = body
-
-  if (!userId) {
-    console.error('[post-login] No userId in request body')
-    return NextResponse.json({ error: 'Missing userId' }, { status: 400 })
-  }
+  const { next } = body
 
   // Take only the first IP from x-forwarded-for — Vercel sends a comma-separated
   // list (client, proxy, ...) which is invalid for a PostgreSQL INET column.
@@ -73,11 +80,9 @@ export async function POST(request: Request) {
       console.log('[post-login] OTP email sent to:', profile.email)
     } catch (err) {
       console.error('[post-login] sendOtpEmail failed:', err instanceof Error ? err.message : err)
-      // OTP session was created — return error so admin can retry, don't silently continue
       return NextResponse.json({ error: 'Failed to send verification email. Please try again.' }, { status: 500 })
     }
 
-    // Build response with pending_2fa cookie
     const response = NextResponse.json({ require2fa: true })
     response.cookies.set('pending_2fa', userId, {
       httpOnly: true,

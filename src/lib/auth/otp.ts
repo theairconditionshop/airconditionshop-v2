@@ -1,11 +1,14 @@
 import bcrypt from 'bcryptjs'
+import { randomInt } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 const ROUNDS = parseInt(process.env.OTP_BCRYPT_ROUNDS || '12')
 const EXPIRY_MINUTES = 10
+const MAX_ATTEMPTS = 5
 
+// crypto.randomInt is cryptographically secure; Math.random() is not.
 function generateCode(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString()
+  return randomInt(100000, 1000000).toString()
 }
 
 export async function createOtpSession(userId: string, ipAddress?: string) {
@@ -43,7 +46,7 @@ export async function verifyOtpSession(userId: string, code: string): Promise<bo
 
   const { data: sessions } = await supabase
     .from('otp_sessions')
-    .select('id, otp_code, expires_at')
+    .select('id, otp_code, expires_at, attempt_count')
     .eq('user_id', userId)
     .eq('used', false)
     .order('created_at', { ascending: false })
@@ -53,12 +56,28 @@ export async function verifyOtpSession(userId: string, code: string): Promise<bo
 
   const session = sessions[0]
 
+  // Brute-force protection: invalidate after MAX_ATTEMPTS wrong guesses
+  if ((session.attempt_count ?? 0) >= MAX_ATTEMPTS) {
+    console.warn('[otp] Max attempts exceeded for session:', session.id)
+    await supabase.from('otp_sessions').update({ used: true }).eq('id', session.id)
+    return false
+  }
+
   // Check expiry
   if (new Date(session.expires_at) < new Date()) return false
 
   // Check code
   const valid = await bcrypt.compare(code, session.otp_code)
-  if (!valid) return false
+
+  if (!valid) {
+    const newCount = (session.attempt_count ?? 0) + 1
+    await supabase
+      .from('otp_sessions')
+      .update({ attempt_count: newCount, used: newCount >= MAX_ATTEMPTS })
+      .eq('id', session.id)
+    console.warn('[otp] Invalid code attempt', newCount, '/', MAX_ATTEMPTS, 'session:', session.id)
+    return false
+  }
 
   // Mark used
   await supabase

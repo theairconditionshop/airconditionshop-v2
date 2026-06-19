@@ -12,7 +12,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No pending session.' }, { status: 400 })
   }
 
-  const ip = request.headers.get('x-forwarded-for') || undefined
+  // Take only the first IP — Vercel sends "client, proxy, ..." which is invalid
+  // for a PostgreSQL INET column.
+  const rawIp = request.headers.get('x-forwarded-for')
+  const ip = rawIp ? rawIp.split(',')[0].trim() : undefined
+
   const adminDb = createAdminClient()
 
   const { data: profile } = await adminDb
@@ -21,12 +25,26 @@ export async function POST(request: Request) {
     .eq('id', pendingUserId)
     .single()
 
-  if (!profile) {
+  if (!profile || !profile.email) {
     return NextResponse.json({ error: 'User not found.' }, { status: 400 })
   }
 
-  const code = await createOtpSession(pendingUserId, ip)
-  await sendOtpEmail({ email: profile.email, name: profile.full_name || '', code })
+  let code: string
+  try {
+    code = await createOtpSession(pendingUserId, ip)
+    console.log('[resend-otp] OTP session created for:', pendingUserId)
+  } catch (err) {
+    console.error('[resend-otp] createOtpSession failed:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'Failed to create verification session. Please try again.' }, { status: 500 })
+  }
+
+  try {
+    await sendOtpEmail({ email: profile.email, name: profile.full_name || '', code })
+    console.log('[resend-otp] OTP email resent to:', profile.email)
+  } catch (err) {
+    console.error('[resend-otp] sendOtpEmail failed:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'Failed to send verification email. Please try again.' }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true })
 }
