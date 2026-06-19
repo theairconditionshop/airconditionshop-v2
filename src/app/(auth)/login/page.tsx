@@ -21,23 +21,28 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
 
+    console.log('[login] Attempting sign-in for:', email)
     const supabase = createClient()
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
+      console.error('[login] Supabase signInWithPassword error:', JSON.stringify(error), 'status:', error.status, 'message:', error.message)
       toast.error('Invalid email or password')
       setLoading(false)
       return
     }
 
+    console.log('[login] Supabase sign-in succeeded — userId:', data.user.id, 'email:', data.user.email, 'email_confirmed_at:', data.user.email_confirmed_at)
+
     // Check role — API route will set OTP cookie + redirect if admin/staff
     const res = await fetch('/api/auth/post-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: data.user.id, next }),
+      body: JSON.stringify({ next }),
     })
 
     const result = await res.json().catch(() => ({}))
+    console.log('[login] post-login response — status:', res.status, 'body:', JSON.stringify(result))
     setLoading(false)
 
     if (!res.ok) {
