@@ -69,7 +69,7 @@ export async function sendContactEnquiryEmails({
       subject: 'We received your message — THE AIRCONDITION SHOP',
       html: `<p>Dear ${name},</p><p>Thank you for contacting us. We will be in touch shortly.</p>`,
     }),
-    sendEmail('contact_enquiry_admin', process.env.RESEND_ADMIN_EMAIL || 'sales@asgroupmalta.com', vars, {
+    sendEmail('contact_enquiry_admin', process.env.RESEND_ADMIN_EMAIL || 'support@theairconditionshop.com', vars, {
       subject: `New contact enquiry from ${name}`,
       html: `<p>From: ${name} (${email})</p><p>${message}</p>`,
     }),
@@ -85,7 +85,7 @@ export async function sendQuoteRequestEmails({
       subject: 'Your quote request — THE AIRCONDITION SHOP',
       html: `<p>Dear ${name},</p><p>Thank you for your quote request. We will send you a detailed quote within 2 business days.</p>`,
     }),
-    sendEmail('quote_request_admin', process.env.RESEND_ADMIN_EMAIL || 'sales@asgroupmalta.com', vars, {
+    sendEmail('quote_request_admin', process.env.RESEND_ADMIN_EMAIL || 'support@theairconditionshop.com', vars, {
       subject: `New quote request from ${name}`,
       html: `<p>New quote request from ${name} (${email})</p>`,
     }),
@@ -101,7 +101,7 @@ export async function sendTradeApplicationEmails({
       subject: 'Trade application received — THE AIRCONDITION SHOP',
       html: `<p>Dear ${name},</p><p>We received your trade application and will review it within 2 business days.</p>`,
     }),
-    sendEmail('trade_application_admin', process.env.RESEND_ADMIN_EMAIL || 'sales@asgroupmalta.com', vars, {
+    sendEmail('trade_application_admin', process.env.RESEND_ADMIN_EMAIL || 'support@theairconditionshop.com', vars, {
       subject: `New trade application from ${companyName}`,
       html: `<p>Trade application from ${name} at ${companyName} (${email})</p>`,
     }),

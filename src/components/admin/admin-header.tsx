@@ -1,7 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/types/database'
 import { LogOut, User } from 'lucide-react'
 
@@ -9,8 +8,11 @@ export default function AdminHeader({ profile }: { profile: Profile }) {
   const router = useRouter()
 
   async function signOut() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
+    // POST to server route so HttpOnly cookies (verified_2fa, pending_2fa)
+    // are cleared alongside the Supabase session. Client-side signOut()
+    // cannot touch HttpOnly cookies, which would leave verified_2fa valid
+    // and allow OTP bypass on the next login within 24 hours.
+    await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/login')
   }
 

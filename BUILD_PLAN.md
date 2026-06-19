@@ -1116,7 +1116,7 @@ OTP_BCRYPT_ROUNDS=12
 Created via `supabase/seed.sql` on first deploy:
 
 **Accounts (passwords via Supabase Auth invite — never in code):**
-- `sales@asgroupmalta.com` → role = `admin`
+- `support@theairconditionshop.com` → role = `super_admin`
 - `a.r.alinur.arafat@gmail.com` → role = `trade`, trade_status = `approved`
 
 **Default content:**
