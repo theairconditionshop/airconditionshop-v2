@@ -37,8 +37,13 @@ function LoginForm() {
       body: JSON.stringify({ userId: data.user.id, next }),
     })
 
-    const result = await res.json()
+    const result = await res.json().catch(() => ({}))
     setLoading(false)
+
+    if (!res.ok) {
+      toast.error(result.error || 'Login failed. Please try again.')
+      return
+    }
 
     if (result.require2fa) {
       router.push('/verify-otp')

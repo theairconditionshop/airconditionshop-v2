@@ -4,7 +4,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 const FROM = 'THE AIRCONDITION SHOP <support@theairconditionshop.com>'
 
 function getResend() {
-  return new Resend(process.env.RESEND_API_KEY!)
+  const key = process.env.RESEND_API_KEY
+  if (!key) throw new Error('RESEND_API_KEY environment variable is not set')
+  return new Resend(key)
 }
 
 async function getTemplate(key: string) {
@@ -28,10 +30,20 @@ async function sendEmail(
   fallback: { subject: string; html: string }
 ) {
   const template = await getTemplate(key)
+  const usingFallback = !template
   const subject = template ? interpolate(template.subject, vars) : fallback.subject
   const html = template ? interpolate(template.html_body, vars) : fallback.html
 
-  await getResend().emails.send({ from: FROM, to, subject, html })
+  console.log('[resend] Sending email — key:', key, 'to:', to, 'template:', usingFallback ? 'fallback' : 'db')
+
+  const { data, error } = await getResend().emails.send({ from: FROM, to, subject, html })
+
+  if (error) {
+    console.error('[resend] emails.send failed — key:', key, 'to:', to, 'error:', JSON.stringify(error))
+    throw new Error(`Resend API error: ${error.message ?? JSON.stringify(error)}`)
+  }
+
+  console.log('[resend] Email sent successfully — key:', key, 'messageId:', data?.id)
 }
 
 // ── Specific senders ────────────────────────────────────────

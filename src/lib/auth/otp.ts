@@ -29,8 +29,12 @@ export async function createOtpSession(userId: string, ipAddress?: string) {
     ip_address: ipAddress ?? null,
   })
 
-  if (error) throw new Error('Failed to create OTP session')
+  if (error) {
+    console.error('[otp] Failed to insert OTP session:', error.message, 'code:', error.code)
+    throw new Error('Failed to create OTP session')
+  }
 
+  console.log('[otp] Session created for userId:', userId, 'expires:', expiresAt)
   return code // plain code — send via email, never store
 }
 
