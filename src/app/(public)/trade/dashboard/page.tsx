@@ -46,27 +46,27 @@ export default async function TradeDashboardPage() {
 
           {/* Quick actions */}
           <div className="grid sm:grid-cols-3 gap-4 mb-10">
-            <a href="/products" className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-sky-200 transition-colors flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
-                <Package className="w-5 h-5 text-sky-600" />
+            <a href="/products" className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <Package className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="font-semibold text-slate-900 text-sm">Browse Products</p>
                 <p className="text-xs text-slate-500">Trade prices applied</p>
               </div>
             </a>
-            <a href="/quote" className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-sky-200 transition-colors flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-sky-600" />
+            <a href="/quote" className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="font-semibold text-slate-900 text-sm">Request Quote</p>
                 <p className="text-xs text-slate-500">Project or bulk orders</p>
               </div>
             </a>
-            <a href="tel:+35679661889" className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-sky-200 transition-colors flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
-                <Phone className="w-5 h-5 text-sky-600" />
+            <a href="tel:+35679661889" className="p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-blue-200 transition-colors flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <Phone className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <p className="font-semibold text-slate-900 text-sm">Trade Support</p>

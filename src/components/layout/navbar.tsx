@@ -153,7 +153,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
 
             {/* Trade Login */}
             <Link
-              href="/trade/login"
+              href="/login"
               className={cn(
                 'text-sm font-medium transition-colors duration-200 cursor-pointer',
                 isTransparent
@@ -235,7 +235,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                         Trade Portal →
                       </Link>
                       <Link
-                        href="/trade/login"
+                        href="/login"
                         className="block mt-1 text-sm text-amber-600/80 hover:text-amber-700 transition-colors duration-200"
                       >
                         Trade Login

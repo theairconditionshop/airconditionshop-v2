@@ -139,7 +139,7 @@ export default function Footer() {
                   className="text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors cursor-pointer">
                   Apply for Trade Account &rarr;
                 </Link>
-                <Link href="/trade/login"
+                <Link href="/login"
                   className="text-xs font-medium text-slate-400 hover:text-slate-300 transition-colors cursor-pointer">
                   Trade Login &rarr;
                 </Link>
