@@ -3,7 +3,7 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { UserRole } from '@/types/database'
 
-const ADMIN_ROLES: UserRole[] = ['super_admin', 'admin', 'staff']
+const ADMIN_ROLES: UserRole[]    = ['super_admin', 'admin', 'staff']
 const SETTINGS_ROLES: UserRole[] = ['super_admin', 'admin']
 
 async function getProfileRole(userId: string): Promise<{ role: UserRole; trade_status: string | null } | null> {
@@ -16,7 +16,7 @@ async function getProfileRole(userId: string): Promise<{ role: UserRole; trade_s
   return data
 }
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
   const { pathname } = request.nextUrl
 
@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── Auth routes (/login, /register, /reset-password) ───────────
+  // ── Auth routes (/login, /register, /reset-password) ──────────────
   // Only auto-redirect logged-in users if they have fully completed auth.
   // Admin users who still need 2FA must NOT be bounced back to /admin —
   // they need to stay on /login to receive and complete the OTP flow.
@@ -45,8 +45,6 @@ export async function middleware(request: NextRequest) {
 
     if (profile && ADMIN_ROLES.includes(profile.role)) {
       // Only redirect admins to /admin when 2FA is already verified for this user.
-      // If verified_2fa is absent or belongs to a different user, keep them on /login
-      // so the OTP flow can be triggered and completed normally.
       const verified2fa = request.cookies.get('verified_2fa')
       if (verified2fa?.value === user.id) {
         return NextResponse.redirect(new URL('/admin', request.url))
@@ -69,7 +67,7 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse
   }
 
-  // ── /admin/* — requires admin role + valid verified_2fa ─────────
+  // ── /admin/* — requires admin role + valid verified_2fa ──────────
   if (pathname.startsWith('/admin')) {
     if (!user) {
       const url = new URL('/login', request.url)
@@ -84,15 +82,11 @@ export async function middleware(request: NextRequest) {
     }
 
     // 2FA gate: verified_2fa must exist and belong to the current user.
-    // When missing or stale, redirect to /login so the admin re-authenticates
-    // and receives a fresh OTP via /api/auth/post-login.
-    // We do NOT redirect to /verify-otp here because no OTP session would exist.
     const verified2fa = request.cookies.get('verified_2fa')
     if (!verified2fa || verified2fa.value !== user.id) {
       const url = new URL('/login', request.url)
       url.searchParams.set('next', pathname)
       const response = NextResponse.redirect(url)
-      // Clear a stale cookie so the value mismatch doesn't persist
       if (verified2fa) response.cookies.delete('verified_2fa')
       return response
     }
