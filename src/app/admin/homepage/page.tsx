@@ -11,7 +11,7 @@ export default async function HomepageCmsPage() {
   const { data: sections } = await db
     .from('homepage_sections')
     .select('*')
-    .order('sort_order')
+    .order('section_key')
 
   return (
     <div className="max-w-3xl">

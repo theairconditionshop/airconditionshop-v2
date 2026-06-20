@@ -9,20 +9,19 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 const schema = z.object({
-  name:                z.string().min(2),
-  slug:                z.string().min(2),
-  sku:                 z.string().optional(),
-  description:         z.string().optional(),
-  short_description:   z.string().optional(),
-  retail_price:        z.coerce.number().optional(),
-  stock_qty:           z.coerce.number().optional(),
-  category_id:         z.string().optional(),
-  brand_id:            z.string().optional(),
-  trade_price_mode:    z.enum(['fixed', 'discount']).optional(),
-  trade_price:         z.coerce.number().optional(),
-  trade_discount_pct:  z.coerce.number().optional(),
-  is_active:           z.boolean().optional(),
-  is_featured:         z.boolean().optional(),
+  name:               z.string().min(2),
+  slug:               z.string().min(2),
+  sku:                z.string().optional(),
+  description:        z.string().optional(),
+  retail_price:       z.coerce.number().optional(),
+  category_id:        z.string().optional(),
+  brand_id:           z.string().optional(),
+  availability:       z.enum(['in_stock', 'out_of_stock', 'on_order', 'discontinued']).default('in_stock'),
+  trade_price_mode:   z.enum(['fixed', 'discount']).optional(),
+  trade_price:        z.coerce.number().optional(),
+  trade_discount_pct: z.coerce.number().optional(),
+  is_active:          z.boolean().optional(),
+  is_featured:        z.boolean().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -44,17 +43,16 @@ export default function ProductForm({ product, categories, brands }: Props) {
       slug:               product.slug as string,
       sku:                product.sku as string,
       description:        product.description as string,
-      short_description:  product.short_description as string,
       retail_price:       product.retail_price as number,
-      stock_qty:          product.stock_qty as number,
       category_id:        product.category_id as string,
       brand_id:           product.brand_id as string,
+      availability:       (product.availability as 'in_stock' | 'out_of_stock' | 'on_order' | 'discontinued') ?? 'in_stock',
       trade_price_mode:   product.trade_price_mode as 'fixed' | 'discount',
       trade_price:        product.trade_price as number,
       trade_discount_pct: product.trade_discount_pct as number,
       is_active:          product.is_active as boolean ?? true,
       is_featured:        product.is_featured as boolean ?? false,
-    } : { is_active: true, is_featured: false },
+    } : { is_active: true, is_featured: false, availability: 'in_stock' },
   })
 
   const tradeMode = watch('trade_price_mode')
@@ -72,7 +70,8 @@ export default function ProductForm({ product, categories, brands }: Props) {
       router.push('/admin/products')
       router.refresh()
     } else {
-      toast.error('Save failed')
+      const err = await res.json().catch(() => ({}))
+      toast.error(err.error || 'Save failed')
     }
   }
 
@@ -84,17 +83,9 @@ export default function ProductForm({ product, categories, brands }: Props) {
           <Input label="Product name" {...register('name')} error={errors.name?.message} required />
           <Input label="Slug" {...register('slug')} error={errors.slug?.message} required hint="URL-friendly identifier" />
         </div>
-        <div className="grid sm:grid-cols-2 gap-4">
-          <Input label="SKU" {...register('sku')} />
-          <Input label="Stock quantity" type="number" {...register('stock_qty')} />
-        </div>
+        <Input label="SKU" {...register('sku')} />
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-700">Short description</label>
-          <textarea {...register('short_description')} rows={2}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none" />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-700">Full description</label>
+          <label className="text-sm font-medium text-slate-700">Description</label>
           <textarea {...register('description')} rows={5}
             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none" />
         </div>
@@ -119,6 +110,16 @@ export default function ProductForm({ product, categories, brands }: Props) {
               {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-700">Availability</label>
+          <select {...register('availability')}
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="in_stock">In Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+            <option value="on_order">On Order</option>
+            <option value="discontinued">Discontinued</option>
+          </select>
         </div>
       </div>
 

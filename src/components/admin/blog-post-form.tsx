@@ -9,11 +9,11 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 const schema = z.object({
-  title:       z.string().min(2),
-  slug:        z.string().min(2),
-  excerpt:     z.string().optional(),
-  content:     z.string().min(10),
-  is_published: z.boolean().optional(),
+  title:        z.string().min(2),
+  slug:         z.string().min(2),
+  excerpt:      z.string().optional(),
+  content:      z.string().min(10),
+  publish_now:  z.boolean().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -25,18 +25,25 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
-      title:        post.title as string,
-      slug:         post.slug as string,
-      excerpt:      post.excerpt as string,
-      content:      post.content as string,
-      is_published: post.is_published as boolean,
-    } : { is_published: false },
+      title:       post.title as string,
+      slug:        post.slug as string,
+      excerpt:     post.excerpt as string,
+      content:     post.content as string,
+      publish_now: (post.status as string) === 'published',
+    } : { publish_now: false },
   })
 
   async function onSubmit(data: FormData) {
     const url    = isEdit ? `/api/admin/blog/${post!.id}` : '/api/admin/blog'
     const method = isEdit ? 'PUT' : 'POST'
-    const payload = { ...data, published_at: data.is_published ? new Date().toISOString() : null }
+    const payload = {
+      title:        data.title,
+      slug:         data.slug,
+      excerpt:      data.excerpt,
+      content:      data.content,
+      status:       data.publish_now ? 'published' : 'draft',
+      published_at: data.publish_now ? new Date().toISOString() : null,
+    }
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -47,7 +54,8 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
       router.push('/admin/blog')
       router.refresh()
     } else {
-      toast.error('Save failed')
+      const err = await res.json().catch(() => ({}))
+      toast.error(err.error || 'Save failed')
     }
   }
 
@@ -72,7 +80,7 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
           {errors.content && <p className="text-xs text-red-500">{errors.content.message}</p>}
         </div>
         <label className="flex items-center gap-3 cursor-pointer">
-          <input type="checkbox" {...register('is_published')}
+          <input type="checkbox" {...register('publish_now')}
             className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
           <span className="text-sm text-slate-700">Publish immediately</span>
         </label>

@@ -10,7 +10,7 @@ const brandSchema = z.object({
   website_url: z.string().url().optional().or(z.literal('')),
   description: z.string().max(2000).optional(),
   is_active:   z.boolean().default(true),
-  sort_order:  z.number().int().optional(),
+  display_order: z.number().int().optional(),
 })
 
 async function requireAdmin() {

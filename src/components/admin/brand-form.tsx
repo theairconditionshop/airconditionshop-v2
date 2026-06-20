@@ -14,7 +14,7 @@ const schema = z.object({
   description:        z.string().optional(),
   country_of_origin:  z.string().optional(),
   logo_url:           z.string().optional(),
-  sort_order:         z.coerce.number().optional(),
+  display_order:      z.coerce.number().optional(),
   is_active:          z.boolean().optional(),
 })
 
@@ -32,7 +32,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
       description:       brand.description as string,
       country_of_origin: brand.country_of_origin as string,
       logo_url:          brand.logo_url as string,
-      sort_order:        brand.sort_order as number,
+      display_order:     brand.display_order as number,
       is_active:         brand.is_active as boolean ?? true,
     } : { is_active: true },
   })
@@ -62,7 +62,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <Input label="Country of origin" {...register('country_of_origin')} placeholder="Japan" />
-        <Input label="Sort order" type="number" {...register('sort_order')} />
+        <Input label="Display order" type="number" {...register('display_order')} />
       </div>
       <Input label="Logo URL" {...register('logo_url')} placeholder="https://…" />
       <div className="flex flex-col gap-1.5">

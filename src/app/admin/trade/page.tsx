@@ -11,11 +11,11 @@ export default async function AdminTradePage() {
   const db = createAdminClient()
   const { data } = await db
     .from('trade_applications')
-    .select('id, user_id, company, business_type, vat_number, phone, status, created_at, profiles(full_name, email, trade_status)')
+    .select('id, user_id, company_name, business_type, vat_number, phone, status, created_at, profiles(full_name, email, trade_status)')
     .order('created_at', { ascending: false })
 
   type Row = {
-    id: string; user_id: string; company: string; business_type: string;
+    id: string; user_id: string; company_name: string; business_type: string;
     vat_number?: string; phone?: string; status: string; created_at: string;
     profiles?: { full_name?: string; email?: string; trade_status?: string }
   }
@@ -29,7 +29,7 @@ export default async function AdminTradePage() {
         columns={[
           { label: 'Name',       render: r => <span className="font-medium">{r.profiles?.full_name || '—'}</span> },
           { label: 'Email',      render: r => <span className="text-xs text-sky-600">{r.profiles?.email || '—'}</span> },
-          { label: 'Company',    render: r => <span className="text-xs">{r.company}</span> },
+          { label: 'Company',    render: r => <span className="text-xs">{r.company_name}</span> },
           { label: 'Type',       render: r => <span className="text-xs text-slate-500">{r.business_type}</span> },
           { label: 'VAT',        render: r => <span className="text-xs text-slate-400">{r.vat_number || '—'}</span> },
           { label: 'Applied',    render: r => <span className="text-xs text-slate-400">{new Date(r.created_at).toLocaleDateString()}</span> },

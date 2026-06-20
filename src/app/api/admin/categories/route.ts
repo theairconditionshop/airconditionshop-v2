@@ -10,7 +10,7 @@ const categorySchema = z.object({
   icon:        z.string().max(100).optional(),
   image_url:   z.string().url().optional().or(z.literal('')),
   is_active:   z.boolean().default(true),
-  sort_order:  z.number().int().optional(),
+  display_order: z.number().int().optional(),
   parent_id:   z.string().uuid().optional().nullable(),
 })
 

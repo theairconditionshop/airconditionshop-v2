@@ -51,15 +51,18 @@ export async function POST(request: Request) {
   }).eq('id', userId)
 
   // Insert trade application
-  await db.from('trade_applications').insert({
+  const { error: appError } = await db.from('trade_applications').insert({
     user_id:       userId,
-    company,
+    company_name:  company,
     vat_number:    vat_number || null,
     business_type,
     phone,
     notes:         message || null,
     status:        'pending',
   })
+  if (appError) {
+    console.error('trade_applications insert failed:', appError.message)
+  }
 
   // Send notification emails
   await sendTradeApplicationEmails({ name, email, companyName: company })

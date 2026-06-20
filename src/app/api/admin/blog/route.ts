@@ -8,13 +8,13 @@ const blogSchema = z.object({
   slug:         z.string().min(1).max(500),
   excerpt:      z.string().max(1000).optional(),
   content:      z.string().optional(),
-  cover_image:  z.string().url().optional().or(z.literal('')),
+  cover_url:    z.string().url().optional().or(z.literal('')),
   status:       z.enum(['draft', 'published']).default('draft'),
   published_at: z.string().datetime().optional().nullable(),
-  meta_title:   z.string().max(200).optional(),
-  meta_desc:    z.string().max(500).optional(),
+  seo_title:    z.string().max(200).optional(),
+  seo_desc:     z.string().max(500).optional(),
   author_id:    z.string().uuid().optional().nullable(),
-  category_id:  z.string().uuid().optional().nullable(),
+  category:     z.string().max(100).optional(),
 })
 
 async function requireAdmin() {
