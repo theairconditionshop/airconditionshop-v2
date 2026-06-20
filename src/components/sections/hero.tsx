@@ -185,8 +185,8 @@ export default function Hero({ data }: { data: HeroData }) {
         </motion.div>
       </div>
 
-      {/* Bottom fade slate-950 → white */}
-      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+      {/* Bottom fade → slate-950 (matches categories section) */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-950 to-transparent pointer-events-none" />
     </section>
   )
 }

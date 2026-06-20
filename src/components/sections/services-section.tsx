@@ -29,12 +29,12 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
   ]
 
   return (
-    <section className="py-20 bg-slate-50">
+    <section className="py-20 bg-white border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
           <div>
-            <p className="text-xs font-semibold text-sky-600 uppercase tracking-widest mb-2">What We Do</p>
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-2">What We Do</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6">{heading}</h2>
             <p className="text-slate-500 leading-relaxed mb-8">
               From single-room air conditioning to full commercial HVAC installations,
@@ -61,10 +61,10 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-5 bg-white rounded-2xl border border-slate-100 hover:border-sky-200 hover:shadow-md transition-all duration-200"
+                  className="p-5 bg-white rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-200"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-sky-50 flex items-center justify-center mb-3">
-                    <Icon className="w-5 h-5 text-sky-500" />
+                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
+                    <Icon className="w-5 h-5 text-blue-500" />
                   </div>
                   <h3 className="font-semibold text-slate-900 text-sm mb-1.5">{item.title}</h3>
                   <p className="text-xs text-slate-500 leading-relaxed">{item.description}</p>

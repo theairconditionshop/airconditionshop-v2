@@ -9,15 +9,15 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
   if (!brands.length) return null
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-slate-950 border-t border-white/[0.05]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
             Authorised Dealer for World-Leading Brands
           </p>
-          <div className="mt-3 mx-auto w-10 h-px bg-amber-400/60" />
+          <div className="mt-3 mx-auto w-10 h-px bg-amber-400/40" />
         </div>
 
         {/* Brand grid */}
@@ -32,7 +32,7 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
             >
               <Link
                 href={`/brands/${brand.slug}`}
-                className="group flex flex-col items-center justify-center aspect-square rounded-xl border border-transparent hover:border-slate-100 hover:shadow-md bg-transparent transition-all duration-200 cursor-pointer p-4"
+                className="group flex flex-col items-center justify-center aspect-square rounded-xl border border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.03] bg-transparent transition-all duration-200 cursor-pointer p-4"
               >
                 {brand.logo_url ? (
                   <Image
@@ -40,10 +40,10 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
                     alt={brand.name}
                     width={96}
                     height={48}
-                    className="object-contain max-h-12 w-auto grayscale group-hover:grayscale-0 opacity-60 group-hover:opacity-100 transition-all duration-200"
+                    className="object-contain max-h-12 w-auto grayscale group-hover:grayscale-0 opacity-40 group-hover:opacity-80 transition-all duration-200"
                   />
                 ) : (
-                  <span className="font-bold text-2xl text-slate-300 group-hover:text-slate-700 text-center leading-tight transition-colors duration-200">
+                  <span className="text-sm font-semibold text-slate-400 group-hover:text-white text-center leading-tight tracking-wide transition-colors duration-200 uppercase">
                     {brand.name}
                   </span>
                 )}
@@ -53,8 +53,8 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
         </div>
 
         {/* Bottom strip */}
-        <div className="mt-12 pt-8 border-t border-slate-100 text-center">
-          <p className="text-xs text-slate-400 tracking-wide">
+        <div className="mt-12 pt-8 border-t border-white/[0.06] text-center">
+          <p className="text-xs text-slate-600 tracking-wide">
             All installations by certified engineers&nbsp;&nbsp;·&nbsp;&nbsp;Malta VAT registered
           </p>
         </div>

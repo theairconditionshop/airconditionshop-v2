@@ -53,16 +53,16 @@ export default function ProductCategories({ categories }: { categories: Category
   const displayed = categories.slice(0, 8)
 
   return (
-    <section className="bg-white py-24">
+    <section className="bg-slate-950 py-24 border-t border-white/[0.04]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
         <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
               Browse Our Range
             </p>
-            <h2 className="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">
+            <h2 className="text-4xl font-bold leading-tight text-white lg:text-5xl">
               HVAC &amp; Refrigeration
               <br className="hidden sm:block" />
               Solutions
@@ -70,7 +70,7 @@ export default function ProductCategories({ categories }: { categories: Category
           </div>
           <Link
             href="/products"
-            className="hidden cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700 sm:flex"
+            className="hidden cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors duration-200 hover:text-blue-300 sm:flex"
           >
             View all products
             <ArrowRight className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default function ProductCategories({ categories }: { categories: Category
                   href={`/products/category/${category.slug}`}
                   className="group block cursor-pointer"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-md transition-shadow duration-300 group-hover:shadow-2xl">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-md border border-slate-800/60 transition-all duration-300 group-hover:shadow-2xl group-hover:border-blue-800/40">
 
                     {category.image_url ? (
                       <>
@@ -108,11 +108,13 @@ export default function ProductCategories({ categories }: { categories: Category
                       </>
                     ) : (
                       <>
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950" />
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Icon className="h-14 w-14 text-slate-600 transition-transform duration-300 group-hover:scale-110" />
+                          <Icon className="h-16 w-16 text-blue-400/60 transition-all duration-300 group-hover:text-blue-300/80 group-hover:scale-110" />
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
+                        {/* Subtle glow on hover */}
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-600/[0.05]" />
                       </>
                     )}
 
@@ -134,7 +136,7 @@ export default function ProductCategories({ categories }: { categories: Category
         <div className="mt-8 flex sm:hidden">
           <Link
             href="/products"
-            className="flex cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700"
+            className="flex cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors duration-200 hover:text-blue-300"
           >
             View all products
             <ArrowRight className="h-4 w-4" />
