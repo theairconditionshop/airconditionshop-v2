@@ -4,7 +4,7 @@ import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import ProductCard from '@/components/products/product-card'
-import PageHeader from '@/components/shared/page-header'
+import ProductsFilters from '@/components/products/products-filters'
 
 export const revalidate = 300
 export const metadata: Metadata = {
@@ -29,72 +29,55 @@ export default async function ProductsPage({ searchParams }: Props) {
     getRole(),
   ])
 
+  const activeCategory = categories.find(c => c.id === params.category)
+  const activeBrand    = brands.find(b => b.id === params.brand)
+  const title = activeCategory?.name || activeBrand?.name || 'All Products'
+
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex flex-col lg:flex-row gap-8">
+      <main className="min-h-screen pt-20 bg-slate-50/30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+
+          {/* Page title */}
+          <div className="mb-6 lg:mb-10">
+            <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-1">Our Range</p>
+            <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">{title}</h1>
+            <p className="text-sm text-slate-400 mt-1">
+              {products.length} product{products.length !== 1 ? 's' : ''} found
+              {params.search && <span> for &ldquo;{params.search}&rdquo;</span>}
+            </p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
 
             {/* Sidebar filters */}
-            <aside className="w-full lg:w-56 shrink-0">
-              <div className="sticky top-24 space-y-6">
+            <ProductsFilters
+              categories={categories}
+              brands={brands}
+              activeCategory={params.category}
+              activeBrand={params.brand}
+              activeSearch={params.search}
+            />
 
-                {/* Categories */}
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Categories</p>
-                  <nav className="space-y-1">
-                    <a href="/products"
-                      className={`block px-3 py-2 text-sm rounded-lg transition-colors ${!params.category ? 'bg-sky-50 text-sky-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}>
-                      All Products
-                    </a>
-                    {categories.map(cat => (
-                      <a key={cat.id}
-                        href={`/products?category=${cat.id}`}
-                        className={`block px-3 py-2 text-sm rounded-lg transition-colors ${params.category === cat.id ? 'bg-sky-50 text-sky-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}>
-                        {cat.name}
-                      </a>
-                    ))}
-                  </nav>
-                </div>
-
-                {/* Brands */}
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Brands</p>
-                  <nav className="space-y-1">
-                    {brands.map(brand => (
-                      <a key={brand.id}
-                        href={`/products?brand=${brand.id}`}
-                        className={`block px-3 py-2 text-sm rounded-lg transition-colors ${params.brand === brand.id ? 'bg-sky-50 text-sky-700 font-medium' : 'text-slate-600 hover:bg-slate-50'}`}>
-                        {brand.name}
-                      </a>
-                    ))}
-                  </nav>
-                </div>
-              </div>
-            </aside>
-
-            {/* Main content */}
+            {/* Product grid */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-6">
-                <PageHeader
-                  eyebrow="Our Range"
-                  title={params.category ? categories.find(c => c.id === params.category)?.name || 'Products' : 'All Products'}
-                  description={`${products.length} product${products.length !== 1 ? 's' : ''} found`}
-                />
-              </div>
-
               {products.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
                   {products.map(product => (
                     <ProductCard key={product.id} product={product} userRole={userRole} />
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                  <span className="text-5xl mb-4">🔍</span>
+                <div className="flex flex-col items-center justify-center py-24 text-center">
+                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
+                    <span className="text-2xl">🔍</span>
+                  </div>
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">No products found</h3>
-                  <p className="text-slate-500 text-sm">Try adjusting your filters or <a href="/products" className="text-sky-600 hover:underline">browse all products</a>.</p>
+                  <p className="text-slate-500 text-sm max-w-xs">
+                    Try adjusting your filters or{' '}
+                    <a href="/products" className="text-blue-600 hover:underline font-medium">browse all products</a>.
+                  </p>
                 </div>
               )}
             </div>

@@ -66,8 +66,13 @@ export default function ProductForm({ product, categories, brands }: Props) {
       body: JSON.stringify(data),
     })
     if (res.ok) {
-      toast.success(isEdit ? 'Product updated' : 'Product created')
-      router.push('/admin/products')
+      toast.success(isEdit ? 'Product updated' : 'Product created — add images below')
+      if (!isEdit) {
+        const { id } = await res.json()
+        router.push(`/admin/products/${id}/edit`)
+      } else {
+        router.push('/admin/products')
+      }
       router.refresh()
     } else {
       const err = await res.json().catch(() => ({}))

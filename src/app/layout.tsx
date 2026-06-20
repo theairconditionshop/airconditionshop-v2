@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
+import RouteProgress from '@/components/layout/route-progress'
 import './globals.css'
 
 const inter = Inter({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-white text-slate-900 antialiased">
+        <RouteProgress />
         {children}
         <Toaster richColors position="top-right" />
       </body>

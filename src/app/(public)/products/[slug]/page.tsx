@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Download, CheckCircle2, ArrowRight, Phone } from 'lucide-react'
 import { getProductBySlug, getProducts } from '@/lib/data/queries'
@@ -10,6 +9,7 @@ import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
 import ProductCard from '@/components/products/product-card'
+import ProductGallery from '@/components/products/product-gallery'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/shared/json-ld'
@@ -36,7 +36,6 @@ export default async function ProductPage({ params }: Props) {
 
   const priceResult = resolvePrice(product, userRole)
   const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
-  const otherImages = product.images?.filter(img => !img.is_primary) || []
 
   const related = await getProducts({ categoryId: product.category_id || undefined, limit: 4 })
   const relatedFiltered = related.filter(p => p.id !== product.id).slice(0, 4)
@@ -69,24 +68,9 @@ export default async function ProductPage({ params }: Props) {
           <Breadcrumb crumbs={crumbs} />
 
           <div className="grid lg:grid-cols-2 gap-12">
-            {/* Images */}
+            {/* Interactive gallery */}
             <div>
-              <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-50 mb-3">
-                {primaryImage ? (
-                  <Image src={primaryImage.url} alt={primaryImage.alt_text || product.name} fill className="object-cover" priority />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-8xl">❄️</div>
-                )}
-              </div>
-              {otherImages.length > 0 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {otherImages.slice(0, 4).map(img => (
-                    <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden bg-slate-50">
-                      <Image src={img.url} alt={img.alt_text || ''} fill className="object-cover" />
-                    </div>
-                  ))}
-                </div>
-              )}
+              <ProductGallery images={product.images || []} productName={product.name} />
             </div>
 
             {/* Info */}
