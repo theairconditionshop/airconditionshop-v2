@@ -401,6 +401,55 @@ export interface MediaItem {
   created_at: string
 }
 
+// ── Campaigns ─────────────────────────────────────────────────────────────────
+export type CampaignStatus = 'draft' | 'scheduled' | 'active' | 'ended' | 'archived'
+export type CampaignType   = 'competition' | 'giveaway' | 'seasonal_promotion' | 'world_cup_promotion' | 'referral' | 'discount' | 'free_installation' | 'trade' | 'product_launch'
+
+export interface Campaign {
+  id: string
+  title: string
+  slug: string
+  campaign_type: CampaignType
+  hero_image: string | null
+  gallery_images: string[]
+  short_description: string | null
+  full_description: string | null
+  prize: string | null
+  prize_value: number | null
+  how_to_enter: string[]
+  rules: string | null
+  start_date: string | null
+  end_date: string | null
+  terms_and_conditions: string | null
+  eligibility: string | null
+  status: CampaignStatus
+  featured: boolean
+  seo_title: string | null
+  seo_description: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CampaignAnalyticsEvent {
+  id: string
+  campaign_id: string
+  event_type: 'view' | 'cta_click' | 'share' | 'lead_submit'
+  referrer: string | null
+  user_agent: string | null
+  ip_hash: string | null
+  created_at: string
+}
+
+export interface CampaignAnalyticsSummary {
+  campaign_id: string
+  title: string
+  views: number
+  cta_clicks: number
+  shares: number
+  lead_submits: number
+  conversion_rate: number
+}
+
 export interface AdminLog {
   id: string
   user_id: string | null

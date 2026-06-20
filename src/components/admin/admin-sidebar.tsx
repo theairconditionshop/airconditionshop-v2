@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 import type { UserRole } from '@/types/database'
 import {
   LayoutDashboard, Package, Tag, BookOpen, Wrench, FileText, Users,
-  MessageSquare, Globe, Settings, Image, Building2, ChevronDown, Briefcase,
+  MessageSquare, Globe, Settings, Image, Building2, ChevronDown, Briefcase, Megaphone,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -21,6 +21,14 @@ interface NavItem {
 const NAV: NavItem[] = [
   { label: 'Dashboard',   href: '/admin',           icon: LayoutDashboard },
   { label: 'Homepage CMS',href: '/admin/homepage',  icon: Globe },
+  {
+    label: 'Marketing', href: '/admin/marketing/campaigns', icon: Megaphone,
+    children: [
+      { label: 'Campaigns',        href: '/admin/marketing/campaigns' },
+      { label: 'Active Campaigns', href: '/admin/marketing/campaigns?status=active' },
+      { label: 'Analytics',        href: '/admin/marketing/analytics' },
+    ],
+  },
   {
     label: 'Products', href: '/admin/products', icon: Package,
     children: [
