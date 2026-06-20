@@ -4,8 +4,19 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
-  Snowflake, Layers, Network, Flame, Package,
-  Box, Archive, Wrench, Settings, Wind, Droplets, CircleDot, ArrowRight,
+  ArrowRight,
+  Snowflake,
+  Layers,
+  Network,
+  Flame,
+  Package,
+  Box,
+  Archive,
+  Wrench,
+  Settings,
+  Wind,
+  Droplets,
+  CircleDot,
 } from 'lucide-react'
 import type { Category } from '@/types/database'
 
@@ -24,75 +35,109 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'spare-parts':              CircleDot,
 }
 
+const containerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+}
+
 export default function ProductCategories({ categories }: { categories: Category[] }) {
-  const displayCats = categories.slice(0, 8)
+  const displayed = categories.slice(0, 8)
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-white py-24">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex items-end justify-between mb-12">
+        <div className="mb-10 flex items-end justify-between">
           <div>
-            <p className="text-xs font-semibold text-sky-600 uppercase tracking-widest mb-2">Browse by Category</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight">
-              Everything You Need for<br className="hidden sm:block" /> HVAC &amp; Refrigeration
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Browse Our Range
+            </p>
+            <h2 className="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">
+              HVAC &amp; Refrigeration
+              <br className="hidden sm:block" />
+              Solutions
             </h2>
           </div>
-          <Link href="/products"
-            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors cursor-pointer">
-            All products <ArrowRight className="w-4 h-4" />
+          <Link
+            href="/products"
+            className="hidden cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700 sm:flex"
+          >
+            View all products
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {displayCats.map((cat, i) => {
-            const Icon = CATEGORY_ICONS[cat.slug] || Settings
+        <motion.div
+          className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-60px' }}
+        >
+          {displayed.map((category) => {
+            const Icon = CATEGORY_ICONS[category.slug] ?? Settings
             return (
-              <motion.div
-                key={cat.id}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06 }}
-              >
+              <motion.div key={category.id} variants={cardVariants}>
                 <Link
-                  href={`/products/category/${cat.slug}`}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white hover:border-sky-200 hover:shadow-xl transition-all duration-300 aspect-[4/3] cursor-pointer"
+                  href={`/products/category/${category.slug}`}
+                  className="group block cursor-pointer"
                 >
-                  {cat.image_url ? (
-                    <Image
-                      src={cat.image_url}
-                      alt={cat.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-sky-50 via-slate-50 to-white group-hover:from-sky-100 transition-colors duration-300">
-                      <Icon className="w-12 h-12 text-sky-300 group-hover:text-sky-500 transition-colors duration-300" />
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-md transition-shadow duration-300 group-hover:shadow-2xl">
+
+                    {category.image_url ? (
+                      <>
+                        <Image
+                          src={category.image_url}
+                          alt={category.name}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-slate-900/10" />
+                      </>
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900" />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Icon className="h-14 w-14 text-slate-600 transition-transform duration-300 group-hover:scale-110" />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+                      </>
+                    )}
+
+                    {/* Bottom content */}
+                    <div className="absolute inset-0 flex items-end justify-between p-4 transition-transform duration-300 group-hover:scale-[1.02]">
+                      <span className="text-sm font-semibold leading-snug text-white drop-shadow-sm sm:text-base">
+                        {category.name}
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-white/50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-white" />
                     </div>
-                  )}
-
-                  {/* Overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/10 to-transparent" />
-
-                  {/* Label */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-sm font-semibold text-white leading-tight">{cat.name}</p>
-                    <p className="mt-1 flex items-center gap-1 text-xs text-white/60 group-hover:text-sky-300 transition-colors duration-200">
-                      Browse <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                    </p>
                   </div>
                 </Link>
               </motion.div>
             )
           })}
-        </div>
+        </motion.div>
 
-        <div className="mt-8 text-center sm:hidden">
-          <Link href="/products" className="text-sm font-medium text-sky-600 hover:text-sky-700">
-            View all products <ArrowRight className="inline w-3.5 h-3.5 -mt-0.5" />
+        {/* Mobile "View all" */}
+        <div className="mt-8 flex sm:hidden">
+          <Link
+            href="/products"
+            className="flex cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700"
+          >
+            View all products
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

@@ -13,18 +13,19 @@ const NAV_ITEMS = [
   {
     label: 'Solutions',
     children: [
-      { label: 'Air Conditioning',     href: '/products/category/air-conditioners' },
-      { label: 'Multi-Split Systems',  href: '/products/category/multi-split-systems' },
-      { label: 'Commercial Refrigeration', href: '/products/category/commercial-refrigeration' },
-      { label: 'Cold Rooms',           href: '/products/category/cold-rooms' },
-      { label: 'Heat Pumps',           href: '/products/category/heat-pumps' },
-      { label: 'HVAC Tools',           href: '/products/category/hvac-tools' },
+      { label: 'Air Conditioning',         href: '/products/category/air-conditioners' },
+      { label: 'Multi-Split Systems',       href: '/products/category/multi-split-systems' },
+      { label: 'Commercial Refrigeration',  href: '/products/category/commercial-refrigeration' },
+      { label: 'Cold Rooms',               href: '/products/category/cold-rooms' },
+      { label: 'Heat Pumps',               href: '/products/category/heat-pumps' },
+      { label: 'HVAC Tools',               href: '/products/category/hvac-tools' },
     ],
   },
   { label: 'Brands',   href: '/brands' },
   { label: 'Services', href: '/services' },
   { label: 'Blog',     href: '/blog' },
   { label: 'About',    href: '/about' },
+  { label: 'Trade',    href: '/trade', isTrade: true },
 ]
 
 interface NavbarProps {
@@ -32,9 +33,9 @@ interface NavbarProps {
 }
 
 export default function Navbar({ transparent = false }: NavbarProps) {
-  const [scrolled, setScrolled]       = useState(false)
-  const [mobileOpen, setMobileOpen]   = useState(false)
-  const [activeDropdown, setActive]   = useState<string | null>(null)
+  const [scrolled, setScrolled]     = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [activeDropdown, setActive] = useState<string | null>(null)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <span className={cn(
-              'text-lg font-bold tracking-tight transition-colors',
+              'text-lg font-bold tracking-tight transition-colors duration-200',
               isTransparent ? 'text-white' : 'text-slate-900'
             )}>
               THE AIRCONDITION SHOP
@@ -80,7 +81,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                   onMouseLeave={() => setActive(null)}
                 >
                   <button className={cn(
-                    'flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                    'flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer',
                     isTransparent
                       ? 'text-white/90 hover:text-white hover:bg-white/10'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -105,7 +106,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                           <Link
                             key={child.href}
                             href={child.href}
-                            className="block px-4 py-2.5 text-sm text-slate-700 hover:text-sky-600 hover:bg-sky-50 transition-colors"
+                            className="block px-4 py-2.5 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
                           >
                             {child.label}
                           </Link>
@@ -119,11 +120,16 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                   key={item.href}
                   href={item.href!}
                   className={cn(
-                    'px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                    isTransparent
-                      ? 'text-white/90 hover:text-white hover:bg-white/10'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
-                    pathname === item.href && !isTransparent && 'text-sky-600 bg-sky-50'
+                    'px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer',
+                    // Trade item — amber highlight
+                    (item as { isTrade?: boolean }).isTrade
+                      ? isTransparent
+                        ? 'text-amber-300 hover:text-amber-200 hover:bg-white/10 font-semibold'
+                        : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50 font-semibold'
+                      : isTransparent
+                        ? 'text-white/90 hover:text-white hover:bg-white/10'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+                    pathname === item.href && !isTransparent && !(item as { isTrade?: boolean }).isTrade && 'text-blue-600 bg-blue-50'
                   )}
                 >
                   {item.label}
@@ -137,16 +143,38 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             <a
               href="tel:+35679661889"
               className={cn(
-                'flex items-center gap-1.5 text-sm font-medium transition-colors',
+                'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer',
                 isTransparent ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-slate-900'
               )}
             >
               <Phone className="w-3.5 h-3.5" />
               +356 7966 1889
             </a>
+
+            {/* Trade Login */}
+            <Link
+              href="/trade/login"
+              className={cn(
+                'text-sm font-medium transition-colors duration-200 cursor-pointer',
+                isTransparent
+                  ? 'text-amber-300/80 hover:text-amber-200'
+                  : 'text-amber-600/80 hover:text-amber-700'
+              )}
+            >
+              Trade Login
+            </Link>
+
+            {/* Get a Quote — blue-600 */}
             <Link href="/quote">
-              <Button size="sm" variant={isTransparent ? 'outline' : 'brand'}
-                className={isTransparent ? 'border-white/40 text-white hover:bg-white/10' : ''}>
+              <Button
+                size="sm"
+                className={cn(
+                  'transition-all duration-200 cursor-pointer',
+                  isTransparent
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-transparent'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                )}
+              >
                 Get a Quote
               </Button>
             </Link>
@@ -155,7 +183,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
           {/* Mobile hamburger */}
           <button
             className={cn(
-              'lg:hidden p-2 rounded-lg transition-colors',
+              'lg:hidden p-2 rounded-lg transition-colors duration-200 cursor-pointer',
               isTransparent ? 'text-white hover:bg-white/10' : 'text-slate-700 hover:bg-slate-100'
             )}
             onClick={() => setMobileOpen(v => !v)}
@@ -177,7 +205,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             className="lg:hidden bg-white border-t border-slate-100 overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
-              {NAV_ITEMS.map(item => (
+              {NAV_ITEMS.map(item =>
                 item.children ? (
                   <div key={item.label}>
                     <p className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -187,29 +215,57 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                       <Link
                         key={child.href}
                         href={child.href}
-                        className="block px-3 py-2 text-sm text-slate-700 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                        className="block px-3 py-2 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                       >
                         {child.label}
                       </Link>
                     ))}
                   </div>
+                ) : (item as { isTrade?: boolean }).isTrade ? (
+                  /* Trade — prominent amber block */
+                  <div key={item.href} className="mt-2">
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+                      <p className="text-[10px] font-semibold text-amber-500 uppercase tracking-widest mb-1.5">
+                        Trade Account
+                      </p>
+                      <Link
+                        href={item.href!}
+                        className="block text-sm font-semibold text-amber-700 hover:text-amber-800 transition-colors duration-200"
+                      >
+                        Trade Portal →
+                      </Link>
+                      <Link
+                        href="/trade/login"
+                        className="block mt-1 text-sm text-amber-600/80 hover:text-amber-700 transition-colors duration-200"
+                      >
+                        Trade Login
+                      </Link>
+                    </div>
+                  </div>
                 ) : (
                   <Link
                     key={item.href}
                     href={item.href!}
-                    className="block px-3 py-2.5 text-sm font-medium text-slate-700 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                    className="block px-3 py-2.5 text-sm font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200"
                   >
                     {item.label}
                   </Link>
                 )
-              ))}
+              )}
+
+              {/* Mobile bottom: phone + CTA */}
               <div className="pt-3 border-t border-slate-100 space-y-2">
-                <a href="tel:+35679661889" className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-slate-700">
-                  <Phone className="w-4 h-4 text-sky-500" />
+                <a
+                  href="tel:+35679661889"
+                  className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer"
+                >
+                  <Phone className="w-4 h-4 text-blue-600" />
                   +356 7966 1889
                 </a>
                 <Link href="/quote" className="block">
-                  <Button className="w-full" variant="brand">Get a Quote</Button>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 cursor-pointer">
+                    Get a Quote
+                  </Button>
                 </Link>
               </div>
             </div>

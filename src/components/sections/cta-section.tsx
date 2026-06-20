@@ -13,10 +13,10 @@ interface CtaData {
 }
 
 export default function CtaSection({ data }: { data: CtaData }) {
-  const heading     = data.heading     || "Ready to get started?"
-  const description = data.description || "Request a free quote or get in touch with our team today."
-  const ctaPrimary  = data.cta_primary  || { label: 'Request a Quote', href: '/quote' }
-  const ctaSecondary= data.cta_secondary|| { label: 'Contact Us', href: '/contact' }
+  const heading      = data.heading      || "Ready to get started?"
+  const description  = data.description  || "Request a free quote or get in touch with our team today."
+  const ctaPrimary   = data.cta_primary   || { label: 'Request a Quote', href: '/quote' }
+  const ctaSecondary = data.cta_secondary || { label: 'Contact Us', href: '/contact' }
 
   return (
     <section className="py-20 bg-white">
@@ -25,32 +25,34 @@ export default function CtaSection({ data }: { data: CtaData }) {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl bg-slate-900 px-8 py-14 sm:px-14 text-center"
+          className="relative overflow-hidden rounded-3xl bg-slate-950 px-8 py-16 sm:px-16 text-center"
         >
-          {/* Decorative glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-sky-500/20 blur-3xl rounded-full" />
+          {/* Ambient glow */}
+          <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-blue-500/15 blur-3xl rounded-full" />
 
           <div className="relative z-10">
-            <p className="text-xs font-semibold text-sky-400 uppercase tracking-widest mb-3">Get in Touch</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">{heading}</h2>
-            <p className="text-slate-400 max-w-xl mx-auto mb-8">{description}</p>
+            <p className="text-xs font-semibold text-amber-400 uppercase tracking-widest mb-4">Get in Touch</p>
+            <h2 className="text-3xl lg:text-5xl font-bold text-white mb-5">{heading}</h2>
+            <p className="text-slate-400 max-w-xl mx-auto mb-10">{description}</p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href={ctaPrimary.href}>
-                <Button size="lg" variant="brand" className="gap-2 group">
-                  {ctaPrimary.label}
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Link href={ctaPrimary.href} className="cursor-pointer">
+                <Button size="lg" className="gap-2 group bg-blue-600 hover:bg-blue-700 text-white cursor-pointer">
+                  {ctaPrimary.label} &rarr;
                 </Button>
               </Link>
-              <Link href={ctaSecondary.href}>
-                <Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10">
+              <Link href={ctaSecondary.href} className="cursor-pointer">
+                <Button size="lg" variant="outline" className="border-white/20 text-white bg-white/5 hover:bg-white/10 cursor-pointer">
                   {ctaSecondary.label}
                 </Button>
               </Link>
             </div>
 
-            <a href="tel:+35679661889" className="mt-6 inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors">
-              <Phone className="w-4 h-4 text-sky-400" />
+            <a
+              href="tel:+35679661889"
+              className="mt-8 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-white transition-colors cursor-pointer"
+            >
+              <Phone className="w-4 h-4" />
               Or call us: +356 7966 1889
             </a>
           </div>

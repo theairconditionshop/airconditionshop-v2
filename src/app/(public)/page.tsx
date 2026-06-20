@@ -8,6 +8,7 @@ import BrandShowcase from '@/components/sections/brand-showcase'
 import ProductCategories from '@/components/sections/product-categories'
 import FeaturedProducts from '@/components/sections/featured-products'
 import WhyChooseUs from '@/components/sections/why-choose-us'
+import TradeCta from '@/components/sections/trade-cta'
 import ServicesSection from '@/components/sections/services-section'
 import TestimonialsSection from '@/components/sections/testimonials-section'
 import FaqSection from '@/components/sections/faq-section'
@@ -42,6 +43,7 @@ export default async function HomePage() {
         <ProductCategories categories={categories} />
         <FeaturedProducts products={featuredProducts} userRole={userRole} />
         <WhyChooseUs data={sections.why_choose_us || {}} />
+        <TradeCta />
         <ServicesSection data={sections.services || {}} />
         <TestimonialsSection testimonials={testimonials} />
         <FaqSection faqs={faqs} />
