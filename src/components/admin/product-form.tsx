@@ -33,6 +33,20 @@ const schema = z.object({
   trade_discount_pct: z.coerce.number().optional(),
   is_active:          z.boolean().optional(),
   is_featured:        z.boolean().optional(),
+  // HVAC technical fields
+  cooling_btu:        z.coerce.number().optional(),
+  heating_btu:        z.coerce.number().optional(),
+  room_size_min:      z.coerce.number().optional(),
+  room_size_max:      z.coerce.number().optional(),
+  energy_rating:      z.string().optional(),
+  seer:               z.coerce.number().optional(),
+  scop:               z.coerce.number().optional(),
+  wifi_enabled:       z.boolean().optional(),
+  refrigerant:        z.string().optional(),
+  indoor_noise_db:    z.coerce.number().optional(),
+  outdoor_noise_db:   z.coerce.number().optional(),
+  voltage:            z.coerce.number().optional(),
+  warranty_years:     z.coerce.number().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -63,7 +77,20 @@ export default function ProductForm({ product, categories, brands }: Props) {
       trade_discount_pct: product.trade_discount_pct as number,
       is_active:          product.is_active as boolean ?? true,
       is_featured:        product.is_featured as boolean ?? false,
-    } : { is_active: true, is_featured: false, availability: 'in_stock' },
+      cooling_btu:        product.cooling_btu as number,
+      heating_btu:        product.heating_btu as number,
+      room_size_min:      product.room_size_min as number,
+      room_size_max:      product.room_size_max as number,
+      energy_rating:      product.energy_rating as string,
+      seer:               product.seer as number,
+      scop:               product.scop as number,
+      wifi_enabled:       product.wifi_enabled as boolean ?? false,
+      refrigerant:        product.refrigerant as string,
+      indoor_noise_db:    product.indoor_noise_db as number,
+      outdoor_noise_db:   product.outdoor_noise_db as number,
+      voltage:            product.voltage as number ?? 230,
+      warranty_years:     product.warranty_years as number ?? 2,
+    } : { is_active: true, is_featured: false, availability: 'in_stock', wifi_enabled: false, voltage: 230, warranty_years: 2 },
   })
 
   const tradeMode = watch('trade_price_mode')
@@ -172,6 +199,30 @@ export default function ProductForm({ product, categories, brands }: Props) {
         {tradeMode === 'discount' && (
           <Input label="Trade discount (%)" type="number" step="0.1" {...register('trade_discount_pct')} hint="e.g. 15 = 15% off retail" />
         )}
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
+        <h3 className="font-semibold text-slate-900 text-sm">HVAC Technical Specifications</h3>
+        <p className="text-xs text-slate-500">Fill in cooling BTU to enable BTU calculator product matching.</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Input label="Cooling BTU" type="number" {...register('cooling_btu')} placeholder="9000" hint="Used for BTU calculator matching" />
+          <Input label="Heating BTU" type="number" {...register('heating_btu')} placeholder="10000" />
+          <Input label="Room size min (m²)" type="number" step="0.5" {...register('room_size_min')} placeholder="15" />
+          <Input label="Room size max (m²)" type="number" step="0.5" {...register('room_size_max')} placeholder="25" />
+          <Input label="Energy rating" {...register('energy_rating')} placeholder="A+++" />
+          <Input label="SEER" type="number" step="0.1" {...register('seer')} placeholder="8.5" />
+          <Input label="SCOP" type="number" step="0.1" {...register('scop')} placeholder="4.0" />
+          <Input label="Refrigerant" {...register('refrigerant')} placeholder="R-32" />
+          <Input label="Indoor noise (dB)" type="number" {...register('indoor_noise_db')} placeholder="20" />
+          <Input label="Outdoor noise (dB)" type="number" {...register('outdoor_noise_db')} placeholder="48" />
+          <Input label="Voltage (V)" type="number" {...register('voltage')} placeholder="230" />
+          <Input label="Warranty (years)" type="number" {...register('warranty_years')} placeholder="5" />
+        </div>
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input type="checkbox" {...register('wifi_enabled')}
+            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+          <span className="text-sm text-slate-700">Wi-Fi enabled</span>
+        </label>
       </div>
 
       <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-3">

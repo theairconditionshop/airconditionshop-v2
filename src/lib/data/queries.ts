@@ -160,6 +160,20 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
   return data as unknown as BlogPost | null
 }
 
+export async function getProductsByBtuRange(minBtu: number, maxBtu: number, limit = 4): Promise<Product[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('products')
+    .select('*, brand:brands(*), category:categories(*), images:product_images(*)')
+    .eq('is_active', true)
+    .not('cooling_btu', 'is', null)
+    .gte('cooling_btu', minBtu)
+    .lte('cooling_btu', maxBtu)
+    .order('display_order')
+    .limit(limit)
+  return (data as unknown as Product[]) || []
+}
+
 // ── Testimonials ──────────────────────────────────────────────
 export async function getTestimonials(): Promise<Testimonial[]> {
   const supabase = await createClient()

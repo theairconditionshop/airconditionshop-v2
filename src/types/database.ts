@@ -77,6 +77,19 @@ export interface Product {
   energy_rating: string | null
   btu_value: number | null
   coverage_m2: number | null
+  // HVAC technical fields
+  cooling_btu: number | null
+  heating_btu: number | null
+  room_size_min: number | null
+  room_size_max: number | null
+  seer: number | null
+  scop: number | null
+  wifi_enabled: boolean
+  refrigerant: string | null
+  indoor_noise_db: number | null
+  outdoor_noise_db: number | null
+  voltage: number | null
+  warranty_years: number | null
   currency: string
   retail_price: number | null
   trade_price: number | null

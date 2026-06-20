@@ -13,6 +13,7 @@ import ServicesSection from '@/components/sections/services-section'
 import TestimonialsSection from '@/components/sections/testimonials-section'
 import FaqSection from '@/components/sections/faq-section'
 import CtaSection from '@/components/sections/cta-section'
+import BtuPromo from '@/components/sections/btu-promo'
 import { LocalBusinessJsonLd } from '@/components/shared/json-ld'
 
 export const revalidate = 60
@@ -40,6 +41,7 @@ export default async function HomePage() {
       <Navbar transparent />
       <main>
         <Hero data={sections.hero || {}} />
+        <BtuPromo />
         <BrandShowcase brands={brands} />
         <ProductCategories categories={categories} />
         <FeaturedProducts products={featuredProducts} userRole={userRole} />
