@@ -30,7 +30,7 @@ export default async function TradeDashboardPage() {
   const { data: serviceRequests } = await db
     .from('service_requests')
     .select('id, created_at, service_type, status, preferred_date')
-    .eq('customer_email', user.email!)
+    .eq('email', user.email!)
     .order('created_at', { ascending: false })
     .limit(10)
 

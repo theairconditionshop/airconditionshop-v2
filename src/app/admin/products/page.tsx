@@ -9,13 +9,15 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminProductsPage() {
   const db = createAdminClient()
-  const { data } = await db
+  const { data, error } = await db
     .from('products')
-    .select('id, name, slug, retail_price, stock_qty, is_active, is_featured, categories(name), brands(name)')
+    .select('id, name, slug, retail_price, availability, is_active, is_featured, categories(name), brands(name)')
     .order('created_at', { ascending: false })
 
+  if (error) console.error('[admin/products] query error:', error.message)
+
   type Row = {
-    id: string; name: string; slug: string; retail_price?: number; stock_qty?: number;
+    id: string; name: string; slug: string; retail_price?: number; availability?: string;
     is_active: boolean; is_featured: boolean;
     categories?: { name: string } | null
     brands?: { name: string } | null
@@ -28,12 +30,20 @@ export default async function AdminProductsPage() {
       <AdminTable<Row>
         rows={rows}
         columns={[
-          { label: 'Name',     render: r => <span className="font-medium text-sm">{r.name}</span> },
-          { label: 'Category', render: r => <span className="text-xs text-slate-500">{r.categories?.name || '—'}</span> },
-          { label: 'Brand',    render: r => <span className="text-xs text-slate-500">{r.brands?.name || '—'}</span> },
-          { label: 'Price',    render: r => <span className="text-xs">€{r.retail_price?.toFixed(2) ?? '—'}</span> },
-          { label: 'Stock',    render: r => <span className="text-xs">{r.stock_qty ?? '—'}</span> },
-          { label: 'Active',   render: r => (
+          { label: 'Name',         render: r => <span className="font-medium text-sm">{r.name}</span> },
+          { label: 'Category',     render: r => <span className="text-xs text-slate-500">{r.categories?.name || '—'}</span> },
+          { label: 'Brand',        render: r => <span className="text-xs text-slate-500">{r.brands?.name || '—'}</span> },
+          { label: 'Price',        render: r => <span className="text-xs">{r.retail_price != null ? `€${r.retail_price.toFixed(2)}` : '—'}</span> },
+          { label: 'Availability', render: r => (
+            <span className={`text-xs px-1.5 py-0.5 rounded-full capitalize ${
+              r.availability === 'in_stock'    ? 'bg-green-100 text-green-700' :
+              r.availability === 'out_of_stock'? 'bg-amber-100 text-amber-700' :
+              r.availability === 'on_order'    ? 'bg-blue-100 text-blue-700' :
+              'bg-slate-100 text-slate-500'}`}>
+              {r.availability?.replace(/_/g, ' ') ?? '—'}
+            </span>
+          )},
+          { label: 'Active', render: r => (
             <span className={`text-xs px-1.5 py-0.5 rounded-full ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
               {r.is_active ? 'Active' : 'Hidden'}
             </span>

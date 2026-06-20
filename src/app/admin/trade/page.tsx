@@ -9,10 +9,12 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminTradePage() {
   const db = createAdminClient()
-  const { data } = await db
+  const { data, error } = await db
     .from('trade_applications')
-    .select('id, user_id, company_name, business_type, vat_number, phone, status, created_at, profiles(full_name, email, trade_status)')
+    .select('id, user_id, company_name, business_type, vat_number, phone, status, created_at, profiles!user_id(full_name, email, trade_status)')
     .order('created_at', { ascending: false })
+
+  if (error) console.error('[admin/trade] query error:', error.message)
 
   type Row = {
     id: string; user_id: string; company_name: string; business_type: string;
