@@ -9,41 +9,49 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
   if (!brands.length) return null
 
   return (
-    <section className="py-16 bg-slate-950 border-t border-white/[0.05]">
+    <section className="py-20 bg-slate-950 border-t border-white/[0.04]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="text-center mb-12">
+        <motion.div
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.45 }}
+        >
           <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.25em]">
-            Authorised Dealer for World-Leading Brands
+            Authorised Dealer
           </p>
-          <div className="mt-3 mx-auto w-10 h-px bg-amber-400/40" />
-        </div>
+          <h2 className="mt-2 text-xl font-semibold text-white/60 tracking-tight">
+            World-Leading HVAC Brands
+          </h2>
+        </motion.div>
 
-        {/* Brand grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+        {/* Brand row */}
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           {brands.map((brand, i) => (
             <motion.div
               key={brand.id}
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: i * 0.05, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               <Link
                 href={`/brands/${brand.slug}`}
-                className="group flex flex-col items-center justify-center aspect-square rounded-xl border border-white/[0.06] hover:border-white/[0.14] hover:bg-white/[0.03] bg-transparent transition-all duration-200 cursor-pointer p-4"
+                className="group flex items-center justify-center h-16 px-6 sm:px-8 rounded-xl border border-white/[0.07] hover:border-white/[0.18] hover:bg-white/[0.04] transition-all duration-250 cursor-pointer"
               >
                 {brand.logo_url ? (
                   <Image
                     src={brand.logo_url}
                     alt={brand.name}
-                    width={96}
-                    height={48}
-                    className="object-contain max-h-12 w-auto grayscale group-hover:grayscale-0 opacity-40 group-hover:opacity-80 transition-all duration-200"
+                    width={100}
+                    height={40}
+                    className="object-contain max-h-9 w-auto grayscale group-hover:grayscale-0 opacity-35 group-hover:opacity-90 transition-all duration-300"
                   />
                 ) : (
-                  <span className="text-sm font-semibold text-slate-400 group-hover:text-white text-center leading-tight tracking-wide transition-colors duration-200 uppercase">
+                  <span className="text-[11px] font-bold text-slate-500 group-hover:text-white text-center tracking-[0.15em] uppercase transition-colors duration-200">
                     {brand.name}
                   </span>
                 )}
@@ -52,12 +60,18 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
           ))}
         </div>
 
-        {/* Bottom strip */}
-        <div className="mt-12 pt-8 border-t border-white/[0.06] text-center">
-          <p className="text-xs text-slate-600 tracking-wide">
-            All installations by certified engineers&nbsp;&nbsp;·&nbsp;&nbsp;Malta VAT registered
-          </p>
-        </div>
+        {/* Certification strip */}
+        <motion.div
+          className="mt-14 pt-8 border-t border-white/[0.05] flex flex-wrap justify-center gap-x-8 gap-y-2"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+        >
+          {['All installations by certified engineers', 'Malta VAT registered', 'F-Gas certified'].map(text => (
+            <span key={text} className="text-xs text-slate-600 tracking-wide">{text}</span>
+          ))}
+        </motion.div>
       </div>
     </section>
   )

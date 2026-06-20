@@ -55,17 +55,18 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input label="Full name" {...register('name')} error={errors.name?.message} required placeholder="John Borg" />
-        <Input label="Email address" type="email" {...register('email')} error={errors.email?.message} required placeholder="john@example.com" />
+        <Input label="Email address" type="email" {...register('email')} error={errors.email?.message} required placeholder="your@email.com" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input label="Phone" type="tel" {...register('phone')} placeholder="+356 ···· ····" />
         <Input label="Company" {...register('company')} placeholder="Optional" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-slate-700">
+        <label htmlFor="contact-message" className="text-sm font-medium text-slate-700">
           Message <span className="text-red-500">*</span>
         </label>
         <textarea
+          id="contact-message"
           {...register('message')}
           rows={5}
           placeholder="Tell us what you need..."

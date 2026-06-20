@@ -6,6 +6,7 @@ import BtuCalculatorForm from './btu-calculator-form'
 export const metadata: Metadata = {
   title: 'BTU Calculator',
   description: 'Calculate the BTU / kW capacity you need for your air conditioner — free tool for Malta homes and businesses.',
+  alternates: { canonical: 'https://theairconditionshop.com/btu-calculator' },
 }
 
 export default function BtuCalculatorPage() {

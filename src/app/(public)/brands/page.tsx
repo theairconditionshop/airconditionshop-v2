@@ -8,7 +8,11 @@ import Footer from '@/components/layout/footer'
 import PageHeader from '@/components/shared/page-header'
 
 export const revalidate = 300
-export const metadata: Metadata = { title: 'Our Brands', description: 'Authorised dealer for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu, Gree and more.' }
+export const metadata: Metadata = {
+  title: 'Our Brands',
+  description: 'Authorised dealer for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu, Gree and more.',
+  alternates: { canonical: 'https://theairconditionshop.com/brands' },
+}
 
 export default async function BrandsPage() {
   const brands = await getBrands()

@@ -8,6 +8,7 @@ import { Package, FileText, Phone } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Trade Dashboard',
+  robots: { index: false, follow: false },
 }
 
 export default async function TradeDashboardPage() {

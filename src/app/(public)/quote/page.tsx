@@ -6,6 +6,7 @@ import QuoteForm from './quote-form'
 export const metadata: Metadata = {
   title: 'Request a Quote',
   description: 'Get a free quote for air conditioning installation, refrigeration or HVAC services in Malta.',
+  alternates: { canonical: 'https://theairconditionshop.com/quote' },
 }
 
 export default function QuotePage() {

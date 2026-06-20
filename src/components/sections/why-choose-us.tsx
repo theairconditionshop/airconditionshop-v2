@@ -27,9 +27,9 @@ interface WhyData {
 
 const STATS = [
   { value: '15+',    label: 'Years in Malta' },
-  { value: '1,200+', label: 'Installations Completed' },
+  { value: '1,200+', label: 'Installations' },
   { value: '6',      label: 'Premium Brands' },
-  { value: '24h',    label: 'Emergency Response' },
+  { value: '24h',    label: 'Response Time' },
 ]
 
 const DEFAULT_ITEMS: WhyItem[] = [
@@ -55,20 +55,6 @@ const DEFAULT_ITEMS: WhyItem[] = [
   },
 ]
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-}
-
 export default function WhyChooseUs({ data }: { data: WhyData }) {
   const heading = data.heading ?? 'Why Choose THE AIRCONDITION SHOP'
   const items = data.items ?? DEFAULT_ITEMS
@@ -78,56 +64,63 @@ export default function WhyChooseUs({ data }: { data: WhyData }) {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
-        <div className="mb-14 text-center">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Our Promise
-          </p>
-          <h2 className="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl">
-            {heading}
-          </h2>
-        </div>
-
-        {/* Stats bar */}
         <motion.div
-          className="mb-12 grid grid-cols-2 gap-6 rounded-3xl bg-slate-950 p-10 text-center lg:grid-cols-4"
-          initial={{ opacity: 0, y: 24 }}
+          className="mb-16 max-w-2xl"
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+            Our Promise
+          </p>
+          <h2 className="text-4xl font-bold leading-tight text-slate-900 lg:text-5xl tracking-tight">
+            {heading}
+          </h2>
+        </motion.div>
+
+        {/* Stats — large numbers, minimal */}
+        <motion.div
+          className="mb-16 grid grid-cols-2 gap-px bg-slate-100 rounded-2xl overflow-hidden lg:grid-cols-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           {STATS.map((stat) => (
-            <div key={stat.label} className="flex flex-col">
-              <span className="text-4xl font-bold text-amber-400">{stat.value}</span>
-              <span className="mt-1 text-sm text-slate-400">{stat.label}</span>
+            <div key={stat.label} className="flex flex-col items-center justify-center py-10 px-6 bg-white text-center">
+              <span className="text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-none">
+                {stat.value}
+              </span>
+              <span className="mt-2.5 text-xs font-semibold text-slate-400 uppercase tracking-[0.14em]">
+                {stat.label}
+              </span>
             </div>
           ))}
         </motion.div>
 
         {/* Feature cards */}
-        <motion.div
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-40px' }}
-        >
-          {items.map((item) => {
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((item, i) => {
             const Icon = ICON_MAP[item.icon] ?? ShieldCheck
             return (
               <motion.div
                 key={item.title}
-                variants={cardVariants}
-                className="group rounded-2xl border border-slate-100 p-7 transition-all duration-300 hover:border-blue-200 hover:shadow-lg"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.45 }}
+                className="group rounded-2xl border border-slate-100 p-8 transition-all duration-300 hover:border-blue-100 hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.1)]"
               >
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 transition-colors duration-200 group-hover:bg-blue-100">
-                  <Icon className="h-5 w-5 text-blue-600" />
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 transition-colors duration-200 group-hover:bg-blue-50">
+                  <Icon aria-hidden="true" className="h-5 w-5 text-slate-600 group-hover:text-blue-600 transition-colors duration-200" />
                 </div>
-                <h3 className="mb-2 text-base font-semibold text-slate-900">{item.title}</h3>
+                <h3 className="mb-2.5 text-base font-bold text-slate-900">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
               </motion.div>
             )
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

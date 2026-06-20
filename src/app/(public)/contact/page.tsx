@@ -7,6 +7,7 @@ import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'Contact Us',
   description: 'Get in touch with THE AIRCONDITION SHOP. Call, email or visit us in Mosta, Malta.',
+  alternates: { canonical: 'https://theairconditionshop.com/contact' },
 }
 
 export default function ContactPage() {

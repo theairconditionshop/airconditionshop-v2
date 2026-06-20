@@ -8,6 +8,7 @@ import { MapPin, Phone, Mail, Users, Award, Package, Wrench } from 'lucide-react
 export const metadata: Metadata = {
   title: 'About Us',
   description: 'Learn about THE AIRCONDITION SHOP — Malta\'s specialist in HVAC, refrigeration and climate control.',
+  alternates: { canonical: 'https://theairconditionshop.com/about' },
 }
 
 const STATS = [

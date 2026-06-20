@@ -20,6 +20,7 @@ export const revalidate = 60
 export const metadata: Metadata = {
   title: 'THE AIRCONDITION SHOP | Premium HVAC & Refrigeration Malta',
   description: 'Malta\'s premier HVAC and refrigeration specialists. Authorised dealers for Daikin, Mitsubishi Electric, Panasonic and more. Expert installation across Malta.',
+  alternates: { canonical: 'https://theairconditionshop.com' },
 }
 
 export default async function HomePage() {

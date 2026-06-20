@@ -3,9 +3,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Star, Snowflake } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { resolvePrice, formatPrice } from '@/lib/pricing/resolver'
 import type { Product, UserRole } from '@/types/database'
 
@@ -14,119 +12,241 @@ interface Props {
   userRole?: UserRole | null
 }
 
-function availabilityBadge(availability: string) {
-  switch (availability) {
-    case 'out_of_stock':
-      return <Badge variant="warning" className="text-xs">Contact Us for Availability</Badge>
-    case 'on_order':
-      return <Badge variant="warning" className="text-xs">On Order — Contact Us</Badge>
-    case 'coming_soon':
-      return <Badge className="text-xs bg-amber-500 text-white border-0">Coming Soon</Badge>
-    default:
-      return null
-  }
+const BRAND_GRADIENTS: Record<string, string> = {
+  daikin:               'from-sky-950 via-blue-900 to-slate-900',
+  mitsubishi:           'from-red-950 via-slate-900 to-slate-950',
+  'mitsubishi electric':'from-red-950 via-slate-900 to-slate-950',
+  panasonic:            'from-blue-950 via-indigo-900 to-slate-900',
+  default:              'from-slate-900 via-slate-800 to-slate-950',
+}
+function getGradient(name?: string) {
+  if (!name) return BRAND_GRADIENTS.default
+  return BRAND_GRADIENTS[name.toLowerCase()] ?? BRAND_GRADIENTS.default
 }
 
 export default function FeaturedProducts({ products, userRole }: Props) {
   if (!products.length) return null
 
+  const [hero, ...rest] = products
+  const heroPrice    = resolvePrice(hero, userRole ?? null)
+  const heroImage    = hero.images?.find(img => img.is_primary) || hero.images?.[0]
+  const heroGradient = getGradient(hero.brand?.name)
+
   return (
-    <section className="py-20 bg-white border-t border-slate-100">
+    <section className="py-24 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-12">
+
+        {/* Section header */}
+        <motion.div
+          className="flex items-end justify-between mb-14"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <div>
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-2">Handpicked Selection</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900">Featured Products</h2>
+            <p className="text-[11px] font-semibold tracking-[0.2em] text-slate-400 uppercase mb-3">
+              Handpicked Selection
+            </p>
+            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+              Featured Products
+            </h2>
           </div>
-          <Link href="/products" className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors cursor-pointer">
-            View all <ArrowRight className="w-4 h-4" />
+          <Link
+            href="/products"
+            className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer group"
+          >
+            View all products
+            <ArrowRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product, i) => {
-            const priceResult = resolvePrice(product, userRole ?? null)
-            const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
+        {/* Hero product — editorial large card */}
+        <motion.div
+          className="mb-6"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55 }}
+        >
+          <Link
+            href={`/products/${hero.slug}`}
+            className="group grid lg:grid-cols-2 rounded-3xl overflow-hidden border border-slate-100 hover:border-slate-200 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-400 ease-out cursor-pointer bg-white"
+          >
+            {/* Image */}
+            <div className={`relative aspect-[4/3] lg:aspect-auto overflow-hidden bg-gradient-to-br ${heroGradient}`}>
+              {heroImage ? (
+                <Image
+                  src={heroImage.url}
+                  alt={heroImage.alt_text || hero.name}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover group-hover:scale-[1.03] transition-transform duration-600 ease-out"
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  {hero.brand && (
+                    <span className="text-[11px] font-bold tracking-[0.3em] text-white/25 uppercase">
+                      {hero.brand.name}
+                    </span>
+                  )}
+                  <div className="w-12 h-px bg-white/10" />
+                  <span className="text-[10px] tracking-[0.2em] text-white/15 uppercase">
+                    {hero.category?.name ?? 'HVAC'}
+                  </span>
+                </div>
+              )}
 
-            return (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <Link href={`/products/${product.slug}`} className="group block bg-white rounded-2xl border border-slate-100 overflow-hidden hover:border-blue-200 hover:shadow-xl transition-all duration-300 cursor-pointer">
-                  {/* Image */}
-                  <div className="relative aspect-square overflow-hidden">
-                    {primaryImage ? (
-                      <Image
-                        src={primaryImage.url}
-                        alt={primaryImage.alt_text || product.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col items-center justify-center gap-3">
-                        <Snowflake className="w-12 h-12 text-slate-300" />
-                        {product.brand && (
-                          <p className="text-xs font-medium text-slate-400">{product.brand.name}</p>
-                        )}
+              {/* Energy badge */}
+              {hero.energy_rating && (
+                <div className="absolute top-5 left-5">
+                  <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-500 text-white shadow-lg">
+                    {hero.energy_rating} Rating
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Details */}
+            <div className="flex flex-col justify-between p-8 lg:p-12">
+              <div>
+                {hero.brand && (
+                  <p className="text-[11px] font-semibold tracking-[0.18em] text-slate-400 uppercase mb-4">
+                    {hero.brand.name}
+                  </p>
+                )}
+                <h3 className="text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight leading-tight mb-4 group-hover:text-blue-700 transition-colors">
+                  {hero.name}
+                </h3>
+                {hero.description && (
+                  <p className="text-slate-500 leading-relaxed text-sm lg:text-base line-clamp-3 mb-6">
+                    {hero.description}
+                  </p>
+                )}
+
+                {/* Key specs */}
+                {(hero.btu_value || hero.coverage_m2) && (
+                  <div className="flex gap-6 mb-8">
+                    {hero.btu_value && (
+                      <div>
+                        <p className="text-2xl font-bold text-slate-900">{hero.btu_value.toLocaleString()}</p>
+                        <p className="text-xs text-slate-400 uppercase tracking-wide mt-0.5">BTU</p>
                       </div>
                     )}
+                    {hero.coverage_m2 && (
+                      <div>
+                        <p className="text-2xl font-bold text-slate-900">
+                          {Number(hero.coverage_m2)}m²
+                        </p>
+                        <p className="text-xs text-slate-400 uppercase tracking-wide mt-0.5">Coverage</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
-                    {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                      {product.is_featured && (
-                        <Badge variant="default" className="gap-1 text-xs">
-                          <Star className="w-2.5 h-2.5" /> Featured
-                        </Badge>
+              <div className="flex items-end justify-between">
+                <div>
+                  {heroPrice.price != null ? (
+                    <p className="text-3xl font-bold text-slate-900 tracking-tight">
+                      {formatPrice(heroPrice.price, hero.currency)}
+                    </p>
+                  ) : (
+                    <p className="text-lg text-slate-500 font-medium">Contact for price</p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-sm font-semibold text-blue-600 group-hover:text-blue-700 transition-colors">
+                  View product
+                  <div className="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-200">
+                    <ArrowUpRight aria-hidden="true" className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </motion.div>
+
+        {/* Remaining products grid */}
+        {rest.length > 0 && (
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+            {rest.slice(0, 7).map((product, i) => {
+              const priceResult  = resolvePrice(product, userRole ?? null)
+              const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
+              const gradient     = getGradient(product.brand?.name)
+
+              return (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07, duration: 0.45 }}
+                >
+                  <Link
+                    href={`/products/${product.slug}`}
+                    className="group flex flex-col bg-white rounded-2xl border border-slate-100/80 overflow-hidden hover:border-slate-200 hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-300 ease-out cursor-pointer"
+                  >
+                    <div className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${gradient}`}>
+                      {primaryImage ? (
+                        <Image
+                          src={primaryImage.url}
+                          alt={primaryImage.alt_text || product.name}
+                          fill
+                          sizes="(max-width: 640px) 50vw, 25vw"
+                          className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
+                          {product.brand && (
+                            <span className="text-[9px] font-bold tracking-[0.25em] text-white/25 uppercase">
+                              {product.brand.name}
+                            </span>
+                          )}
+                        </div>
                       )}
                       {product.energy_rating && (
-                        <Badge variant="success" className="text-xs">
-                          {product.energy_rating}
-                        </Badge>
+                        <div className="absolute bottom-3 left-3">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500 text-white">
+                            {product.energy_rating}
+                          </span>
+                        </div>
                       )}
-                      {product.availability !== 'in_stock' && availabilityBadge(product.availability)}
                     </div>
-                  </div>
 
-                  {/* Info */}
-                  <div className="p-4">
-                    {product.brand && (
-                      <p className="text-xs font-medium text-blue-600 mb-1">{product.brand.name}</p>
-                    )}
-                    <h3 className="font-semibold text-slate-900 text-sm leading-tight line-clamp-2 group-hover:text-blue-700 transition-colors">
-                      {product.name}
-                    </h3>
-                    {product.model_number && (
-                      <p className="mt-1 text-xs text-slate-400">Model: {product.model_number}</p>
-                    )}
-
-                    <div className="mt-3 flex items-center justify-between">
-                      <div>
+                    <div className="p-4">
+                      {product.brand && (
+                        <p className="text-[10px] font-semibold tracking-[0.15em] text-slate-400 uppercase mb-1.5">
+                          {product.brand.name}
+                        </p>
+                      )}
+                      <h3 className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-700 transition-colors">
+                        {product.name}
+                      </h3>
+                      <div className="mt-3 flex items-center justify-between">
                         {priceResult.price != null ? (
-                          <div>
-                            <p className="text-base font-bold text-slate-900">
-                              {formatPrice(priceResult.price, product.currency)}
-                            </p>
-                            {priceResult.isTrade && (
-                              <Badge variant="trade" className="mt-1 text-xs">{priceResult.label}</Badge>
-                            )}
-                          </div>
+                          <p className="text-base font-bold text-slate-900 tracking-tight">
+                            {formatPrice(priceResult.price, product.currency)}
+                          </p>
                         ) : (
-                          <p className="text-sm text-slate-500 italic">Contact for Price</p>
+                          <p className="text-sm text-slate-400 font-medium">Contact us</p>
                         )}
+                        <ArrowUpRight aria-hidden="true" className="w-4 h-4 text-slate-300 group-hover:text-blue-600 transition-colors" />
                       </div>
-                      <span className="text-blue-500 group-hover:translate-x-1 transition-transform duration-200">
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
                     </div>
-                  </div>
-                </Link>
-              </motion.div>
-            )
-          })}
+                  </Link>
+                </motion.div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Mobile view all */}
+        <div className="mt-8 flex sm:hidden">
+          <Link href="/products" className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 cursor-pointer">
+            View all products <ArrowRight aria-hidden="true" className="w-4 h-4" />
+          </Link>
         </div>
       </div>
     </section>

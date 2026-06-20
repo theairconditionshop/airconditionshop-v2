@@ -5,7 +5,10 @@ import Footer from '@/components/layout/footer'
 import { getSession, getProfile } from '@/lib/auth/session'
 import AccountForm from './account-form'
 
-export const metadata: Metadata = { title: 'My Account' }
+export const metadata: Metadata = {
+  title: 'My Account',
+  robots: { index: false, follow: false },
+}
 
 export default async function AccountPage() {
   const user = await getSession()

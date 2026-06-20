@@ -142,13 +142,13 @@ export default async function ProductPage({ params }: Props) {
               )}
 
               {/* Features */}
-              {product.features?.length > 0 && (
+              {Array.isArray(product.features) && product.features.length > 0 && (
                 <div className="mt-5">
                   <h2 className="font-semibold text-slate-900 mb-3">Key Features</h2>
                   <ul className="space-y-2">
                     {(product.features as string[]).map((f, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-                        <CheckCircle2 className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 aria-hidden="true" className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
                         {f}
                       </li>
                     ))}
@@ -159,11 +159,11 @@ export default async function ProductPage({ params }: Props) {
           </div>
 
           {/* Specs table */}
-          {product.specifications && Object.keys(product.specifications).length > 0 && (
+          {product.specifications && typeof product.specifications === 'object' && !Array.isArray(product.specifications) && Object.keys(product.specifications).length > 0 && (
             <div className="mt-14">
               <h2 className="text-xl font-bold text-slate-900 mb-4">Technical Specifications</h2>
               <div className="overflow-x-auto">
-                <table className="w-full border border-slate-100 rounded-xl overflow-hidden text-sm">
+                <table aria-label="Technical specifications" className="w-full border border-slate-100 rounded-xl overflow-hidden text-sm">
                   <tbody>
                     {Object.entries(product.specifications as Record<string, string>).map(([key, val], i) => (
                       <tr key={i} className={i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
@@ -184,8 +184,8 @@ export default async function ProductPage({ params }: Props) {
               <div className="flex flex-wrap gap-3">
                 {product.documents.map(doc => (
                   <a key={doc.id} href={doc.url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-sky-300 hover:text-sky-700 transition-colors">
-                    <Download className="w-4 h-4" />
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-sky-300 hover:text-sky-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    <Download aria-hidden="true" className="w-4 h-4" />
                     {doc.name}
                     {doc.file_size && <span className="text-xs text-slate-400">({Math.round(doc.file_size / 1024)}KB)</span>}
                   </a>

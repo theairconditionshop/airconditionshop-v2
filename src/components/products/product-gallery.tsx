@@ -38,8 +38,12 @@ export default function ProductGallery({ images, productName }: Props) {
 
   if (!sorted.length) {
     return (
-      <div className="aspect-square rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-        <span className="text-8xl select-none">❄️</span>
+      <div className="aspect-square rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 flex flex-col items-center justify-center gap-3">
+        <span className="text-[11px] font-semibold tracking-[0.25em] text-white/20 uppercase">
+          {productName}
+        </span>
+        <div className="w-12 h-px bg-white/10" />
+        <span className="text-[10px] tracking-[0.2em] text-white/10 uppercase">No images yet</span>
       </div>
     )
   }

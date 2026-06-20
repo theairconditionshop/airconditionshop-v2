@@ -8,6 +8,7 @@ import { CheckCircle2, Percent, Phone, Package, Users, ArrowRight } from 'lucide
 export const metadata: Metadata = {
   title: 'Trade Account',
   description: 'Apply for a trade account and access exclusive trade pricing on HVAC and refrigeration products.',
+  alternates: { canonical: 'https://theairconditionshop.com/trade' },
 }
 
 const BENEFITS = [
@@ -45,7 +46,7 @@ export default function TradePage() {
                 <Button variant="brand" size="lg">Apply Now <ArrowRight className="w-4 h-4 ml-1" /></Button>
               </Link>
               <Link href="/contact">
-                <Button variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10">Talk to Us</Button>
+                <Button variant="outline" size="lg" className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">Talk to Us</Button>
               </Link>
             </div>
           </div>

@@ -22,6 +22,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_MT',
     siteName: 'THE AIRCONDITION SHOP',
+    title: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
+    description: 'Premium air conditioning, refrigeration and HVAC solutions in Malta. Authorised dealer for Daikin, Mitsubishi Electric, Panasonic and more.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
+    description: 'Premium air conditioning, refrigeration and HVAC solutions in Malta. Authorised dealer for Daikin, Mitsubishi Electric, Panasonic and more.',
   },
   robots: {
     index: true,

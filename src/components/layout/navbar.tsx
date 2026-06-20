@@ -337,12 +337,21 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                   onMouseEnter={() => setActive(item.label)}
                   onMouseLeave={() => setActive(null)}
                 >
-                  <button className={cn(
-                    'flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer',
-                    isTransparent
-                      ? 'text-white/90 hover:text-white hover:bg-white/10'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                  )}>
+                  <button
+                    aria-haspopup="true"
+                    aria-expanded={activeDropdown === item.label}
+                    onFocus={() => setActive(item.label)}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.parentElement?.contains(e.relatedTarget as Node)) {
+                        setActive(null)
+                      }
+                    }}
+                    className={cn(
+                      'flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+                      isTransparent
+                        ? 'text-white/90 hover:text-white hover:bg-white/10'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    )}>
                     {item.label}
                     <ChevronDown className={cn(
                       'w-3.5 h-3.5 transition-transform duration-200',
@@ -357,13 +366,20 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 8 }}
                         transition={{ duration: 0.15 }}
+                        data-dropdown
                         className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl border border-slate-100 shadow-xl py-1.5 z-50"
                       >
-                        {item.children.map(child => (
+                        {item.children.map((child, idx) => (
                           <Link
                             key={child.href}
                             href={child.href}
-                            className="block px-4 py-2.5 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                            onBlur={(e) => {
+                              const dropdown = e.currentTarget.closest('[data-dropdown]')
+                              if (!dropdown?.contains(e.relatedTarget as Node)) {
+                                setActive(null)
+                              }
+                            }}
+                            className="block px-4 py-2.5 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200 focus-visible:outline-none focus-visible:bg-blue-50 focus-visible:text-blue-600"
                           >
                             {child.label}
                           </Link>

@@ -8,9 +8,20 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
+function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
 const schema = z.object({
   name:               z.string().min(2),
-  slug:               z.string().min(2),
+  slug:               z.string().min(2).regex(SLUG_REGEX, 'Slug must be lowercase letters, numbers and hyphens only — no spaces'),
   sku:                z.string().optional(),
   description:        z.string().optional(),
   retail_price:       z.coerce.number().optional(),
@@ -36,7 +47,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
   const router = useRouter()
   const isEdit = !!product
 
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
       name:               product.name as string,
@@ -85,8 +96,23 @@ export default function ProductForm({ product, categories, brands }: Props) {
       <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
         <h3 className="font-semibold text-slate-900 text-sm">Basic Info</h3>
         <div className="grid sm:grid-cols-2 gap-4">
-          <Input label="Product name" {...register('name')} error={errors.name?.message} required />
-          <Input label="Slug" {...register('slug')} error={errors.slug?.message} required hint="URL-friendly identifier" />
+          <Input
+            label="Product name"
+            {...register('name')}
+            error={errors.name?.message}
+            required
+            onChange={e => {
+              register('name').onChange(e)
+              if (!isEdit) setValue('slug', slugify(e.target.value), { shouldValidate: true })
+            }}
+          />
+          <Input
+            label="Slug"
+            {...register('slug')}
+            error={errors.slug?.message}
+            required
+            hint="lowercase, hyphens only — auto-filled from name"
+          />
         </div>
         <Input label="SKU" {...register('sku')} />
         <div className="flex flex-col gap-1.5">

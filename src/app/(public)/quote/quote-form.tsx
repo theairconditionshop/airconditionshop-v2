@@ -77,16 +77,16 @@ export default function QuoteForm() {
 
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-700">Service type</label>
-          <select {...register('service_type')}
+          <label htmlFor="quote-service-type" className="text-sm font-medium text-slate-700">Service type</label>
+          <select id="quote-service-type" {...register('service_type')}
             className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
             <option value="">Select…</option>
             {SERVICE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-slate-700">Budget range</label>
-          <select {...register('budget_range')}
+          <label htmlFor="quote-budget-range" className="text-sm font-medium text-slate-700">Budget range</label>
+          <select id="quote-budget-range" {...register('budget_range')}
             className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
             <option value="">Select…</option>
             {BUDGET_RANGES.map(b => <option key={b} value={b}>{b}</option>)}
@@ -95,10 +95,11 @@ export default function QuoteForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-slate-700">
+        <label htmlFor="quote-message" className="text-sm font-medium text-slate-700">
           Project details <span className="text-red-500">*</span>
         </label>
         <textarea
+          id="quote-message"
           {...register('message')}
           rows={5}
           placeholder="Describe your requirements — room sizes, number of units, current system, any specific preferences…"

@@ -7,6 +7,7 @@ import { Wrench, Calendar, Shield, Clock, CheckCircle2, ThumbsUp } from 'lucide-
 export const metadata: Metadata = {
   title: 'Services',
   description: 'Professional HVAC installation, maintenance, and repair services across Malta.',
+  alternates: { canonical: 'https://theairconditionshop.com/services' },
 }
 
 const SERVICES = [
