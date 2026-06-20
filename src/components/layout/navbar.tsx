@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Phone, ChevronDown } from 'lucide-react'
+import { Menu, X, Phone, ChevronDown, LayoutDashboard, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
 const NAV_ITEMS = [
@@ -28,6 +29,12 @@ const NAV_ITEMS = [
   { label: 'Trade',    href: '/trade', isTrade: true },
 ]
 
+type AuthProfile = {
+  role: string
+  trade_status: string | null
+  full_name: string | null
+}
+
 interface NavbarProps {
   transparent?: boolean
 }
@@ -36,7 +43,10 @@ export default function Navbar({ transparent = false }: NavbarProps) {
   const [scrolled, setScrolled]     = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [activeDropdown, setActive] = useState<string | null>(null)
+  const [profile, setProfile]       = useState<AuthProfile | null | 'loading'>('loading')
+  const [loggingOut, setLoggingOut] = useState(false)
   const pathname = usePathname()
+  const router   = useRouter()
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
@@ -46,7 +56,254 @@ export default function Navbar({ transparent = false }: NavbarProps) {
 
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
+  // Load auth state on mount and subscribe to changes
+  useEffect(() => {
+    const supabase = createClient()
+
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { setProfile(null); return }
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('role, trade_status, full_name')
+        .eq('id', user.id)
+        .single()
+
+      setProfile(data ?? null)
+    }
+
+    loadProfile()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadProfile()
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = useCallback(async () => {
+    setLoggingOut(true)
+    await fetch('/api/auth/logout', { method: 'POST' })
+    setProfile(null)
+    setLoggingOut(false)
+    router.push('/')
+    router.refresh()
+  }, [router])
+
   const isTransparent = transparent && !scrolled && !mobileOpen
+  const isLoading     = profile === 'loading'
+  const isLoggedIn    = profile !== null && profile !== 'loading'
+  const role          = isLoggedIn ? (profile as AuthProfile).role : null
+  const tradeStatus   = isLoggedIn ? (profile as AuthProfile).trade_status : null
+
+  const isAdmin  = role === 'super_admin' || role === 'admin' || role === 'staff'
+  const isTrade  = role === 'trade'
+  const isApprovedTrader = isTrade && tradeStatus === 'approved'
+
+  // ── CTA section builder ──────────────────────────────────────────
+  function DesktopCta() {
+    if (isLoading) return (
+      <div className="hidden lg:flex items-center gap-3">
+        <div className="w-20 h-8 bg-slate-100 animate-pulse rounded-lg" />
+        <div className="w-24 h-8 bg-slate-200 animate-pulse rounded-lg" />
+      </div>
+    )
+
+    if (isAdmin) return (
+      <div className="hidden lg:flex items-center gap-3">
+        <Link
+          href="/admin"
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer',
+            isTransparent ? 'text-white/90 hover:text-white' : 'text-slate-700 hover:text-blue-600'
+          )}
+        >
+          <LayoutDashboard className="w-3.5 h-3.5" />
+          Admin Dashboard
+        </Link>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer disabled:opacity-50',
+            isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600'
+          )}
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          {loggingOut ? 'Signing out…' : 'Logout'}
+        </button>
+      </div>
+    )
+
+    if (isApprovedTrader) return (
+      <div className="hidden lg:flex items-center gap-3">
+        <Link
+          href="/trade/dashboard"
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer',
+            isTransparent ? 'text-amber-300 hover:text-amber-200' : 'text-amber-600 hover:text-amber-700'
+          )}
+        >
+          <LayoutDashboard className="w-3.5 h-3.5" />
+          Dashboard
+        </Link>
+        <Link
+          href="/account"
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer',
+            isTransparent ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+          )}
+        >
+          <User className="w-3.5 h-3.5" />
+          Account
+        </Link>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer disabled:opacity-50',
+            isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600'
+          )}
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          {loggingOut ? 'Signing out…' : 'Logout'}
+        </button>
+      </div>
+    )
+
+    if (isTrade) return (
+      <div className="hidden lg:flex items-center gap-3">
+        <Link
+          href="/trade"
+          className={cn(
+            'text-sm font-medium transition-colors duration-200 cursor-pointer',
+            isTransparent ? 'text-amber-300/80 hover:text-amber-200' : 'text-amber-600/80 hover:text-amber-700'
+          )}
+        >
+          My Application
+        </Link>
+        <button
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer disabled:opacity-50',
+            isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600'
+          )}
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          {loggingOut ? 'Signing out…' : 'Logout'}
+        </button>
+      </div>
+    )
+
+    // Guest
+    return (
+      <div className="hidden lg:flex items-center gap-3">
+        <a
+          href="tel:+35679661889"
+          className={cn(
+            'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer',
+            isTransparent ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+          )}
+        >
+          <Phone className="w-3.5 h-3.5" />
+          +356 7966 1889
+        </a>
+        <Link
+          href="/login"
+          className={cn(
+            'text-sm font-medium transition-colors duration-200 cursor-pointer',
+            isTransparent
+              ? 'text-amber-300/80 hover:text-amber-200'
+              : 'text-amber-600/80 hover:text-amber-700'
+          )}
+        >
+          Trade Login
+        </Link>
+        <Link href="/quote">
+          <Button
+            size="sm"
+            className={cn(
+              'transition-all duration-200 cursor-pointer',
+              isTransparent
+                ? 'bg-blue-600 hover:bg-blue-700 text-white border-transparent'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            )}
+          >
+            Get a Quote
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  // ── Mobile CTA section ───────────────────────────────────────────
+  function MobileCta() {
+    if (isLoading) return null
+
+    if (isAdmin) return (
+      <div className="pt-3 border-t border-slate-100 space-y-1">
+        <Link href="/admin" className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200">
+          <LayoutDashboard className="w-4 h-4" />
+          Admin Dashboard
+        </Link>
+        <button onClick={handleLogout} disabled={loggingOut}
+          className="flex items-center gap-2 px-3 py-2.5 w-full text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50">
+          <LogOut className="w-4 h-4" />
+          {loggingOut ? 'Signing out…' : 'Logout'}
+        </button>
+      </div>
+    )
+
+    if (isApprovedTrader) return (
+      <div className="pt-3 border-t border-slate-100 space-y-1">
+        <Link href="/trade/dashboard" className="flex items-center gap-2 px-3 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 rounded-lg transition-colors duration-200">
+          <LayoutDashboard className="w-4 h-4" />
+          Trade Dashboard
+        </Link>
+        <Link href="/account" className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-200">
+          <User className="w-4 h-4" />
+          My Account
+        </Link>
+        <button onClick={handleLogout} disabled={loggingOut}
+          className="flex items-center gap-2 px-3 py-2.5 w-full text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50">
+          <LogOut className="w-4 h-4" />
+          {loggingOut ? 'Signing out…' : 'Logout'}
+        </button>
+      </div>
+    )
+
+    if (isTrade) return (
+      <div className="pt-3 border-t border-slate-100 space-y-1">
+        <Link href="/trade" className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-amber-600 hover:bg-amber-50 rounded-lg transition-colors duration-200">
+          My Application
+        </Link>
+        <button onClick={handleLogout} disabled={loggingOut}
+          className="flex items-center gap-2 px-3 py-2.5 w-full text-sm font-medium text-red-500 hover:bg-red-50 rounded-lg transition-colors duration-200 disabled:opacity-50">
+          <LogOut className="w-4 h-4" />
+          {loggingOut ? 'Signing out…' : 'Logout'}
+        </button>
+      </div>
+    )
+
+    return (
+      <div className="pt-3 border-t border-slate-100 space-y-2">
+        <a
+          href="tel:+35679661889"
+          className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer"
+        >
+          <Phone className="w-4 h-4 text-blue-600" />
+          +356 7966 1889
+        </a>
+        <Link href="/quote" className="block">
+          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 cursor-pointer">
+            Get a Quote
+          </Button>
+        </Link>
+      </div>
+    )
+  }
 
   return (
     <header
@@ -121,7 +378,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                   href={item.href!}
                   className={cn(
                     'px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer',
-                    // Trade item — amber highlight
                     (item as { isTrade?: boolean }).isTrade
                       ? isTransparent
                         ? 'text-amber-300 hover:text-amber-200 hover:bg-white/10 font-semibold'
@@ -138,47 +394,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-3">
-            <a
-              href="tel:+35679661889"
-              className={cn(
-                'flex items-center gap-1.5 text-sm font-medium transition-colors duration-200 cursor-pointer',
-                isTransparent ? 'text-white/90 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-              )}
-            >
-              <Phone className="w-3.5 h-3.5" />
-              +356 7966 1889
-            </a>
-
-            {/* Trade Login */}
-            <Link
-              href="/login"
-              className={cn(
-                'text-sm font-medium transition-colors duration-200 cursor-pointer',
-                isTransparent
-                  ? 'text-amber-300/80 hover:text-amber-200'
-                  : 'text-amber-600/80 hover:text-amber-700'
-              )}
-            >
-              Trade Login
-            </Link>
-
-            {/* Get a Quote — blue-600 */}
-            <Link href="/quote">
-              <Button
-                size="sm"
-                className={cn(
-                  'transition-all duration-200 cursor-pointer',
-                  isTransparent
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white border-transparent'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                )}
-              >
-                Get a Quote
-              </Button>
-            </Link>
-          </div>
+          {/* Desktop CTA — auth-aware */}
+          <DesktopCta />
 
           {/* Mobile hamburger */}
           <button
@@ -222,7 +439,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                     ))}
                   </div>
                 ) : (item as { isTrade?: boolean }).isTrade ? (
-                  /* Trade — prominent amber block */
                   <div key={item.href} className="mt-2">
                     <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
                       <p className="text-[10px] font-semibold text-amber-500 uppercase tracking-widest mb-1.5">
@@ -233,12 +449,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                         className="block text-sm font-semibold text-amber-700 hover:text-amber-800 transition-colors duration-200"
                       >
                         Trade Portal →
-                      </Link>
-                      <Link
-                        href="/login"
-                        className="block mt-1 text-sm text-amber-600/80 hover:text-amber-700 transition-colors duration-200"
-                      >
-                        Trade Login
                       </Link>
                     </div>
                   </div>
@@ -253,21 +463,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                 )
               )}
 
-              {/* Mobile bottom: phone + CTA */}
-              <div className="pt-3 border-t border-slate-100 space-y-2">
-                <a
-                  href="tel:+35679661889"
-                  className="flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-slate-700 cursor-pointer"
-                >
-                  <Phone className="w-4 h-4 text-blue-600" />
-                  +356 7966 1889
-                </a>
-                <Link href="/quote" className="block">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200 cursor-pointer">
-                    Get a Quote
-                  </Button>
-                </Link>
-              </div>
+              {/* Mobile CTA — auth-aware */}
+              <MobileCta />
             </div>
           </motion.div>
         )}
