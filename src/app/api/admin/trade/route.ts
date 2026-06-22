@@ -7,14 +7,14 @@ import { z } from 'zod'
 const schema = z.object({
   userId:        z.string(),
   applicationId: z.string(),
-  status:        z.enum(['approved', 'rejected']),
+  status:        z.enum(['approved', 'rejected', 'suspended']),
   name:          z.string(),
   email:         z.string(),
 })
 
 export async function PATCH(request: Request) {
   const profile = await getProfile()
-  if (!profile || !['super_admin', 'admin'].includes(profile.role)) {
+  if (!profile || !['super_admin', 'admin', 'staff'].includes(profile.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -27,10 +27,15 @@ export async function PATCH(request: Request) {
     db.from('trade_applications').update({ status }).eq('id', applicationId),
   ])
 
-  if (status === 'approved') {
-    await sendTradeApprovedEmail({ name, email })
-  } else {
-    await sendTradeRejectedEmail({ name, email })
+  try {
+    if (status === 'approved') {
+      await sendTradeApprovedEmail({ name, email })
+    } else if (status === 'rejected') {
+      await sendTradeRejectedEmail({ name, email })
+    }
+    // suspended: no email sent
+  } catch (err) {
+    console.error('[admin/trade] email send failed (status still updated):', err)
   }
 
   return NextResponse.json({ ok: true })

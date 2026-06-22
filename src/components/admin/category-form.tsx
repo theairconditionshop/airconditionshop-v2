@@ -23,6 +23,7 @@ export default function CategoryForm({ category }: { category?: Record<string, u
   const isEdit = !!category
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
       name:        category.name as string,

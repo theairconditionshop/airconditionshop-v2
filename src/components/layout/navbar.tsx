@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/static-components */
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -34,6 +35,40 @@ const DEFAULT_ICON = Package
 // Mobile panel state
 type MobilePanel = 'main' | 'products' | 'brands'
 
+// ── Module-level panel motion helpers (no outer state deps) ─────────────────
+const SLIDE_IN  = { opacity: 1 as const, x: 0 as const }
+const SLIDE_OUT = (dir: 'left' | 'right') => ({ opacity: 0 as const, x: dir === 'left' ? '-6%' : '6%' })
+
+function PanelMotion({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <motion.div
+      key={id}
+      initial={{ opacity: 0, x: '5%' }}
+      animate={SLIDE_IN}
+      exit={SLIDE_OUT('right')}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="absolute inset-0 overflow-y-auto"
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+function MainPanelMotion({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      key="main"
+      initial={{ opacity: 0, x: '-5%' }}
+      animate={SLIDE_IN}
+      exit={SLIDE_OUT('left')}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="absolute inset-0 overflow-y-auto"
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 interface NavbarProps { transparent?: boolean }
 
 export default function Navbar({ transparent = false }: NavbarProps) {
@@ -57,6 +92,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
   }, [])
 
   // Close menu on route change
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
   // Reset panel after menu closes
@@ -270,41 +306,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
           </Button>
         </Link>
       </div>
-    )
-  }
-
-  // ── Mobile panel variants ────────────────────────────────────────────────
-  const slideIn  = { opacity: 1, x: 0 }
-  const slideOut = (dir: 'left' | 'right') => ({ opacity: 0, x: dir === 'left' ? '-6%' : '6%' })
-
-  // Sub-panel back/forward slide
-  function PanelMotion({ id, children }: { id: string; children: React.ReactNode }) {
-    return (
-      <motion.div
-        key={id}
-        initial={{ opacity: 0, x: '5%' }}
-        animate={slideIn}
-        exit={slideOut('right')}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="absolute inset-0 overflow-y-auto"
-      >
-        {children}
-      </motion.div>
-    )
-  }
-
-  function MainPanelMotion({ children }: { children: React.ReactNode }) {
-    return (
-      <motion.div
-        key="main"
-        initial={{ opacity: 0, x: '-5%' }}
-        animate={slideIn}
-        exit={slideOut('left')}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="absolute inset-0 overflow-y-auto"
-      >
-        {children}
-      </motion.div>
     )
   }
 

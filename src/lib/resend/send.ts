@@ -140,6 +140,58 @@ export async function sendQuoteEmail({
   })
 }
 
+export async function sendServiceRequestEmails({
+  name, email, phone, address, service_type, description, preferred_date, reference,
+}: {
+  name: string; email: string; phone: string; address: string
+  service_type: string; description: string; preferred_date: string | null; reference: string
+}) {
+  const vars = {
+    name, email, phone, address,
+    service_type, description,
+    preferred_date: preferred_date || 'Flexible',
+    reference,
+  }
+  await Promise.all([
+    // Customer confirmation
+    sendEmail('service_request_user', email, vars, {
+      subject: `Service request received — ${reference}`,
+      html: `
+        <p>Dear ${name},</p>
+        <p>Thank you for contacting THE AIRCONDITION SHOP. We have received your service request.</p>
+        <p><strong>Reference: ${reference}</strong></p>
+        <p><strong>Service type:</strong> ${service_type}<br>
+           <strong>Address:</strong> ${address}<br>
+           <strong>Preferred date:</strong> ${preferred_date || 'Flexible'}</p>
+        <p>Our team will contact you within 2 business hours to confirm your appointment.</p>
+        <p>If urgent, call us: <a href="tel:+35679661889">+356 7966 1889</a></p>
+        <p>THE AIRCONDITION SHOP</p>
+      `,
+    }),
+    // Admin notification
+    sendEmail(
+      'service_request_admin',
+      process.env.RESEND_ADMIN_EMAIL || 'support@theairconditionshop.com',
+      vars,
+      {
+        subject: `New service request ${reference} — ${service_type} from ${name}`,
+        html: `
+          <h2>New Service Request: ${reference}</h2>
+          <table>
+            <tr><td><strong>Name</strong></td><td>${name}</td></tr>
+            <tr><td><strong>Email</strong></td><td>${email}</td></tr>
+            <tr><td><strong>Phone</strong></td><td>${phone}</td></tr>
+            <tr><td><strong>Address</strong></td><td>${address}</td></tr>
+            <tr><td><strong>Service type</strong></td><td>${service_type}</td></tr>
+            <tr><td><strong>Preferred date</strong></td><td>${preferred_date || 'Flexible'}</td></tr>
+            <tr><td><strong>Description</strong></td><td>${description}</td></tr>
+          </table>
+        `,
+      }
+    ),
+  ])
+}
+
 export async function sendServiceBookedEmail({
   customerName, email, jobNumber, scheduledDate, scheduledTime, technicianName,
 }: { customerName: string; email: string; jobNumber: string; scheduledDate: string; scheduledTime: string; technicianName: string }) {

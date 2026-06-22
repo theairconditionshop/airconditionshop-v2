@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getCategoryBySlug, getProducts, getCategories } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
@@ -54,10 +55,10 @@ export default async function CategoryPage({ params }: Props) {
           {subcategories.length > 0 && (
             <div className="mt-6 flex flex-wrap gap-2">
               {subcategories.map(sub => (
-                <a key={sub.id} href={`/products/category/${sub.slug}`}
+                <Link key={sub.id} href={`/products/category/${sub.slug}`}
                   className="px-4 py-2 bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-200 rounded-full text-sm text-slate-600 hover:text-sky-700 transition-colors">
                   {sub.name}
-                </a>
+                </Link>
               ))}
             </div>
           )}
@@ -73,7 +74,7 @@ export default async function CategoryPage({ params }: Props) {
             ) : (
               <div className="py-20 text-center">
                 <p className="text-slate-400">No products in this category yet.</p>
-                <a href="/products" className="mt-3 inline-block text-sky-600 text-sm hover:underline">Browse all products</a>
+                <Link href="/products" className="mt-3 inline-block text-sky-600 text-sm hover:underline">Browse all products</Link>
               </div>
             )}
           </div>

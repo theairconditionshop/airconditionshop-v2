@@ -31,6 +31,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
   const [uploading, setUploading] = useState(false)
 
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
       name:              brand.name as string,

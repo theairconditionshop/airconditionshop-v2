@@ -62,6 +62,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
   const isEdit = !!product
 
   const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
       name:               product.name as string,

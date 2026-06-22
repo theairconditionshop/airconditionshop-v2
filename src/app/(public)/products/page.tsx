@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getProducts, getCategories, getBrands } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
@@ -77,7 +78,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                   <h3 className="text-lg font-semibold text-slate-900 mb-2">No products found</h3>
                   <p className="text-slate-500 text-sm max-w-xs">
                     Try adjusting your filters or{' '}
-                    <a href="/products" className="text-blue-600 hover:underline font-medium">browse all products</a>.
+                    <Link href="/products" className="text-blue-600 hover:underline font-medium">browse all products</Link>.
                   </p>
                 </div>
               )}

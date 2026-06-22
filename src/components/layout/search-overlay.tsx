@@ -40,8 +40,11 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setQuery('')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResults([])
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearched(false)
     }
     return () => { document.body.style.overflow = '' }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-// sendServiceBookedEmail is used after a job is scheduled; on initial request we just log
+import { sendServiceRequestEmails } from '@/lib/resend/send'
 import { z } from 'zod'
 
 const schema = z.object({
@@ -14,38 +14,68 @@ const schema = z.object({
 })
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
 
+  const parsed = schema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
+    console.error('[service] Validation failed:', parsed.error.flatten())
+    return NextResponse.json(
+      { error: 'Invalid input', details: parsed.error.flatten() },
+      { status: 400 }
+    )
   }
 
   const { name, email, phone, address, service_type, description, preferred_date } = parsed.data
   const db = createAdminClient()
 
-  // Upsert CRM contact
-  const { data: crmContact } = await db
-    .from('crm_contacts')
-    .upsert(
-      { name, email, phone, source: 'service_form', type: 'lead' },
-      { onConflict: 'email', ignoreDuplicates: false }
-    )
+  // ── Step 1: Insert service request with CORRECT column names ────────────
+  const { data: inserted, error: insertError } = await db
+    .from('service_requests')
+    .insert({
+      name,
+      email,
+      phone,
+      address,
+      service_type,
+      description,
+      preferred_date: preferred_date || null,
+      status:         'new',
+      source:         'website',
+    })
     .select('id')
     .single()
 
-  // Insert service request
-  await db.from('service_requests').insert({
-    crm_contact_id:  crmContact?.id || null,
-    customer_name:   name,
-    customer_email:  email,
-    customer_phone:  phone,
-    address,
-    service_type,
-    description,
-    preferred_date:  preferred_date || null,
-    status:          'new',
-  })
+  if (insertError || !inserted) {
+    console.error('[service] DB insert failed:', insertError)
+    return NextResponse.json(
+      { error: 'Unable to save your request. Please call us on +356 7966 1889.' },
+      { status: 500 }
+    )
+  }
 
-  return NextResponse.json({ ok: true })
+  // ── Step 2: Build reference number from record id ───────────────────────
+  const year = new Date().getFullYear()
+  const suffix = inserted.id.replace(/-/g, '').slice(0, 6).toUpperCase()
+  const reference = `SR-${year}-${suffix}`
+
+  console.log('[service] Request saved — id:', inserted.id, 'ref:', reference)
+
+  // ── Step 3: Send emails — failure NEVER destroys booking ────────────────
+  try {
+    await sendServiceRequestEmails({
+      name, email, phone, address, service_type, description,
+      preferred_date: preferred_date || null,
+      reference,
+    })
+  } catch (err) {
+    // Log but continue — booking is already saved
+    console.error('[service] Email send failed (booking still saved):', err)
+  }
+
+  return NextResponse.json({ ok: true, reference })
 }

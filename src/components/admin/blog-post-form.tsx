@@ -23,6 +23,7 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
   const isEdit = !!post
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
       title:       post.title as string,
