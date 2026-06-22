@@ -10,26 +10,31 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, Phone, Home } from 'lucide-react'
 
+// DB constraint: service_type must be one of these exact values
+const SERVICE_TYPE_VALUES = ['installation', 'repair', 'maintenance', 'inspection', 'commercial', 'coldroom', 'other'] as const
+type ServiceTypeValue = typeof SERVICE_TYPE_VALUES[number]
+
+const SERVICE_OPTIONS: { label: string; value: ServiceTypeValue }[] = [
+  { label: 'Installation',        value: 'installation' },
+  { label: 'Repair',              value: 'repair' },
+  { label: 'Maintenance / Service', value: 'maintenance' },
+  { label: 'Inspection',          value: 'inspection' },
+  { label: 'Commercial / HVAC',   value: 'commercial' },
+  { label: 'Cold Room',           value: 'coldroom' },
+  { label: 'Other',               value: 'other' },
+]
+
 const schema = z.object({
   name:           z.string().min(2, 'Name required'),
   email:          z.string().email('Valid email required'),
   phone:          z.string().min(4, 'Phone required'),
   address:        z.string().min(5, 'Address required'),
-  service_type:   z.string().min(1, 'Select a service type'),
+  service_type:   z.enum(SERVICE_TYPE_VALUES, { error: 'Please select a service type' }),
   description:    z.string().min(10, 'Please describe the issue or job (min 10 characters)'),
   preferred_date: z.string().optional(),
 })
 
 type FormData = z.infer<typeof schema>
-
-const SERVICE_TYPES = [
-  'Installation',
-  'Maintenance / Service',
-  'Repair',
-  'Emergency Call-Out',
-  'Cold Room',
-  'Other',
-]
 
 export default function ServiceRequestForm() {
   const [reference, setReference] = useState<string | null>(null)
@@ -79,7 +84,6 @@ export default function ServiceRequestForm() {
           A confirmation email has been sent to you.
         </p>
 
-        {/* Reference number */}
         <div className="mb-6 px-6 py-4 bg-sky-50 border border-sky-100 rounded-2xl w-full max-w-xs">
           <p className="text-xs font-semibold text-sky-500 uppercase tracking-widest mb-1">
             Your reference number
@@ -156,8 +160,8 @@ export default function ServiceRequestForm() {
           aria-invalid={!!errors.service_type}
         >
           <option value="">Select…</option>
-          {SERVICE_TYPES.map(t => (
-            <option key={t} value={t}>{t}</option>
+          {SERVICE_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </select>
         {errors.service_type && (

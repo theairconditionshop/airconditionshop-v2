@@ -3,12 +3,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendServiceRequestEmails } from '@/lib/resend/send'
 import { z } from 'zod'
 
+// Must match the DB CHECK constraint on service_requests.service_type exactly
+const SERVICE_TYPE_VALUES = ['installation', 'repair', 'maintenance', 'inspection', 'commercial', 'coldroom', 'other'] as const
+
 const schema = z.object({
   name:           z.string().min(2),
   email:          z.string().email(),
   phone:          z.string().min(4),
   address:        z.string().min(5),
-  service_type:   z.string().min(1),
+  service_type:   z.enum(SERVICE_TYPE_VALUES),
   description:    z.string().min(5),
   preferred_date: z.string().optional(),
 })
@@ -33,7 +36,7 @@ export async function POST(request: Request) {
   const { name, email, phone, address, service_type, description, preferred_date } = parsed.data
   const db = createAdminClient()
 
-  // ── Step 1: Insert service request with CORRECT column names ────────────
+  // ── Step 1: Insert — columns match the actual DB schema ─────────────────
   const { data: inserted, error: insertError } = await db
     .from('service_requests')
     .insert({
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
       email,
       phone,
       address,
-      service_type,
+      service_type,           // now guaranteed to be a valid constraint value
       description,
       preferred_date: preferred_date || null,
       status:         'new',
@@ -51,19 +54,23 @@ export async function POST(request: Request) {
     .single()
 
   if (insertError || !inserted) {
-    console.error('[service] DB insert failed:', insertError)
+    console.error('[service] DB insert failed:', JSON.stringify(insertError))
     return NextResponse.json(
-      { error: 'Unable to save your request. Please call us on +356 7966 1889.' },
+      {
+        error: 'Unable to save your request. Please call us on +356 7966 1889.',
+        // expose detail so the dev server terminal shows the real Postgres error
+        _debug: insertError?.message ?? 'no inserted row returned',
+      },
       { status: 500 }
     )
   }
 
-  // ── Step 2: Build reference number from record id ───────────────────────
-  const year = new Date().getFullYear()
-  const suffix = inserted.id.replace(/-/g, '').slice(0, 6).toUpperCase()
+  // ── Step 2: Build reference number ──────────────────────────────────────
+  const year    = new Date().getFullYear()
+  const suffix  = inserted.id.replace(/-/g, '').slice(0, 6).toUpperCase()
   const reference = `SR-${year}-${suffix}`
 
-  console.log('[service] Request saved — id:', inserted.id, 'ref:', reference)
+  console.log('[service] Booking saved — id:', inserted.id, 'ref:', reference)
 
   // ── Step 3: Send emails — failure NEVER destroys booking ────────────────
   try {
@@ -72,8 +79,8 @@ export async function POST(request: Request) {
       preferred_date: preferred_date || null,
       reference,
     })
+    console.log('[service] Emails sent — ref:', reference)
   } catch (err) {
-    // Log but continue — booking is already saved
     console.error('[service] Email send failed (booking still saved):', err)
   }
 
