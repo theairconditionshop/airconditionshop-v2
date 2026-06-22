@@ -37,9 +37,9 @@ export default function BtuPromo() {
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-widest">Free Tool</span>
             </div>
 
-            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight tracking-tight">
+            <h2 className="font-display text-3xl lg:text-4xl xl:text-5xl text-white leading-tight">
               Not sure which air conditioner<br />
-              <span className="text-blue-400">you need?</span>
+              <span className="text-blue-400 italic">you need?</span>
             </h2>
 
             <p className="mt-5 text-lg text-slate-400 leading-relaxed max-w-md">

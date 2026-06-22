@@ -45,10 +45,10 @@ export default function FeaturedProducts({ products, userRole }: Props) {
           transition={{ duration: 0.5 }}
         >
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.2em] text-slate-400 uppercase mb-3">
+            <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-400 uppercase mb-3">
               Handpicked Selection
             </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+            <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-slate-900">
               Featured Products
             </h2>
           </div>

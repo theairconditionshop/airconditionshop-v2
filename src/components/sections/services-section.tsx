@@ -29,26 +29,35 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
   ]
 
   return (
-    <section className="py-20 bg-white border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+    <section className="py-24 lg:py-28 bg-white border-t border-slate-100">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="grid lg:grid-cols-2 gap-14 items-center">
+
           {/* Left */}
-          <div>
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-2">What We Do</p>
-            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-6">{heading}</h2>
-            <p className="text-slate-500 leading-relaxed mb-8">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55 }}
+          >
+            <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">What We Do</p>
+            <h2 className="font-display text-4xl lg:text-5xl leading-tight text-slate-900 mb-6">{heading}</h2>
+            <p className="text-slate-500 leading-relaxed mb-10 max-w-md">
               From single-room air conditioning to full commercial HVAC installations,
               our certified engineers deliver premium solutions across Malta.
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/services">
-                <Button variant="brand">Book a Service</Button>
+                <Button variant="brand" className="group gap-2">
+                  Book a Service
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </Button>
               </Link>
               <Link href="/quote">
                 <Button variant="outline">Request a Quote</Button>
               </Link>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right — service cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -57,17 +66,17 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
               return (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, scale: 0.97 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-5 bg-white rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-md transition-all duration-200"
+                  transition={{ delay: i * 0.1, duration: 0.45 }}
+                  className="group p-6 bg-white rounded-2xl border border-slate-100 hover:border-blue-100 hover:shadow-[0_8px_32px_-8px_rgba(14,165,233,0.15)] hover:-translate-y-0.5 transition-all duration-300 cursor-default"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center mb-3">
-                    <Icon className="w-5 h-5 text-blue-500" />
+                  <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center mb-4 group-hover:bg-blue-100 group-hover:scale-105 transition-all duration-300">
+                    <Icon className="w-5 h-5 text-blue-500 group-hover:text-blue-600 transition-colors" />
                   </div>
-                  <h3 className="font-semibold text-slate-900 text-sm mb-1.5">{item.title}</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">{item.description}</p>
+                  <h3 className="font-semibold text-slate-900 text-[15px] mb-2">{item.title}</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">{item.description}</p>
                 </motion.div>
               )
             })}

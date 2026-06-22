@@ -7,6 +7,10 @@
   --brand-blue-light:   #e0f2fe;
   --brand-blue-subtle:  #f0f9ff;
 
+  /* Premium accent */
+  --brand-gold:         #ca8a04;
+  --brand-gold-light:   #fbbf24;
+
   /* Neutrals */
   --background:   #ffffff;
   --foreground:   #0f172a;
@@ -32,6 +36,7 @@
   --color-muted-bg:         var(--muted-bg);
   --color-border:           var(--border);
   --font-sans:              var(--font-inter);
+  --font-display:           var(--font-display);
 }
 
 *,
@@ -52,6 +57,11 @@ body {
   line-height: 1.6;
 }
 
+/* Premium display font utility */
+.font-display {
+  font-family: var(--font-display), 'Georgia', serif;
+}
+
 /* Focus ring */
 :focus-visible {
   outline: 2px solid var(--brand-blue);
@@ -63,3 +73,44 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* Noise texture overlay utility */
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Premium section separator */
+.section-sep {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(226,232,240,0.6), transparent);
+}
+
+/* Gradient text utility */
+.text-gradient-blue {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ca8a04 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

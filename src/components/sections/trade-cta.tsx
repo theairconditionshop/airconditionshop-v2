@@ -53,7 +53,7 @@ export default function TradeCta() {
           </p>
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <h2 className="text-4xl font-bold leading-tight text-white lg:text-5xl">
+              <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-white">
                 The Trade
                 <br />
                 Programme

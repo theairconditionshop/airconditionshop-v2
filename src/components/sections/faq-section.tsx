@@ -14,7 +14,7 @@ export default function FaqSection({ faqs }: { faqs: Faq[] }) {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <p className="text-xs font-semibold text-sky-600 uppercase tracking-widest mb-2">FAQ</p>
-          <h2 className="text-3xl lg:text-4xl font-bold text-slate-900">Frequently Asked Questions</h2>
+          <h2 className="font-display text-3xl lg:text-4xl text-slate-900">Frequently Asked Questions</h2>
         </div>
 
         <div className="space-y-3">

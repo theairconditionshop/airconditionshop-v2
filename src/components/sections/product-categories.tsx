@@ -45,7 +45,7 @@ const cardVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] as const },
+    transition: { duration: 0.48, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
 }
 
@@ -53,16 +53,22 @@ export default function ProductCategories({ categories }: { categories: Category
   const displayed = categories.slice(0, 8)
 
   return (
-    <section className="bg-slate-950 py-24 border-t border-white/[0.04]">
+    <section className="bg-slate-950 py-24 lg:py-28 border-t border-white/[0.04]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
-        <div className="mb-10 flex items-end justify-between">
+        <motion.div
+          className="mb-12 flex items-end justify-between"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               Browse Our Range
             </p>
-            <h2 className="text-4xl font-bold leading-tight text-white lg:text-5xl">
+            <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-white">
               HVAC &amp; Refrigeration
               <br className="hidden sm:block" />
               Solutions
@@ -70,16 +76,16 @@ export default function ProductCategories({ categories }: { categories: Category
           </div>
           <Link
             href="/products"
-            className="hidden cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors duration-200 hover:text-blue-300 sm:flex"
+            className="hidden cursor-pointer items-center gap-1.5 text-sm font-semibold text-blue-400 transition-all duration-200 hover:text-blue-300 hover:gap-2 sm:flex group"
           >
-            View all products
-            <ArrowRight className="h-4 w-4" />
+            View all
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
-        </div>
+        </motion.div>
 
         {/* Grid */}
         <motion.div
-          className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -93,7 +99,7 @@ export default function ProductCategories({ categories }: { categories: Category
                   href={`/products/category/${category.slug}`}
                   className="group block cursor-pointer"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl shadow-md border border-slate-800/60 transition-all duration-300 group-hover:shadow-2xl group-hover:border-blue-800/40">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-slate-800/50 transition-all duration-350 group-hover:border-blue-700/40 group-hover:shadow-[0_16px_48px_-16px_rgba(37,99,235,0.3)]">
 
                     {category.image_url ? (
                       <>
@@ -102,28 +108,32 @@ export default function ProductCategories({ categories }: { categories: Category
                           alt={category.name}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/30 to-slate-900/10" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-900/40 to-transparent" />
                       </>
                     ) : (
                       <>
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/70" />
+                        {/* Icon glow */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Icon className="h-16 w-16 text-blue-400/60 transition-all duration-300 group-hover:text-blue-300/80 group-hover:scale-110" />
+                          <div className="relative">
+                            <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <Icon className="relative h-14 w-14 text-blue-400/50 transition-all duration-300 group-hover:text-blue-300/90 group-hover:scale-110" />
+                          </div>
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent" />
-                        {/* Subtle glow on hover */}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-600/[0.05]" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-transparent to-transparent" />
                       </>
                     )}
 
-                    {/* Bottom content */}
-                    <div className="absolute inset-0 flex items-end justify-between p-4 transition-transform duration-300 group-hover:scale-[1.02]">
-                      <span className="text-sm font-semibold leading-snug text-white drop-shadow-sm sm:text-base">
+                    {/* Bottom label */}
+                    <div className="absolute inset-x-0 bottom-0 p-4 flex items-end justify-between">
+                      <span className="text-sm font-semibold leading-snug text-white drop-shadow-sm sm:text-[15px]">
                         {category.name}
                       </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-white/50 transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-white" />
+                      <div className="w-7 h-7 rounded-full border border-white/15 flex items-center justify-center group-hover:bg-blue-600 group-hover:border-blue-600 transition-all duration-200 shrink-0 ml-2">
+                        <ArrowRight className="h-3.5 w-3.5 text-white/50 group-hover:text-white transition-colors duration-200" />
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -136,7 +146,7 @@ export default function ProductCategories({ categories }: { categories: Category
         <div className="mt-8 flex sm:hidden">
           <Link
             href="/products"
-            className="flex cursor-pointer items-center gap-1.5 text-sm font-medium text-blue-400 transition-colors duration-200 hover:text-blue-300"
+            className="flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-blue-400 transition-colors duration-200 hover:text-blue-300"
           >
             View all products
             <ArrowRight className="h-4 w-4" />

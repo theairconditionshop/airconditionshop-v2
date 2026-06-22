@@ -36,7 +36,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
               <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.2em] mb-5">
                 Get in Touch
               </p>
-              <h2 className="text-3xl lg:text-5xl font-bold text-white mb-5 tracking-tight leading-tight">
+              <h2 className="font-display text-3xl lg:text-5xl xl:text-6xl text-white mb-5 leading-tight">
                 {heading}
               </h2>
               <p className="text-slate-400 text-lg leading-relaxed mb-10">
