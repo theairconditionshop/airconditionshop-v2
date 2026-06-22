@@ -5,6 +5,52 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Brand } from '@/types/database'
 
+// Styled wordmark for each brand when logo_url is not set.
+// filter:grayscale on the wrapper turns these gray; on hover grayscale-0 restores color.
+function BrandWordmark({ slug, name }: { slug: string; name: string }) {
+  const s = slug.toLowerCase()
+
+  if (s.includes('daikin')) return (
+    <span style={{ color: '#005BAC', fontWeight: 900, fontSize: 17, letterSpacing: '0.14em', fontFamily: 'Arial Black, Arial, sans-serif' }}>
+      DAIKIN
+    </span>
+  )
+  if (s.includes('mitsubishi')) return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Arial, sans-serif' }}>
+      <span style={{ color: '#E50012', fontSize: 11, letterSpacing: '-1px' }}>◆◆◆</span>
+      <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.08em', color: '#222', lineHeight: 1.2, textTransform: 'uppercase' }}>
+        Mitsubishi<br />Electric
+      </span>
+    </span>
+  )
+  if (s.includes('panasonic')) return (
+    <span style={{ color: '#004A97', fontWeight: 700, fontSize: 15, letterSpacing: '0.04em', fontFamily: 'Arial, sans-serif' }}>
+      Panasonic
+    </span>
+  )
+  if (s.includes('toshiba')) return (
+    <span style={{ color: '#E60012', fontWeight: 800, fontSize: 16, letterSpacing: '0.12em', fontFamily: 'Arial Black, Arial, sans-serif' }}>
+      TOSHIBA
+    </span>
+  )
+  if (s.includes('fujitsu')) return (
+    <span style={{ color: '#E22B2B', fontWeight: 700, fontSize: 16, letterSpacing: '0.06em', fontFamily: 'Arial, sans-serif' }}>
+      Fujitsu
+    </span>
+  )
+  if (s.includes('gree')) return (
+    <span style={{ color: '#00A050', fontWeight: 900, fontSize: 18, letterSpacing: '0.18em', fontFamily: 'Arial Black, Arial, sans-serif' }}>
+      GREE
+    </span>
+  )
+  // Generic fallback
+  return (
+    <span style={{ fontWeight: 700, fontSize: 13, letterSpacing: '0.12em', color: '#94a3b8', textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
+      {name}
+    </span>
+  )
+}
+
 export default function BrandShowcase({ brands }: { brands: Brand[] }) {
   if (!brands.length) return null
 
@@ -51,12 +97,12 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
                     alt={brand.name}
                     width={110}
                     height={44}
-                    className="object-contain max-h-9 w-auto grayscale group-hover:grayscale-0 opacity-30 group-hover:opacity-95 transition-all duration-350"
+                    className="object-contain max-h-9 w-auto grayscale group-hover:grayscale-0 opacity-30 group-hover:opacity-95 transition-all duration-[350ms]"
                   />
                 ) : (
-                  <span className="text-[11px] font-bold text-slate-500 group-hover:text-white text-center tracking-[0.15em] uppercase transition-colors duration-200">
-                    {brand.name}
-                  </span>
+                  <div className="grayscale opacity-35 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-[350ms]">
+                    <BrandWordmark slug={brand.slug} name={brand.name} />
+                  </div>
                 )}
               </Link>
             </motion.div>

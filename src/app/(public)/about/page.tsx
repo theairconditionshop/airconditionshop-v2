@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
+import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
-import { MapPin, Phone, Mail, Users, Award, Package, Wrench } from 'lucide-react'
+import { MapPin, Phone, Mail, Users, Award, Package, Wrench, CheckCircle2, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'About Us',
-  description: 'Learn about THE AIRCONDITION SHOP — Malta\'s specialist in HVAC, refrigeration and climate control.',
+  description: "Learn about THE AIRCONDITION SHOP — Malta's specialist in HVAC, refrigeration and climate control.",
   alternates: { canonical: 'https://theairconditionshop.com/about' },
 }
 
@@ -18,8 +19,8 @@ const STATS = [
   { icon: Award,   value: '15+',    label: 'Years of experience' },
 ]
 
-const TEAM_VALUES = [
-  { title: 'Expert Knowledge', desc: 'Our team holds manufacturer certifications from Daikin, Mitsubishi Electric, Carrier, and more. We know the products we sell inside out.' },
+const VALUES = [
+  { title: 'Expert Knowledge', desc: 'Manufacturer certifications from Daikin, Mitsubishi Electric, Panasonic, and more. We know the products inside out.' },
   { title: 'Quality First',    desc: 'We only stock brands we trust. Every product is backed by manufacturer warranty and our own after-sales support.' },
   { title: 'Fast Response',    desc: 'Emergency call-outs answered within hours. Scheduled service confirmed the same business day.' },
   { title: 'Transparent Pricing', desc: 'No hidden fees. Clear trade and retail pricing. Honest quotes with no surprises.' },
@@ -28,107 +29,146 @@ const TEAM_VALUES = [
 export default function AboutPage() {
   return (
     <>
-      <Navbar />
-      <main className="min-h-screen pt-20">
-        {/* Hero */}
-        <section className="bg-slate-900 text-white py-20 px-4">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-xs font-semibold text-sky-400 uppercase tracking-widest mb-3">About Us</p>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6 max-w-2xl">
-              Malta&apos;s Specialist in HVAC &amp; Refrigeration
+      <Navbar transparent />
+      <main className="min-h-screen">
+
+        {/* ── Hero ── */}
+        <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">
+          <Image
+            src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
+            alt="The Aircondition Shop — our team and showroom"
+            fill
+            className="object-cover object-center"
+            priority
+            quality={80}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-transparent" />
+
+          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
+            <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">About Us</p>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white leading-tight max-w-2xl mb-5">
+              Malta&apos;s HVAC
+              <br />
+              <span className="text-blue-400 italic">Specialists</span>
             </h1>
-            <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
-              THE AIRCONDITION SHOP has been serving homeowners, installers, and businesses across Malta
-              for over 15 years. We supply, install, and service the full range of air conditioning,
-              refrigeration, and climate control equipment.
+            <p className="text-slate-300 text-lg max-w-lg leading-relaxed">
+              Over 15 years supplying, installing, and servicing HVAC and refrigeration equipment across Malta.
             </p>
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="py-14 px-4 bg-white">
-          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {STATS.map(({ icon: Icon, value, label }) => (
-              <div key={label} className="text-center p-6 rounded-2xl border border-slate-100 bg-slate-50">
-                <div className="w-11 h-11 rounded-xl bg-sky-100 flex items-center justify-center mx-auto mb-3">
-                  <Icon className="w-5 h-5 text-sky-600" />
-                </div>
-                <p className="text-3xl font-bold text-slate-900">{value}</p>
-                <p className="text-sm text-slate-500 mt-1">{label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Story */}
-        <section className="py-16 px-4 bg-slate-50">
-          <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-14 items-start">
-            <div>
-              <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-5">Our Story</h2>
-              <div className="space-y-4 text-slate-600 leading-relaxed">
-                <p>
-                  Founded in Mosta, Malta, THE AIRCONDITION SHOP started as a small specialist supplier
-                  to the local HVAC trade. Over the years we&apos;ve grown into a full-service operation —
-                  supplying products to retail and trade customers, running our own installation teams,
-                  and providing maintenance contracts across residential and commercial properties.
-                </p>
-                <p>
-                  We&apos;re authorised dealers for all the major brands including Daikin, Mitsubishi Electric,
-                  Carrier, Panasonic, LG, and Toshiba. Our product range covers domestic split systems,
-                  multi-split configurations, VRF commercial systems, refrigeration cabinets, cold rooms,
-                  heat pumps, ventilation, and a full range of HVAC tools and accessories.
-                </p>
-                <p>
-                  Whether you&apos;re a homeowner upgrading your living room unit, or a contractor fitting out
-                  a hotel, we have the products, technical expertise, and support to get the job done right.
-                </p>
-              </div>
-              <div className="mt-8 flex gap-3">
-                <Link href="/contact"><Button variant="brand">Get in Touch</Button></Link>
-                <Link href="/trade"><Button variant="outline">Trade Accounts</Button></Link>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {TEAM_VALUES.map(v => (
-                <div key={v.title} className="p-5 bg-white rounded-xl border border-slate-100">
-                  <h3 className="font-semibold text-slate-900 mb-1">{v.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{v.desc}</p>
+        {/* ── Stats strip ── */}
+        <section className="bg-white border-b border-slate-100">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100">
+              {STATS.map(({ icon: Icon, value, label }) => (
+                <div key={label} className="flex flex-col items-center justify-center gap-1.5 py-10 px-6 text-center">
+                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-1">
+                    <Icon className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <p className="font-display text-3xl text-slate-900">{value}</p>
+                  <p className="text-xs text-slate-400 font-medium">{label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Location */}
-        <section className="py-16 px-4 bg-white">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl font-bold text-slate-900 mb-8">Visit Us</h2>
-            <div className="grid sm:grid-cols-3 gap-6 mb-8">
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-sky-600" />
+        {/* ── Story ── */}
+        <section className="py-20 lg:py-24 bg-[#FAFAF9]">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-14 items-start">
+
+              <div>
+                <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Our Story</p>
+                <h2 className="font-display text-3xl lg:text-4xl text-slate-900 mb-8 leading-tight">
+                  Built in Mosta,<br />serving all Malta
+                </h2>
+
+                <div className="space-y-5 text-slate-600 leading-relaxed text-[15px]">
+                  <p>
+                    Founded in Mosta, THE AIRCONDITION SHOP started as a specialist supplier to the local HVAC
+                    trade. Over the years we&apos;ve grown into a full-service operation — supplying products to
+                    retail and trade customers, running our own installation teams, and providing maintenance
+                    contracts across residential and commercial properties.
+                  </p>
+                  <p>
+                    We&apos;re authorised dealers for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu,
+                    and more. Our range covers domestic split systems, multi-split configurations, VRF commercial
+                    systems, refrigeration cabinets, cold rooms, heat pumps, ventilation, and HVAC accessories.
+                  </p>
+                  <p>
+                    Whether you&apos;re a homeowner upgrading your living room unit or a contractor fitting out
+                    a hotel, we have the products, technical expertise, and support to get the job done right.
+                  </p>
                 </div>
-                <p className="text-sm font-medium text-slate-900">Address</p>
-                <p className="text-sm text-slate-500 text-center">220 Vjal L-Indipendenza<br />Mosta MST 9022, Malta</p>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href="/contact">
+                    <Button className="gap-2 bg-blue-600 hover:bg-blue-500 text-white cursor-pointer">
+                      Get in Touch <ArrowRight className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/trade">
+                    <Button variant="outline" className="cursor-pointer">Trade Accounts</Button>
+                  </Link>
+                </div>
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-sky-600" />
-                </div>
-                <p className="text-sm font-medium text-slate-900">Phone</p>
-                <a href="tel:+35679661889" className="text-sm text-sky-600 hover:underline">+356 7966 1889</a>
-              </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-11 h-11 rounded-xl bg-sky-50 flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-sky-600" />
-                </div>
-                <p className="text-sm font-medium text-slate-900">Email</p>
-                <a href="mailto:support@theairconditionshop.com" className="text-sm text-sky-600 hover:underline">support@theairconditionshop.com</a>
+
+              <div className="space-y-3">
+                {VALUES.map(v => (
+                  <div key={v.title}
+                    className="flex gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-blue-100 hover:shadow-[0_8px_30px_-8px_rgba(14,165,233,0.1)] transition-all duration-300">
+                    <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-slate-900 text-[15px] mb-1">{v.title}</p>
+                      <p className="text-sm text-slate-500 leading-relaxed">{v.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </section>
+
+        {/* ── Contact info ── */}
+        <section className="py-16 bg-slate-950">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="font-display text-3xl text-white">Visit Our Showroom</h2>
+              <p className="text-slate-400 mt-2 text-sm">Come and see our full range in person — Mosta, Malta</p>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
+              <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] text-center">
+                <div className="w-11 h-11 rounded-xl bg-blue-600/20 flex items-center justify-center">
+                  <MapPin className="w-5 h-5 text-blue-400" />
+                </div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Address</p>
+                <p className="text-sm text-slate-300 leading-relaxed">220 Vjal L-Indipendenza<br />Mosta MST 9022, Malta</p>
+              </div>
+              <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] text-center">
+                <div className="w-11 h-11 rounded-xl bg-blue-600/20 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-blue-400" />
+                </div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Phone</p>
+                <a href="tel:+35679661889" className="text-sm text-blue-400 hover:text-blue-300 font-semibold transition-colors">+356 7966 1889</a>
+                <p className="text-xs text-slate-500">Mon–Fri 08:00–18:00</p>
+              </div>
+              <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-white/[0.07] bg-white/[0.02] text-center">
+                <div className="w-11 h-11 rounded-xl bg-blue-600/20 flex items-center justify-center">
+                  <Mail className="w-5 h-5 text-blue-400" />
+                </div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Email</p>
+                <a href="mailto:support@theairconditionshop.com"
+                  className="text-sm text-blue-400 hover:text-blue-300 transition-colors break-all">
+                  support@theairconditionshop.com
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
       <Footer />
     </>

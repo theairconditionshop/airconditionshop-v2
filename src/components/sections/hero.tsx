@@ -46,6 +46,8 @@ export default function Hero({ data }: { data: HeroData }) {
   const ctaPrimary   = data.cta_primary  ?? { label: 'Explore Products', href: '/products' }
   const ctaSecondary = data.cta_secondary ?? { label: 'Get a Quote', href: '/quote' }
   const overlayOpacity = data.overlay_opacity ?? 0.62
+  // Fallback to a high-quality HVAC/architecture photo when no admin image is set
+  const bgImage = data.media_url ?? 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&q=85'
 
   // Split headline around " & " so "&" can be styled
   const [headlineBefore, headlineAfter] = headline.includes(' & ')
@@ -55,27 +57,16 @@ export default function Hero({ data }: { data: HeroData }) {
   return (
     <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-slate-950">
 
-      {/* Background image */}
-      {data.media_url && (
-        <Image
-          src={data.media_url}
-          alt="THE AIRCONDITION SHOP — HVAC Malta"
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
-      )}
-
-      {/* Dark overlay when image present */}
-      {data.media_url && (
-        <div className="absolute inset-0 bg-slate-950" style={{ opacity: overlayOpacity }} />
-      )}
-
-      {/* Base gradient (no image) */}
-      {!data.media_url && (
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900" />
-      )}
+      {/* Background image — admin-set or default HVAC hero */}
+      <Image
+        src={bgImage}
+        alt="THE AIRCONDITION SHOP — HVAC Malta"
+        fill
+        className="object-cover"
+        priority
+        quality={90}
+      />
+      <div className="absolute inset-0 bg-slate-950" style={{ opacity: overlayOpacity }} />
 
       {/* Ambient glow layers — richer depth */}
       <div className="absolute -top-48 right-[-8%] w-[700px] h-[700px] rounded-full bg-blue-600/[0.08] blur-[160px] pointer-events-none" />

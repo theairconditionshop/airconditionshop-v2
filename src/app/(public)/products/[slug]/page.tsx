@@ -135,27 +135,50 @@ export default async function ProductPage({ params }: Props) {
 
             {/* Info */}
             <div>
+              {/* Brand wordmark */}
               {product.brand && (
                 <Link href={`/brands/${product.brand.slug}`}
-                  className="text-sm font-semibold text-sky-600 hover:underline">
-                  {product.brand.name}
+                  className="inline-flex items-center gap-2.5 mb-3 group">
+                  <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.18em] group-hover:text-blue-500 transition-colors">
+                    {product.brand.name}
+                  </span>
+                  {product.brand.logo_url && (
+                    <img
+                      src={product.brand.logo_url}
+                      alt={product.brand.name}
+                      className="h-6 w-auto object-contain opacity-70 group-hover:opacity-100 transition-opacity"
+                    />
+                  )}
                 </Link>
               )}
-              <h1 className="mt-2 text-2xl lg:text-3xl font-bold text-slate-900 leading-tight">
+
+              <h1 className="font-display text-2xl lg:text-3xl text-slate-900 leading-tight">
                 {product.name}
               </h1>
               {product.model_number && (
                 <p className="mt-1 text-sm text-slate-400">Model: {product.model_number}</p>
               )}
 
+              {/* Trust badges row */}
               <div className="mt-4 flex flex-wrap gap-2">
                 {product.energy_rating && <Badge variant="success">{product.energy_rating} Energy Rating</Badge>}
                 {product.cooling_btu && <Badge variant="secondary">{product.cooling_btu.toLocaleString()} BTU</Badge>}
                 {product.coverage_m2 && <Badge variant="secondary">Up to {product.coverage_m2}m²</Badge>}
                 {product.wifi_enabled && <Badge variant="secondary">Wi-Fi</Badge>}
+                {product.warranty_years && product.warranty_years > 0 && (
+                  <Badge variant="secondary">
+                    {product.warranty_years}-Year Warranty
+                  </Badge>
+                )}
                 <Badge variant={product.availability === 'in_stock' ? 'success' : 'warning'} className="capitalize">
                   {product.availability.replace(/_/g, ' ')}
                 </Badge>
+              </div>
+
+              {/* Installation available strip */}
+              <div className="mt-4 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-100 w-fit">
+                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                <span className="text-sm font-medium text-blue-800">Professional installation available across Malta</span>
               </div>
 
               {/* Price */}
@@ -224,7 +247,7 @@ export default async function ProductPage({ params }: Props) {
           {/* HVAC Spec Cards */}
           {hasHvacSpecs && (
             <div className="mt-16">
-              <h2 className="text-2xl font-bold text-slate-900 mb-2">System Specifications</h2>
+              <h2 className="font-display text-2xl text-slate-900 mb-2">System Specifications</h2>
               <p className="text-sm text-slate-500 mb-6">Performance data and technical details for this unit</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {hvacSpecs.map((spec, i) => (
@@ -275,7 +298,7 @@ export default async function ProductPage({ params }: Props) {
             <div className="mt-16">
               <div className="flex items-end justify-between mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
+                  <h2 className="font-display text-2xl text-slate-900">
                     {hasBtu ? 'Similar Systems For Your Space' : 'Related Products'}
                   </h2>
                   {hasBtu && (

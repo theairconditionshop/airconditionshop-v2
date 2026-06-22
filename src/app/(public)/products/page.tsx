@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Search } from 'lucide-react'
 import { getProducts, getCategories, getBrands } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
@@ -44,7 +45,7 @@ export default async function ProductsPage({ searchParams }: Props) {
           {/* Page title */}
           <div className="mb-6 lg:mb-10">
             <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-1">Our Range</p>
-            <h1 className="text-2xl lg:text-3xl font-bold text-slate-900">{title}</h1>
+            <h1 className="font-display text-2xl lg:text-3xl text-slate-900">{title}</h1>
             <p className="text-sm text-slate-400 mt-1">
               {products.length} product{products.length !== 1 ? 's' : ''} found
               {params.search && <span> for &ldquo;{params.search}&rdquo;</span>}
@@ -73,13 +74,17 @@ export default async function ProductsPage({ searchParams }: Props) {
               ) : (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                   <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">
-                    <span className="text-2xl">🔍</span>
+                    <Search className="w-7 h-7 text-slate-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">No products found</h3>
-                  <p className="text-slate-500 text-sm max-w-xs">
+                  <h3 className="font-display text-xl text-slate-900 mb-2">No products found</h3>
+                  <p className="text-slate-500 text-sm max-w-xs leading-relaxed">
                     Try adjusting your filters or{' '}
                     <Link href="/products" className="text-blue-600 hover:underline font-medium">browse all products</Link>.
                   </p>
+                  <Link href="/contact"
+                    className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors duration-150">
+                    Ask Our Team
+                  </Link>
                 </div>
               )}
             </div>
