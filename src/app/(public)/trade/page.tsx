@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Percent, Phone, Package, Users, ArrowRight } from 'lucide-react'
+import { CheckCircle2, Percent, Phone, Package, Users, ArrowRight, LogIn } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Trade Account',
@@ -43,10 +43,12 @@ export default function TradePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/trade/register">
-                <Button variant="brand" size="lg">Apply Now <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                <Button variant="brand" size="lg">Apply for Trade Account <ArrowRight className="w-4 h-4 ml-1" /></Button>
               </Link>
-              <Link href="/contact">
-                <Button variant="outline" size="lg" className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white">Talk to Us</Button>
+              <Link href="/login">
+                <Button size="lg" className="bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:text-white hover:border-white/30 transition-all duration-200">
+                  <LogIn className="w-4 h-4" /> Trade Login
+                </Button>
               </Link>
             </div>
           </div>
@@ -93,10 +95,16 @@ export default function TradePage() {
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center">
               <h3 className="text-xl font-bold text-slate-900 mb-3">Ready to apply?</h3>
               <p className="text-slate-500 mb-6">The application takes under 5 minutes. Once approved, trade pricing is activated instantly.</p>
-              <Link href="/trade/register" className="block">
-                <Button variant="brand" size="lg" className="w-full">Start Application <ArrowRight className="w-4 h-4 ml-1" /></Button>
-              </Link>
-              <p className="mt-4 text-sm text-slate-400">Already approved? <Link href="/login" className="text-sky-600 hover:underline">Sign in</Link></p>
+              <div className="flex flex-col gap-3">
+                <Link href="/trade/register" className="block">
+                  <Button variant="brand" size="lg" className="w-full">Apply for Trade Account <ArrowRight className="w-4 h-4 ml-1" /></Button>
+                </Link>
+                <Link href="/login" className="block">
+                  <Button variant="outline" size="lg" className="w-full">
+                    <LogIn className="w-4 h-4" /> Trade Login
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
