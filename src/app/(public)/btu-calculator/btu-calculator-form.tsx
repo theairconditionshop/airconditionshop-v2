@@ -230,7 +230,7 @@ export default function BtuCalculatorForm() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-900">
-                {loadingRecs ? 'Finding matched units…' : recommendations.length > 0 ? 'Systems Matched To Your Room' : 'Browse Our Range'}
+                {loadingRecs ? 'Finding matched units…' : recommendations.length > 0 ? 'Recommended for your room' : 'Browse Our Range'}
               </h3>
               {recommendations.length > 0 && (
                 <Link href="/products" className="text-sm text-sky-600 hover:text-sky-700 font-medium">

@@ -17,9 +17,9 @@ export default function BtuCalculatorPage() {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-14">
           <div className="text-center mb-10">
             <p className="text-xs font-semibold text-sky-600 uppercase tracking-widest mb-2">Free Tool</p>
-            <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">BTU / kW Calculator</h1>
+            <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">Not sure what size air conditioner you need?</h1>
             <p className="mt-3 text-slate-500 max-w-xl mx-auto">
-              Find out what size air conditioner you need. Enter your room details and we&apos;ll recommend the right capacity.
+              Tell us your room size and we&apos;ll recommend the right cooling capacity in seconds.
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
