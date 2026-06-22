@@ -35,6 +35,23 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'spare-parts':              CircleDot,
 }
 
+// Fallback Unsplash images for categories that don't have a DB image_url
+const CATEGORY_IMAGES: Record<string, string> = {
+  'air-conditioners':         'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=75',
+  'multi-split-systems':      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=75',
+  'vrf-systems':              'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=75',
+  'heat-pumps':               'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=75',
+  'commercial-refrigeration': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=75',
+  'cold-rooms':               'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=75',
+  'freezers-fridges':         'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75',
+  'hvac-tools':               'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'accessories':              'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=75',
+  'ventilation':              'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75',
+  'air-curtains':             'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=75',
+  'refrigerants':             'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'spare-parts':              'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=75',
+}
+
 const containerVariants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.07 } },
@@ -92,7 +109,7 @@ export default function ProductCategories({ categories }: { categories: Category
           viewport={{ once: true, margin: '-60px' }}
         >
           {displayed.map((category) => {
-            const Icon = CATEGORY_ICONS[category.slug] ?? Settings
+            const imageUrl = category.image_url || CATEGORY_IMAGES[category.slug]
             return (
               <motion.div key={category.id} variants={cardVariants}>
                 <Link
@@ -101,27 +118,20 @@ export default function ProductCategories({ categories }: { categories: Category
                 >
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-slate-800/50 transition-all duration-350 group-hover:border-blue-700/40 group-hover:shadow-[0_16px_48px_-16px_rgba(37,99,235,0.3)]">
 
-                    {category.image_url ? (
+                    {imageUrl ? (
                       <>
                         <Image
-                          src={category.image_url}
+                          src={imageUrl}
                           alt={category.name}
                           fill
                           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-900/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-900/50 to-slate-900/10" />
                       </>
                     ) : (
                       <>
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/70" />
-                        {/* Icon glow */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="relative">
-                            <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            <Icon className="relative h-14 w-14 text-blue-400/50 transition-all duration-300 group-hover:text-blue-300/90 group-hover:scale-110" />
-                          </div>
-                        </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-transparent to-transparent" />
                       </>
                     )}

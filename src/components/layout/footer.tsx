@@ -1,5 +1,8 @@
+'use client'
+
+import { useState } from 'react'
 import Link from 'next/link'
-import { Phone, Mail, MapPin, Clock } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock, ChevronDown } from 'lucide-react'
 
 const PRODUCT_LINKS = [
   { label: 'Air Conditioners',        href: '/products/category/air-conditioners' },
@@ -27,17 +30,53 @@ const TOOL_LINKS = [
   { label: 'Terms of Use',    href: '/legal/terms' },
 ]
 
+function AccordionSection({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="border-b border-white/[0.04] md:border-0">
+      {/* Mobile toggle */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex md:hidden w-full items-center justify-between py-4 cursor-pointer"
+        aria-expanded={open}
+      >
+        <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.22em]">{title}</span>
+        <ChevronDown
+          className={`w-4 h-4 text-slate-600 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {/* Desktop heading */}
+      <h3 className="hidden md:block text-[11px] font-semibold text-slate-500 uppercase tracking-[0.22em] mb-5">
+        {title}
+      </h3>
+
+      {/* Content — hidden on mobile until toggled, always visible on md+ */}
+      <div className={`${open ? 'block' : 'hidden'} md:block pb-5 md:pb-0`}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-white/[0.04]">
       {/* Main footer */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 md:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 md:gap-12">
 
-          {/* Brand column */}
-          <div className="lg:col-span-1">
+          {/* Brand column — always visible, no accordion */}
+          <div className="lg:col-span-1 pb-8 mb-2 md:mb-0 border-b border-white/[0.04] md:border-0">
             <Link href="/" className="inline-block mb-5 cursor-pointer group">
               <span className="font-display text-white text-xl tracking-tight group-hover:text-blue-300 transition-colors duration-200">
                 THE AIRCONDITION SHOP
@@ -89,9 +128,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Products */}
-          <div>
-            <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.22em] mb-5">Products</h3>
+          {/* Products — accordion on mobile */}
+          <AccordionSection title="Products">
             <ul className="space-y-3">
               {PRODUCT_LINKS.map(link => (
                 <li key={link.href}>
@@ -101,11 +139,10 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </AccordionSection>
 
-          {/* Company */}
-          <div>
-            <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.22em] mb-5">Company</h3>
+          {/* Company — accordion on mobile */}
+          <AccordionSection title="Company">
             <ul className="space-y-3">
               {COMPANY_LINKS.map(link => (
                 <li key={link.href}>
@@ -115,11 +152,10 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </AccordionSection>
 
-          {/* Tools */}
-          <div>
-            <h3 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.22em] mb-5">Tools &amp; Info</h3>
+          {/* Tools — accordion on mobile */}
+          <AccordionSection title="Tools &amp; Info">
             <ul className="space-y-3">
               {TOOL_LINKS.map(link => (
                 <li key={link.href}>
@@ -145,7 +181,7 @@ export default function Footer() {
                 </Link>
               </div>
             </div>
-          </div>
+          </AccordionSection>
         </div>
       </div>
 
