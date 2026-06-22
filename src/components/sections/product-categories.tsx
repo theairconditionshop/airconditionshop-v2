@@ -53,7 +53,7 @@ export default function ProductCategories({ categories }: { categories: Category
   const displayed = categories.slice(0, 8)
 
   return (
-    <section className="bg-slate-950 py-24 lg:py-28 border-t border-white/[0.04]">
+    <section className="bg-slate-950 py-14 lg:py-20 border-t border-white/[0.04]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
@@ -68,8 +68,8 @@ export default function ProductCategories({ categories }: { categories: Category
             <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               Browse Our Range
             </p>
-            <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-white">
-              HVAC &amp; Refrigeration
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl leading-tight text-white">
+              HVAC &amp; Refrigeration{' '}
               <br className="hidden sm:block" />
               Solutions
             </h2>

@@ -33,7 +33,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
   const heroGradient = getGradient(hero.brand?.name)
 
   return (
-    <section className="py-24 bg-[#FAFAF9]">
+    <section className="py-14 lg:py-20 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section header */}

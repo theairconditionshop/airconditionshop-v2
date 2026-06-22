@@ -13,7 +13,7 @@ const STEPS = [
 
 export default function BtuPromo() {
   return (
-    <section className="relative py-24 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 overflow-hidden">
+    <section className="relative py-14 lg:py-20 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 overflow-hidden">
       {/* Background grid */}
       <div
         className="absolute inset-0 opacity-[0.03]"
@@ -55,7 +55,7 @@ export default function BtuPromo() {
                 </Button>
               </Link>
               <Link href="/contact">
-                <Button size="lg" variant="outline" className="border-white/15 text-white hover:bg-white/8 hover:text-white gap-2 bg-transparent">
+                <Button size="lg" variant="outline" className="border-white/15 text-white hover:bg-white/[0.08] hover:text-white gap-2 bg-transparent">
                   <span>Get expert advice</span>
                 </Button>
               </Link>

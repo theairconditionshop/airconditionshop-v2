@@ -9,7 +9,7 @@ import PageHeader from '@/components/shared/page-header'
 
 export const revalidate = 300
 export const metadata: Metadata = {
-  title: 'Our Brands',
+  title: 'Our Brands — Daikin, Mitsubishi Electric, Panasonic & More',
   description: 'Authorised dealer for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu, Gree and more.',
   alternates: { canonical: 'https://theairconditionshop.com/brands' },
 }

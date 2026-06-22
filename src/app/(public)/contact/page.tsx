@@ -6,7 +6,7 @@ import ContactForm from './contact-form'
 import { MapPin, Phone, Mail, Clock, CheckCircle2, ArrowRight, Zap, MessageSquare } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
+  title: 'Contact Us — HVAC & Refrigeration Malta',
   description: 'Get in touch with THE AIRCONDITION SHOP. Call, email or visit us in Mosta, Malta. Emergency HVAC response across all Malta.',
   alternates: { canonical: 'https://theairconditionshop.com/contact' },
 }

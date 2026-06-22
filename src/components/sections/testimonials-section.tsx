@@ -8,17 +8,17 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
   if (!testimonials.length) return null
 
   return (
-    <section className="py-24 lg:py-28 bg-[#FAFAF9]">
+    <section className="py-14 lg:py-20 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <motion.div
-          className="mb-14"
+          className="mb-10"
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3">Customer Reviews</p>
-          <h2 className="font-display text-4xl lg:text-5xl text-slate-900 leading-tight">What Our Customers Say</h2>
+          <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Customer Reviews</p>
+          <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight">What Our Customers Say</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

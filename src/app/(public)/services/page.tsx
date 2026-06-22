@@ -10,8 +10,8 @@ import {
 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Services',
-  description: 'Professional HVAC installation, maintenance, and repair services across Malta.',
+  title: 'HVAC & Refrigeration Services — Installation, Maintenance & Repair',
+  description: 'Professional HVAC installation, servicing and emergency repair across Malta. Certified technicians, all major brands, 24/7 emergency response.',
   alternates: { canonical: 'https://theairconditionshop.com/services' },
 }
 

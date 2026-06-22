@@ -7,16 +7,16 @@ import { Button } from '@/components/ui/button'
 import { MapPin, Phone, Mail, Users, Award, Package, Wrench, CheckCircle2, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'About Us',
+  title: "About Us — Malta's HVAC Specialists",
   description: "Learn about THE AIRCONDITION SHOP — Malta's specialist in HVAC, refrigeration and climate control.",
   alternates: { canonical: 'https://theairconditionshop.com/about' },
 }
 
 const STATS = [
-  { icon: Users,   value: '1,000+', label: 'Happy customers' },
-  { icon: Wrench,  value: '5,000+', label: 'Installations completed' },
+  { icon: Users,   value: '1,200+', label: 'Installations completed' },
+  { icon: Award,   value: '15+',    label: 'Years in Malta' },
   { icon: Package, value: '500+',   label: 'Products in stock' },
-  { icon: Award,   value: '15+',    label: 'Years of experience' },
+  { icon: Wrench,  value: '6',      label: 'Premium brands' },
 ]
 
 const VALUES = [
@@ -35,8 +35,8 @@ export default function AboutPage() {
         {/* ── Hero ── */}
         <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">
           <Image
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
-            alt="The Aircondition Shop — our team and showroom"
+            src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1920&q=80"
+            alt="Professional HVAC installation by The Aircondition Shop"
             fill
             className="object-cover object-center"
             priority

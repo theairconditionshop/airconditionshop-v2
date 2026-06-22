@@ -38,7 +38,7 @@ const itemVariants = {
 
 export default function TradeCta() {
   return (
-    <section className="bg-slate-950 py-24 text-white">
+    <section className="bg-slate-950 py-14 lg:py-20 text-white">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}

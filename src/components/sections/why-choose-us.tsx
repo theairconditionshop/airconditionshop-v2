@@ -91,12 +91,12 @@ export default function WhyChooseUs({ data }: { data: WhyData }) {
   const items = data.items ?? DEFAULT_ITEMS
 
   return (
-    <section className="bg-white py-24 lg:py-32">
+    <section className="bg-white py-14 lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
         <motion.div
-          className="mb-16 max-w-3xl"
+          className="mb-10 max-w-2xl"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -105,48 +105,48 @@ export default function WhyChooseUs({ data }: { data: WhyData }) {
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
             Our Promise
           </p>
-          <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-slate-900">
+          <h2 className="font-display text-3xl lg:text-4xl xl:text-5xl leading-tight text-slate-900">
             {heading}
           </h2>
         </motion.div>
 
         {/* Stats — animated counters */}
         <motion.div
-          className="mb-16 grid grid-cols-2 gap-px bg-slate-100 rounded-2xl overflow-hidden lg:grid-cols-4"
+          className="mb-12 grid grid-cols-2 gap-px bg-slate-100 rounded-2xl overflow-hidden lg:grid-cols-4"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.55, delay: 0.1 }}
         >
           {STATS.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center justify-center py-10 px-6 bg-white text-center group hover:bg-slate-50 transition-colors duration-200">
-              <span className="text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-none tabular-nums">
+            <div key={stat.label} className="flex flex-col items-center justify-center py-8 px-4 bg-white text-center">
+              <span className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none tabular-nums">
                 <AnimatedCounter value={stat.value} suffix={stat.suffix} />
               </span>
-              <span className="mt-2.5 text-xs font-semibold text-slate-400 uppercase tracking-[0.14em]">
+              <span className="mt-2 text-[11px] font-semibold text-slate-400 uppercase tracking-[0.14em]">
                 {stat.label}
               </span>
             </div>
           ))}
         </motion.div>
 
-        {/* Feature cards */}
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Feature list — editorial columns, no card borders */}
+        <div className="grid grid-cols-1 gap-0 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
           {items.map((item, i) => {
             const Icon = ICON_MAP[item.icon] ?? ShieldCheck
             return (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.09, duration: 0.5 }}
-                className="group rounded-2xl border border-slate-100 p-8 transition-all duration-300 hover:border-blue-100 hover:shadow-[0_12px_40px_-12px_rgba(14,165,233,0.12)] hover:-translate-y-0.5 cursor-default"
+                transition={{ delay: i * 0.09, duration: 0.45 }}
+                className="group py-8 sm:py-0 sm:px-8 first:pl-0 last:pr-0 cursor-default"
               >
-                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-50 transition-all duration-300 group-hover:bg-blue-50 group-hover:scale-110">
-                  <Icon aria-hidden="true" className="h-5 w-5 text-slate-500 group-hover:text-blue-600 transition-colors duration-200" />
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100 transition-colors duration-200">
+                  <Icon aria-hidden="true" className="h-4.5 w-4.5 text-blue-600" />
                 </div>
-                <h3 className="mb-2.5 text-base font-bold text-slate-900">{item.title}</h3>
+                <h3 className="mb-2 text-[15px] font-bold text-slate-900">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-500">{item.description}</p>
               </motion.div>
             )

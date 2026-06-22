@@ -149,6 +149,24 @@ export default function Footer() {
         </div>
       </div>
 
+      {/* Trust certification strip */}
+      <div className="border-t border-white/[0.04]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
+          {[
+            'Authorised Daikin Dealer',
+            'Mitsubishi Electric Approved',
+            'F-Gas Certified',
+            'Malta VAT Registered',
+            'Fully Insured',
+          ].map(cert => (
+            <span key={cert} className="inline-flex items-center gap-1.5 text-[11px] text-slate-600 tracking-wide">
+              <span className="w-1 h-1 rounded-full bg-blue-700/60 shrink-0" />
+              {cert}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Bottom bar */}
       <div className="border-t border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
