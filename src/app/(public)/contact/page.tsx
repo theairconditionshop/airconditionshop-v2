@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import ContactForm from './contact-form'
-import { MapPin, Phone, Mail, Clock, CheckCircle2, ArrowRight, Zap, MessageSquare } from 'lucide-react'
+import { getSiteSettings } from '@/lib/data/queries'
+import { MapPin, Phone, Mail, Clock, CheckCircle2, ArrowRight, Zap, MessageSquare, Star } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Contact Us — HVAC & Refrigeration Malta',
@@ -17,7 +17,9 @@ const AREAS = [
   'Żabbar', 'Paola', 'Fgura',
 ]
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings()
+  const googleReviewUrl = typeof settings.google_review_url === 'string' ? settings.google_review_url : ''
   return (
     <>
       <Navbar transparent />
@@ -25,16 +27,10 @@ export default function ContactPage() {
 
         {/* ── Hero ── */}
         <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">
-          <Image
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80"
-            alt="The Aircondition Shop office"
-            fill
-            className="object-cover object-center"
-            priority
-            quality={80}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-900/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-transparent" />
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-blue-600/10 blur-[120px]" />
+            <div className="absolute bottom-1/3 right-1/3 w-64 h-64 rounded-full bg-blue-500/8 blur-[100px]" />
+          </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">
@@ -87,7 +83,7 @@ export default function ContactPage() {
                 <div>
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.18em] mb-0.5">Hours</p>
                   <p className="text-sm font-bold text-slate-900">Mon–Fri 08:00–18:00</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Sat 09:00–13:00 · Emergency 24/7</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Sat 08:00–14:00 · Emergency 24/7</p>
                 </div>
               </div>
             </div>
@@ -136,6 +132,30 @@ export default function ContactPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Google Review CTA */}
+                {googleReviewUrl && (
+                  <div className="mb-10 p-5 rounded-2xl border border-amber-200/60 bg-amber-50/60">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+                        <Star className="w-5 h-5 text-amber-500" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-slate-900 mb-0.5">Happy with our service?</p>
+                        <p className="text-xs text-slate-500 mb-3 leading-relaxed">Leave us a review on Google — it helps other customers find us.</p>
+                        <a
+                          href={googleReviewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-400 text-white text-xs font-semibold rounded-lg transition-colors duration-200 cursor-pointer"
+                        >
+                          <Star className="w-3.5 h-3.5" />
+                          Leave a Google Review
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Service area */}
                 <div>

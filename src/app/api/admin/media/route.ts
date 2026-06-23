@@ -66,3 +66,31 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ uploaded: results.filter(r => !r.error).length, results })
 }
+
+export async function DELETE(request: Request) {
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const body = await request.json().catch(() => ({}))
+  const { url } = body as { url?: string }
+  if (!url || typeof url !== 'string') {
+    return NextResponse.json({ error: 'url required' }, { status: 400 })
+  }
+
+  // Extract storage path from Supabase public URL
+  // Format: https://<ref>.supabase.co/storage/v1/object/public/media/<path>
+  const match = url.match(/\/storage\/v1\/object\/public\/media\/(.+)$/)
+  if (!match) {
+    // Not a storage URL we manage — ignore silently
+    return NextResponse.json({ deleted: false })
+  }
+
+  const storagePath = match[1]
+  const db = createAdminClient()
+  const { error } = await db.storage.from('media').remove([storagePath])
+  if (error) {
+    console.error('[media] Delete failed for', storagePath, ':', error.message)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ deleted: true, path: storagePath })
+}

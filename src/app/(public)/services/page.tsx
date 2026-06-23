@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import ServiceRequestForm from './service-request-form'
 import {
   Wrench, Calendar, Shield, Clock, CheckCircle2, ThumbsUp,
-  ArrowRight, Phone, Star, Award, Zap,
+  ArrowRight, Phone, Award, Globe,
 } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -71,16 +70,10 @@ export default function ServicesPage() {
 
         {/* Hero */}
         <section className="relative min-h-[68vh] flex items-end overflow-hidden bg-slate-950">
-          <Image
-            src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1920&q=85"
-            alt="HVAC technician performing professional installation"
-            fill
-            className="object-cover object-center"
-            priority
-            quality={85}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-900/25" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 to-transparent" />
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-blue-600/10 blur-[120px]" />
+            <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-blue-500/8 blur-[100px]" />
+          </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-20 pt-44 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">
@@ -175,9 +168,9 @@ export default function ServicesPage() {
                 {/* Trust badges */}
                 <div className="grid grid-cols-3 gap-3 mb-10">
                   {[
-                    { icon: Star,  label: '5-Star',   sub: 'Google rated' },
-                    { icon: Award, label: 'F-Gas',    sub: 'Certified' },
-                    { icon: Zap,   label: '15+ Years', sub: 'In Malta' },
+                    { icon: Globe,  label: 'Malta Based',         sub: 'Mosta showroom' },
+                    { icon: Award,  label: 'F-Gas Certified',     sub: 'All technicians' },
+                    { icon: Shield, label: 'Professional Service', sub: 'Residential & commercial' },
                   ].map(({ icon: Icon, label, sub }) => (
                     <div key={label} className="text-center p-4 rounded-2xl bg-white border border-slate-100">
                       <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-2">

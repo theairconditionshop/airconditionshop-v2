@@ -41,39 +41,39 @@ const itemVariants = {
   },
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=760&q=80'
-
 export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
-  const imageUrl = data.image_url || DEFAULT_IMAGE
+  const imageUrl = data.image_url || null
 
   return (
     <section className="bg-slate-950 py-10 lg:py-16 text-white overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Mobile image — shown above content, hidden on desktop */}
-        <motion.div
-          className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <Image
-            src={imageUrl}
-            alt="Professional HVAC installer at work"
-            fill
-            sizes="100vw"
-            className="object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
-          <div className="absolute bottom-4 left-4">
-            <div className="flex items-center gap-2 bg-slate-950/70 backdrop-blur-sm border border-white/[0.08] rounded-xl px-3 py-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-              <span className="text-[11px] text-slate-300 font-medium">F-Gas Certified · Manufacturer Approved</span>
+        {/* Mobile image — shown above content when set in admin */}
+        {imageUrl && (
+          <motion.div
+            className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <Image
+              src={imageUrl}
+              alt="Professional HVAC installer at work"
+              fill
+              sizes="100vw"
+              className="object-cover object-top"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4">
+              <div className="flex items-center gap-2 bg-slate-950/70 backdrop-blur-sm border border-white/[0.08] rounded-xl px-3 py-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                <span className="text-[11px] text-slate-300 font-medium">F-Gas Certified · Manufacturer Approved</span>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
-        <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-14 lg:items-stretch">
+        <div className={imageUrl ? 'lg:grid lg:grid-cols-[1fr_380px] lg:gap-14 lg:items-stretch' : ''}>
 
           {/* Left — content */}
           <div>
@@ -156,34 +156,36 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
             </motion.p>
           </div>
 
-          {/* Right — installer image (desktop only) */}
-          <motion.div
-            className="hidden lg:flex"
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
-          >
-            <div className="relative h-full min-h-[440px] overflow-hidden rounded-2xl">
-              <Image
-                src={imageUrl}
-                alt="Professional HVAC installer at work"
-                fill
-                sizes="380px"
-                className="object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-l from-transparent to-slate-950/20" />
+          {/* Right — installer image (desktop only, when set in admin) */}
+          {imageUrl && (
+            <motion.div
+              className="hidden lg:flex"
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
+            >
+              <div className="relative h-full min-h-[440px] overflow-hidden rounded-2xl">
+                <Image
+                  src={imageUrl}
+                  alt="Professional HVAC installer at work"
+                  fill
+                  sizes="380px"
+                  className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-l from-transparent to-slate-950/20" />
 
-              {/* Floating badge */}
-              <div className="absolute bottom-5 left-5 right-5">
-                <div className="flex items-center gap-2 bg-slate-950/80 backdrop-blur-md border border-white/[0.08] rounded-xl px-4 py-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-                  <span className="text-[12px] text-slate-300 font-medium">F-Gas Certified · Manufacturer Approved</span>
+                {/* Floating badge */}
+                <div className="absolute bottom-5 left-5 right-5">
+                  <div className="flex items-center gap-2 bg-slate-950/80 backdrop-blur-md border border-white/[0.08] rounded-xl px-4 py-3">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+                    <span className="text-[12px] text-slate-300 font-medium">F-Gas Certified · Manufacturer Approved</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
         </div>
       </div>
     </section>

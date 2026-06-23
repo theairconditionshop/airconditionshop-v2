@@ -20,6 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: post.seo_title || post.title,
     description: post.seo_desc || post.excerpt || undefined,
     openGraph: { images: post.cover_url ? [post.cover_url] : [] },
+    alternates: { canonical: `https://theairconditionshop.com/blog/${slug}` },
   }
 }
 

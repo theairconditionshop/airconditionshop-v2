@@ -22,12 +22,10 @@ interface ServicesData {
   items?: ServiceItem[]
 }
 
-const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=900&q=80'
-
 export default function ServicesSection({ data }: { data: ServicesData }) {
   const heading = data.heading || 'Our Services'
   const description = data.description || 'From single-room air conditioning to full commercial HVAC installations, our certified engineers deliver premium solutions across Malta.'
-  const imageUrl = data.image_url || DEFAULT_IMAGE
+  const imageUrl = data.image_url || null
   const items: ServiceItem[] = data.items || [
     { icon: 'thermometer', title: 'Air Conditioning Installation', description: 'Professional installation of split, multi-split and VRF systems for homes and businesses.' },
     { icon: 'snowflake',   title: 'Commercial Refrigeration',      description: 'Cold rooms, commercial fridges and freezers for hotels, restaurants and retail.' },
@@ -39,29 +37,31 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
     <section className="py-10 lg:py-16 bg-white border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
-        {/* Mobile hero image — shown above content on mobile, hidden on desktop */}
-        <motion.div
-          className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <Image
-            src={imageUrl}
-            alt="Professional HVAC installation and service — certified engineers"
-            fill
-            sizes="100vw"
-            className="object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
-          <div className="absolute bottom-4 left-4">
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/90 bg-slate-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-              F-Gas Certified Engineers
-            </span>
-          </div>
-        </motion.div>
+        {/* Mobile image — shown above content when set in admin */}
+        {imageUrl && (
+          <motion.div
+            className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <Image
+              src={imageUrl}
+              alt="Professional HVAC installation and service — certified engineers"
+              fill
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
+            <div className="absolute bottom-4 left-4">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/90 bg-slate-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                F-Gas Certified Engineers
+              </span>
+            </div>
+          </motion.div>
+        )}
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
@@ -90,29 +90,31 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
               </Link>
             </div>
 
-            {/* Desktop image — shown in left column below CTA */}
-            <motion.div
-              className="hidden lg:block mt-10 relative aspect-[4/3] overflow-hidden rounded-2xl"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-            >
-              <Image
-                src={imageUrl}
-                alt="Professional HVAC installation and service — certified engineers"
-                fill
-                sizes="(max-width: 1280px) 50vw, 560px"
-                className="object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/90 bg-slate-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                  F-Gas Certified Engineers
-                </span>
-              </div>
-            </motion.div>
+            {/* Desktop image — shown in left column when set in admin */}
+            {imageUrl && (
+              <motion.div
+                className="hidden lg:block mt-10 relative aspect-[4/3] overflow-hidden rounded-2xl"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+              >
+                <Image
+                  src={imageUrl}
+                  alt="Professional HVAC installation and service — certified engineers"
+                  fill
+                  sizes="(max-width: 1280px) 50vw, 560px"
+                  className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/90 bg-slate-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                    F-Gas Certified Engineers
+                  </span>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Right — numbered editorial list */}

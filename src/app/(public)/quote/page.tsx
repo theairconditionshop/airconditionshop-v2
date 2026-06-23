@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import QuoteForm from './quote-form'
-import { CheckCircle2, Clock, FileText, Phone, Shield, Star, Zap } from 'lucide-react'
+import { CheckCircle2, Clock, FileText, Phone, Shield, Globe, Zap } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Request a Free Quote',
@@ -22,9 +21,9 @@ const INCLUDES = [
 ]
 
 const TRUST = [
-  { icon: Star,   label: '5-Star Rated',    sub: 'Across Google & Facebook' },
+  { icon: Globe,  label: 'Malta Based',      sub: 'Mosta showroom' },
   { icon: Shield, label: 'F-Gas Certified',  sub: 'Fully insured technicians' },
-  { icon: Zap,    label: '48h Quote',        sub: 'Fast turnaround guaranteed' },
+  { icon: Zap,    label: '48h Quote',        sub: 'Fast turnaround' },
 ]
 
 export default function QuotePage() {
@@ -35,16 +34,10 @@ export default function QuotePage() {
 
         {/* ── Hero ── */}
         <section className="relative min-h-[46vh] flex items-end overflow-hidden bg-slate-950">
-          <Image
-            src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1920&q=80"
-            alt="Professional HVAC quote and consultation"
-            fill
-            className="object-cover object-center"
-            priority
-            quality={80}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-900/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-transparent" />
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/3 left-1/4 w-80 h-80 rounded-full bg-blue-600/10 blur-[100px]" />
+            <div className="absolute bottom-1/4 right-1/3 w-60 h-60 rounded-full bg-blue-500/8 blur-[90px]" />
+          </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">Free · No Obligation</p>

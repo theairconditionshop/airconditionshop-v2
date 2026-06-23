@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,13 +8,14 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import ImageUploadField from '@/components/admin/image-upload-field'
 
 const schema = z.object({
-  title:        z.string().min(2),
-  slug:         z.string().min(2),
-  excerpt:      z.string().optional(),
-  content:      z.string().min(10),
-  publish_now:  z.boolean().optional(),
+  title:       z.string().min(2),
+  slug:        z.string().min(2),
+  excerpt:     z.string().optional(),
+  content:     z.string().min(10),
+  publish_now: z.boolean().optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -21,6 +23,9 @@ type FormData = z.infer<typeof schema>
 export default function BlogPostForm({ post }: { post?: Record<string, unknown> }) {
   const router = useRouter()
   const isEdit = !!post
+  const [coverUrl, setCoverUrl] = useState<string | null>(
+    (post?.cover_url as string) || null
+  )
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,6 +47,7 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
       slug:         data.slug,
       excerpt:      data.excerpt,
       content:      data.content,
+      cover_url:    coverUrl ?? '',
       status:       data.publish_now ? 'published' : 'draft',
       published_at: data.publish_now ? new Date().toISOString() : null,
     }
@@ -73,6 +79,15 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
             placeholder="Short summary shown on blog listing" />
         </div>
+
+        <ImageUploadField
+          label="Cover Image"
+          hint="Shown at the top of the post and in blog listing cards. Recommended: 1200×630px."
+          aspectRatio="16 / 9"
+          value={coverUrl}
+          onChange={setCoverUrl}
+        />
+
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Content <span className="text-red-500">*</span></label>
           <textarea {...register('content')} rows={16}

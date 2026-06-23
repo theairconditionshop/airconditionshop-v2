@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { ChevronDown, Save, Eye, EyeOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import ImageUploadField from '@/components/admin/image-upload-field'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -56,10 +57,13 @@ function HeroEditor({ data, onChange }: { data: Record<string, unknown>; onChang
           placeholder="Premium air conditioning solutions for Malta…"
           onChange={e => onChange({ ...data, description: e.target.value })} />
       </Field>
-      <Field label="Background image URL" hint="Paste a Supabase storage URL or external image link">
-        <input className={inputCls} value={(data.media_url as string) ?? ''} placeholder="https://…"
-          onChange={e => onChange({ ...data, media_url: e.target.value })} />
-      </Field>
+      <ImageUploadField
+        label="Background Image"
+        hint="Upload a high-quality HVAC photo. Recommended: 1920×1080px or wider."
+        aspectRatio="16 / 9"
+        value={(data.media_url as string) || null}
+        onChange={url => onChange({ ...data, media_url: url ?? '' })}
+      />
 
       <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 space-y-3">
         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Primary Button</p>
@@ -147,10 +151,13 @@ function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange
           placeholder="Contact us today for a free site survey…"
           onChange={e => onChange({ ...data, description: e.target.value })} />
       </Field>
-      <Field label="Right-side image URL" hint="Optional HVAC image shown on desktop — leave blank for text-only layout">
-        <input className={inputCls} value={(data.image_url as string) ?? ''} placeholder="https://…"
-          onChange={e => onChange({ ...data, image_url: e.target.value })} />
-      </Field>
+      <ImageUploadField
+        label="Right-Side Image"
+        hint="Shown on desktop beside the text. Leave empty for full-width text layout."
+        aspectRatio="4 / 3"
+        value={(data.image_url as string) || null}
+        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+      />
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 space-y-3">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Primary Button</p>
@@ -191,10 +198,13 @@ function BtuPromoEditor({ data, onChange }: { data: Record<string, unknown>; onC
           placeholder="Calculate the right cooling capacity…"
           onChange={e => onChange({ ...data, description: e.target.value })} />
       </Field>
-      <Field label="Right-side image URL" hint="HVAC-related image only — leave blank to show BTU process steps illustration">
-        <input className={inputCls} value={(data.image_url as string) ?? ''} placeholder="https://…"
-          onChange={e => onChange({ ...data, image_url: e.target.value })} />
-      </Field>
+      <ImageUploadField
+        label="Section Image"
+        hint="Optional — leave empty to show the 3-step process illustration instead."
+        aspectRatio="4 / 3"
+        value={(data.image_url as string) || null}
+        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+      />
     </div>
   )
 }
@@ -202,10 +212,13 @@ function BtuPromoEditor({ data, onChange }: { data: Record<string, unknown>; onC
 function TradeCtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
-      <Field label="Right-side image URL" hint="HVAC installer image — leave blank for default technician photo">
-        <input className={inputCls} value={(data.image_url as string) ?? ''} placeholder="https://…"
-          onChange={e => onChange({ ...data, image_url: e.target.value })} />
-      </Field>
+      <ImageUploadField
+        label="Installer Photo"
+        hint="HVAC installer or technician at work. Shown beside the trade content."
+        aspectRatio="3 / 4"
+        value={(data.image_url as string) || null}
+        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+      />
     </div>
   )
 }
@@ -222,6 +235,13 @@ function ServicesEditor({ data, onChange }: { data: Record<string, unknown>; onC
           placeholder="What we offer…"
           onChange={e => onChange({ ...data, description: e.target.value })} />
       </Field>
+      <ImageUploadField
+        label="Services Photo"
+        hint="HVAC technician or installation. Shown above the heading on mobile, beside services on desktop."
+        aspectRatio="4 / 3"
+        value={(data.image_url as string) || null}
+        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+      />
     </div>
   )
 }

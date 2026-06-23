@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: brand.seo_title || `${brand.name} Products`,
     description: brand.seo_desc || brand.description || undefined,
+    alternates: { canonical: `https://theairconditionshop.com/brands/${slug}` },
   }
 }
 

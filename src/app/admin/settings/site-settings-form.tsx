@@ -6,20 +6,100 @@ import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
-const FIELDS = [
-  { key: 'site_name',         label: 'Site name' },
-  { key: 'site_tagline',      label: 'Tagline' },
-  { key: 'phone',             label: 'Phone number' },
-  { key: 'email',             label: 'Support email' },
-  { key: 'address',           label: 'Business address' },
-  { key: 'vat_number',        label: 'VAT number' },
-  { key: 'meta_title',        label: 'Default meta title' },
-  { key: 'meta_description',  label: 'Default meta description' },
-  { key: 'google_analytics',  label: 'Google Analytics ID' },
-  { key: 'facebook_url',      label: 'Facebook URL' },
-  { key: 'instagram_url',     label: 'Instagram URL' },
-  { key: 'linkedin_url',      label: 'LinkedIn URL' },
+interface FieldDef {
+  key: string
+  label: string
+  hint?: string
+  type?: 'text' | 'textarea' | 'url' | 'email' | 'tel'
+}
+
+interface Section {
+  title: string
+  fields: FieldDef[]
+}
+
+const SECTIONS: Section[] = [
+  {
+    title: 'Company Information',
+    fields: [
+      { key: 'company_name',    label: 'Trading name',       hint: 'Customer-facing name. e.g. THE AIRCONDITION SHOP' },
+      { key: 'legal_name',      label: 'Legal entity name',  hint: 'Used on legal pages only. e.g. AS GROUP' },
+      { key: 'vat_number',      label: 'VAT number',         hint: 'e.g. MT3103-8724' },
+      { key: 'company_phone',   label: 'Phone number',       type: 'tel', hint: 'e.g. +356 7966 1889' },
+      { key: 'company_email',   label: 'Email address',      type: 'email' },
+      { key: 'company_address', label: 'Full address',       hint: '220 Vjal L-Indipendenza, Mosta MST 9022, Malta' },
+      { key: 'copyright_text',  label: 'Copyright text',     hint: 'Shown in footer bottom bar' },
+    ],
+  },
+  {
+    title: 'Opening Hours',
+    fields: [
+      { key: 'company_hours_weekday',  label: 'Monday – Friday', hint: 'e.g. 08:00–18:00' },
+      { key: 'company_hours_saturday', label: 'Saturday',        hint: 'e.g. 08:00–14:00' },
+      { key: 'company_hours_sunday',   label: 'Sunday',          hint: 'e.g. Closed' },
+    ],
+  },
+  {
+    title: 'Social Media & Reviews',
+    fields: [
+      { key: 'social_facebook',   label: 'Facebook URL',        type: 'url', hint: 'https://facebook.com/theairconditionshop' },
+      { key: 'social_instagram',  label: 'Instagram URL',       type: 'url', hint: 'https://instagram.com/theairconditionshop' },
+      { key: 'google_review_url', label: 'Google Review URL',   type: 'url', hint: 'https://g.page/r/... — links to your Google review form' },
+      { key: 'google_maps_url',   label: 'Google Maps URL',     type: 'url' },
+    ],
+  },
+  {
+    title: 'SEO Defaults',
+    fields: [
+      { key: 'site_tagline',      label: 'Site tagline',          hint: 'Short descriptor used in meta tags' },
+      { key: 'default_seo_title', label: 'Default page title',    hint: 'Used when no page-specific title is set' },
+      { key: 'default_seo_desc',  label: 'Default meta description', type: 'textarea' },
+    ],
+  },
 ]
+
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60">
+        <h2 className="text-sm font-semibold text-slate-700">{title}</h2>
+      </div>
+      <div className="p-6 space-y-4">{children}</div>
+    </div>
+  )
+}
+
+function FieldRow({ field, value, onChange }: {
+  field: FieldDef
+  value: string
+  onChange: (v: string) => void
+}) {
+  if (field.type === 'textarea') {
+    return (
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-slate-700">{field.label}</label>
+        {field.hint && <p className="text-[11px] text-slate-400">{field.hint}</p>}
+        <textarea
+          rows={3}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none transition-colors"
+        />
+      </div>
+    )
+  }
+  return (
+    <div className="flex flex-col gap-1">
+      <Input
+        label={field.label}
+        type={field.type || 'text'}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+      />
+      {field.hint && <p className="text-[11px] text-slate-400 -mt-0.5">{field.hint}</p>}
+    </div>
+  )
+}
 
 export default function SiteSettingsForm({ settings }: { settings: Record<string, string> }) {
   const router = useRouter()
@@ -47,16 +127,22 @@ export default function SiteSettingsForm({ settings }: { settings: Record<string
   }
 
   return (
-    <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-5">
-      {FIELDS.map(f => (
-        <Input
-          key={f.key}
-          label={f.label}
-          value={values[f.key] || ''}
-          onChange={e => set(f.key, e.target.value)}
-        />
+    <div className="space-y-6">
+      {SECTIONS.map(section => (
+        <SectionCard key={section.title} title={section.title}>
+          {section.fields.map(field => (
+            <FieldRow
+              key={field.key}
+              field={field}
+              value={values[field.key] ?? ''}
+              onChange={v => set(field.key, v)}
+            />
+          ))}
+        </SectionCard>
       ))}
-      <Button variant="brand" onClick={save} loading={saving}>Save Settings</Button>
+      <div className="flex justify-end">
+        <Button variant="brand" onClick={save} loading={saving}>Save All Settings</Button>
+      </div>
     </div>
   )
 }

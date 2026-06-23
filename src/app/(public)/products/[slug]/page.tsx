@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: product.seo_title || product.name,
     description: product.seo_desc || product.description?.slice(0, 160) || undefined,
+    alternates: { canonical: `https://theairconditionshop.com/products/${slug}` },
   }
 }
 

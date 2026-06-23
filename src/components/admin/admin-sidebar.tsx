@@ -7,7 +7,7 @@ import type { UserRole } from '@/types/database'
 import {
   LayoutDashboard, Package, BookOpen, Wrench, FileText, Users,
   MessageSquare, Globe, Settings, Building2, ChevronDown, Megaphone,
-  Tag, Layers,
+  Tag, Layers, Image,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -58,6 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     group: 'System',
     items: [
+      { label: 'Media',    href: '/admin/media',    icon: Image,    roles: ['super_admin', 'admin'] },
       { label: 'Users',    href: '/admin/users',    icon: Users,    roles: ['super_admin', 'admin'] },
       { label: 'Settings', href: '/admin/settings', icon: Settings, roles: ['super_admin', 'admin'] },
     ],

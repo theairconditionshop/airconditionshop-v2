@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
-import { MapPin, Phone, Mail, Users, Award, Package, Wrench, CheckCircle2, ArrowRight } from 'lucide-react'
+import { MapPin, Phone, Mail, Globe, Building2, Briefcase, Home, CheckCircle2, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: "About Us — Malta's HVAC Specialists",
@@ -12,17 +11,17 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://theairconditionshop.com/about' },
 }
 
-const STATS = [
-  { icon: Users,   value: '1,200+', label: 'Installations completed' },
-  { icon: Award,   value: '15+',    label: 'Years in Malta' },
-  { icon: Package, value: '500+',   label: 'Products in stock' },
-  { icon: Wrench,  value: '6',      label: 'Premium brands' },
+const PILLARS = [
+  { icon: Globe,     value: 'Malta Based',          label: 'Locally owned and operated from Mosta' },
+  { icon: Briefcase, value: 'Trade Focused',         label: 'Serving installers, contractors and businesses' },
+  { icon: Building2, value: 'Commercial & Residential', label: 'Full range from domestic split units to VRF systems' },
+  { icon: Home,      value: 'Expert Support',        label: 'Technical guidance and after-sales service' },
 ]
 
 const VALUES = [
   { title: 'Expert Knowledge', desc: 'Manufacturer certifications from Daikin, Mitsubishi Electric, Panasonic, and more. We know the products inside out.' },
   { title: 'Quality First',    desc: 'We only stock brands we trust. Every product is backed by manufacturer warranty and our own after-sales support.' },
-  { title: 'Fast Response',    desc: 'Emergency call-outs answered within hours. Scheduled service confirmed the same business day.' },
+  { title: 'Fast Response',    desc: 'Emergency call-outs answered quickly. Scheduled service confirmed the same business day.' },
   { title: 'Transparent Pricing', desc: 'No hidden fees. Clear trade and retail pricing. Honest quotes with no surprises.' },
 ]
 
@@ -32,18 +31,13 @@ export default function AboutPage() {
       <Navbar transparent />
       <main className="min-h-screen">
 
-        {/* ── Hero ── */}
+        {/* ── Hero — no stock photo ── */}
         <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">
-          <Image
-            src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1920&q=80"
-            alt="Professional HVAC installation by The Aircondition Shop"
-            fill
-            className="object-cover object-center"
-            priority
-            quality={80}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-900/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 to-transparent" />
+          {/* Ambient glow effects */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-blue-600/10 blur-[120px]" />
+            <div className="absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full bg-blue-500/8 blur-[100px]" />
+          </div>
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">About Us</p>
@@ -53,22 +47,23 @@ export default function AboutPage() {
               <span className="text-blue-400 italic">Specialists</span>
             </h1>
             <p className="text-slate-300 text-lg max-w-lg leading-relaxed">
-              Over 15 years supplying, installing, and servicing HVAC and refrigeration equipment across Malta.
+              Supplying, installing, and servicing HVAC and refrigeration equipment across Malta.
+              Based in Mosta. Serving the whole island.
             </p>
           </div>
         </section>
 
-        {/* ── Stats strip ── */}
+        {/* ── Pillars strip — real descriptors, no fake numbers ── */}
         <section className="bg-white border-b border-slate-100">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100">
-              {STATS.map(({ icon: Icon, value, label }) => (
-                <div key={label} className="flex flex-col items-center justify-center gap-1.5 py-10 px-6 text-center">
+              {PILLARS.map(({ icon: Icon, value, label }) => (
+                <div key={value} className="flex flex-col items-center justify-center gap-2 py-10 px-6 text-center">
                   <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center mb-1">
                     <Icon className="w-5 h-5 text-blue-600" />
                   </div>
-                  <p className="font-display text-3xl text-slate-900">{value}</p>
-                  <p className="text-xs text-slate-400 font-medium">{label}</p>
+                  <p className="font-display text-base font-semibold text-slate-900 leading-snug">{value}</p>
+                  <p className="text-xs text-slate-400 font-medium leading-relaxed">{label}</p>
                 </div>
               ))}
             </div>
@@ -88,18 +83,18 @@ export default function AboutPage() {
 
                 <div className="space-y-5 text-slate-600 leading-relaxed text-[15px]">
                   <p>
-                    Founded in Mosta, THE AIRCONDITION SHOP started as a specialist supplier to the local HVAC
-                    trade. Over the years we&apos;ve grown into a full-service operation — supplying products to
-                    retail and trade customers, running our own installation teams, and providing maintenance
-                    contracts across residential and commercial properties.
+                    THE AIRCONDITION SHOP is a Malta-based specialist in HVAC and refrigeration equipment.
+                    Operating from our showroom in Mosta, we supply products to retail and trade customers,
+                    run our own installation teams, and provide maintenance and service contracts across
+                    residential and commercial properties.
                   </p>
                   <p>
-                    We&apos;re authorised dealers for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu,
+                    We are authorised dealers for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu,
                     and more. Our range covers domestic split systems, multi-split configurations, VRF commercial
                     systems, refrigeration cabinets, cold rooms, heat pumps, ventilation, and HVAC accessories.
                   </p>
                   <p>
-                    Whether you&apos;re a homeowner upgrading your living room unit or a contractor fitting out
+                    Whether you are a homeowner upgrading your living room unit or a contractor fitting out
                     a hotel, we have the products, technical expertise, and support to get the job done right.
                   </p>
                 </div>

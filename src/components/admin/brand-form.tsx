@@ -1,15 +1,14 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
-import Image from 'next/image'
+import ImageUploadField from '@/components/admin/image-upload-field'
 
 const schema = z.object({
   name:               z.string().min(2),
@@ -26,11 +25,9 @@ type FormData = z.infer<typeof schema>
 export default function BrandForm({ brand }: { brand?: Record<string, unknown> }) {
   const router = useRouter()
   const isEdit = !!brand
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [logoPreview, setLogoPreview] = useState<string>((brand?.logo_url as string) || '')
-  const [uploading, setUploading] = useState(false)
+  const [logoUrl, setLogoUrl] = useState<string | null>((brand?.logo_url as string) || null)
 
-  const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
@@ -44,60 +41,13 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
     } : { is_active: true },
   })
 
-  const logoUrl = watch('logo_url')
-
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be under 5MB')
-      return
-    }
-
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('files', file)
-
-      const res = await fetch('/api/admin/media', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!res.ok) throw new Error('Upload failed')
-      const data = await res.json()
-      const uploaded = data.results?.[0]
-      if (!uploaded?.url) throw new Error('Upload failed')
-      const url = uploaded.url
-      setValue('logo_url', url)
-      setLogoPreview(url)
-      toast.success('Logo uploaded')
-    } catch {
-      toast.error('Upload failed. Please try again.')
-    } finally {
-      setUploading(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
-    }
-  }
-
-  function removeLogo() {
-    setValue('logo_url', '')
-    setLogoPreview('')
-    if (fileInputRef.current) fileInputRef.current.value = ''
-  }
-
   async function onSubmit(data: FormData) {
     const url    = isEdit ? `/api/admin/brands/${brand!.id}` : '/api/admin/brands'
     const method = isEdit ? 'PUT' : 'POST'
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, logo_url: logoUrl ?? '' }),
     })
     if (res.ok) {
       toast.success(isEdit ? 'Brand updated' : 'Brand created')
@@ -119,61 +69,13 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
         <Input label="Display order" type="number" {...register('display_order')} />
       </div>
 
-      {/* Logo upload */}
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-slate-700">Brand Logo</label>
-        <div className="flex items-start gap-4">
-          {/* Preview */}
-          <div className="flex-none w-24 h-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden relative">
-            {logoPreview ? (
-              <>
-                <Image src={logoPreview} alt="Logo preview" fill className="object-contain p-2" />
-                <button
-                  type="button"
-                  onClick={removeLogo}
-                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
-                  title="Remove logo"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </>
-            ) : (
-              <ImageIcon aria-hidden="true" className="w-6 h-6 text-slate-300" />
-            )}
-          </div>
-
-          {/* Upload button */}
-          <div className="flex-1">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleLogoUpload}
-              className="hidden"
-              id="logo-file-input"
-            />
-            <label htmlFor="logo-file-input">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="gap-2 cursor-pointer"
-                loading={uploading}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload aria-hidden="true" className="w-4 h-4" />
-                {uploading ? 'Uploading…' : 'Upload Logo'}
-              </Button>
-            </label>
-            <p className="mt-1.5 text-xs text-slate-400">PNG, SVG or WebP recommended. Max 5MB.</p>
-            {/* Hidden input to hold URL value */}
-            <input type="hidden" {...register('logo_url')} />
-            {logoUrl && !logoPreview && (
-              <p className="mt-1 text-xs text-slate-500 truncate">{logoUrl}</p>
-            )}
-          </div>
-        </div>
-      </div>
+      <ImageUploadField
+        label="Brand Logo"
+        hint="PNG or WebP recommended. Displayed on the homepage brand strip and brand pages."
+        aspectRatio="3 / 2"
+        value={logoUrl}
+        onChange={setLogoUrl}
+      />
 
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-slate-700">Description</label>

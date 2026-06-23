@@ -17,13 +17,18 @@ export default function PrivacyPage() {
           <div className="py-12">
             <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-3">Legal</p>
             <h1 className="text-4xl font-bold text-slate-900 mb-2">Privacy Policy</h1>
-            <p className="text-sm text-slate-500">Last updated: June 2025</p>
+            <p className="text-sm text-slate-500">Last updated: June 2026</p>
           </div>
 
           <div className="prose prose-slate max-w-none space-y-8 text-slate-700">
             <section>
               <h2 className="text-xl font-semibold text-slate-900 mb-3">1. Who We Are</h2>
-              <p className="leading-relaxed">THE AIRCONDITION SHOP is a Malta-registered HVAC and refrigeration retailer and installer, operating at 220 Vjal L-Indipendenza, Mosta MST 9022, Malta. We are the data controller for personal information collected through this website.</p>
+              <p className="leading-relaxed">
+                THE AIRCONDITION SHOP is the trading name of <strong>AS GROUP</strong> (VAT: MT3103-8724),
+                a Malta-registered HVAC and refrigeration retailer and installer, operating at
+                220 Vjal L-Indipendenza, Mosta MST 9022, Malta.
+                We are the data controller for personal information collected through this website.
+              </p>
             </section>
 
             <section>
