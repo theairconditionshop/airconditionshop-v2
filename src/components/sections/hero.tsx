@@ -47,7 +47,7 @@ export default function Hero({ data }: { data: HeroData }) {
   const ctaSecondary = data.cta_secondary ?? { label: 'Get a Quote', href: '/quote' }
   const overlayOpacity = data.overlay_opacity ?? 0.62
   // Fallback to a high-quality HVAC/architecture photo when no admin image is set
-  const bgImage = data.media_url ?? 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1920&q=85'
+  const bgImage = data.media_url || 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1920&q=85'
 
   // Split headline around " & " so "&" can be styled
   const [headlineBefore, headlineAfter] = headline.includes(' & ')

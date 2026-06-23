@@ -49,6 +49,30 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
   return (
     <section className="bg-slate-950 py-10 lg:py-16 text-white overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Mobile image — shown above content, hidden on desktop */}
+        <motion.div
+          className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <Image
+            src={imageUrl}
+            alt="Professional HVAC installer at work"
+            fill
+            sizes="100vw"
+            className="object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <div className="flex items-center gap-2 bg-slate-950/70 backdrop-blur-sm border border-white/[0.08] rounded-xl px-3 py-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+              <span className="text-[11px] text-slate-300 font-medium">F-Gas Certified · Manufacturer Approved</span>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-14 lg:items-stretch">
 
           {/* Left — content */}
@@ -134,7 +158,7 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
 
           {/* Right — installer image (desktop only) */}
           <motion.div
-            className="hidden lg:block"
+            className="hidden lg:flex"
             initial={{ opacity: 0, x: 24 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}

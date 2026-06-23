@@ -39,8 +39,11 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
         >
-          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">
+          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em] mb-1">
             Products From Leading Manufacturers
+          </p>
+          <p className="text-[12px] text-slate-600">
+            Air Conditioning · Refrigeration · HVAC Tools · Installation Materials
           </p>
         </motion.div>
 

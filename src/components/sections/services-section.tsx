@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Thermometer, Snowflake, Wrench, Building2, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -16,11 +17,17 @@ const ICON_MAP: Record<string, React.ElementType> = {
 interface ServiceItem { icon: string; title: string; description: string }
 interface ServicesData {
   heading?: string
+  description?: string
+  image_url?: string
   items?: ServiceItem[]
 }
 
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=900&q=80'
+
 export default function ServicesSection({ data }: { data: ServicesData }) {
   const heading = data.heading || 'Our Services'
+  const description = data.description || 'From single-room air conditioning to full commercial HVAC installations, our certified engineers deliver premium solutions across Malta.'
+  const imageUrl = data.image_url || DEFAULT_IMAGE
   const items: ServiceItem[] = data.items || [
     { icon: 'thermometer', title: 'Air Conditioning Installation', description: 'Professional installation of split, multi-split and VRF systems for homes and businesses.' },
     { icon: 'snowflake',   title: 'Commercial Refrigeration',      description: 'Cold rooms, commercial fridges and freezers for hotels, restaurants and retail.' },
@@ -29,11 +36,36 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
   ]
 
   return (
-    <section className="py-14 lg:py-20 bg-white border-t border-slate-100">
+    <section className="py-10 lg:py-16 bg-white border-t border-slate-100">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+
+        {/* Mobile hero image — shown above content on mobile, hidden on desktop */}
+        <motion.div
+          className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <Image
+            src={imageUrl}
+            alt="Professional HVAC installation and service — certified engineers"
+            fill
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
+          <div className="absolute bottom-4 left-4">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/90 bg-slate-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+              F-Gas Certified Engineers
+            </span>
+          </div>
+        </motion.div>
+
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
-          {/* Left */}
+          {/* Left — heading + CTA */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -44,8 +76,7 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
             <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">What We Do</p>
             <h2 className="font-display text-3xl lg:text-4xl leading-tight text-slate-900 mb-6">{heading}</h2>
             <p className="text-slate-500 leading-relaxed mb-8 max-w-sm text-[15px]">
-              From single-room air conditioning to full commercial HVAC installations,
-              our certified engineers deliver premium solutions across Malta.
+              {description}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link href="/services">
@@ -58,6 +89,30 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
                 <Button variant="outline" className="cursor-pointer">Request a Quote</Button>
               </Link>
             </div>
+
+            {/* Desktop image — shown in left column below CTA */}
+            <motion.div
+              className="hidden lg:block mt-10 relative aspect-[4/3] overflow-hidden rounded-2xl"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              <Image
+                src={imageUrl}
+                alt="Professional HVAC installation and service — certified engineers"
+                fill
+                sizes="(max-width: 1280px) 50vw, 560px"
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-white/90 bg-slate-900/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
+                  F-Gas Certified Engineers
+                </span>
+              </div>
+            </motion.div>
           </motion.div>
 
           {/* Right — numbered editorial list */}
@@ -73,12 +128,9 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
                   transition={{ delay: i * 0.08, duration: 0.45 }}
                   className="group flex items-start gap-5 py-7 first:pt-0 last:pb-0"
                 >
-                  {/* Number */}
                   <span className="font-display text-4xl font-black text-slate-100 leading-none w-9 shrink-0 select-none group-hover:text-blue-100 transition-colors duration-300">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-
-                  {/* Icon + Content */}
                   <div className="flex gap-4 flex-1 min-w-0">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-blue-100 transition-colors duration-200">
                       <Icon className="w-4.5 h-4.5 text-blue-600" />

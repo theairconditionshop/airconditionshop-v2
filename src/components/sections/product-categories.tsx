@@ -20,6 +20,25 @@ import {
 } from 'lucide-react'
 import type { Category } from '@/types/database'
 
+// HVAC-only fallback images — used when no CMS image_url is set.
+// All images are HVAC equipment, technicians, or commercial refrigeration.
+// Override per category via Admin → Categories → image_url.
+const HVAC_FALLBACK_IMAGES: Record<string, string> = {
+  'air-conditioners':         'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'multi-split-systems':      'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'vrf-systems':              'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=75',
+  'heat-pumps':               'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'commercial-refrigeration': 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'cold-rooms':               'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=75',
+  'freezers-fridges':         'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'hvac-tools':               'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'accessories':              'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'ventilation':              'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=75',
+  'air-curtains':             'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'refrigerants':             'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+  'spare-parts':              'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
+}
+
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'air-conditioners':         Snowflake,
   'multi-split-systems':      Layers,
@@ -93,7 +112,7 @@ export default function ProductCategories({ categories }: { categories: Category
           viewport={{ once: true, margin: '-60px' }}
         >
           {displayed.map((category) => {
-            const imageUrl = category.image_url || null
+            const imageUrl = category.image_url || HVAC_FALLBACK_IMAGES[category.slug] || null
             const Icon = CATEGORY_ICONS[category.slug]
             return (
               <motion.div key={category.id} variants={cardVariants}>

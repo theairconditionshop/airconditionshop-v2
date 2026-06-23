@@ -25,7 +25,7 @@ function getGradient(name?: string) {
 }
 
 export default function FeaturedProducts({ products, userRole }: Props) {
-  if (!products.length) return null
+  if (products.length < 2) return null
 
   const [hero, ...rest] = products
   const heroPrice    = resolvePrice(hero, userRole ?? null)

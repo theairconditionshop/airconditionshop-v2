@@ -18,7 +18,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
   const description  = data.description  || 'Request a free site survey or speak to our team about your HVAC requirements.'
   const ctaPrimary   = data.cta_primary   || { label: 'Request a Quote', href: '/quote' }
   const ctaSecondary = data.cta_secondary || { label: 'Contact Us',      href: '/contact' }
-  const imageUrl     = data.image_url     || null
+  const imageUrl     = data.image_url     || 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=840&q=80'
 
   return (
     <section className="py-8 lg:py-12 bg-[#FAFAF9]">
@@ -30,8 +30,19 @@ export default function CtaSection({ data }: { data: CtaData }) {
           transition={{ duration: 0.5 }}
           className="relative overflow-hidden rounded-3xl bg-slate-950"
         >
-          {/* Two-column layout on desktop — only when image is set */}
-          <div className={imageUrl ? 'grid lg:grid-cols-[1fr_420px]' : undefined}>
+          {/* Background image on mobile — visible as subtle texture behind content */}
+          <div className="absolute inset-0 lg:hidden">
+            <Image
+              src={imageUrl}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover object-center opacity-20"
+            />
+          </div>
+
+          {/* Two-column layout on desktop */}
+          <div className="grid lg:grid-cols-[1fr_420px]">
 
             {/* Left — text content */}
             <div className="relative z-10 px-8 py-16 sm:px-14 sm:py-20">
@@ -85,20 +96,18 @@ export default function CtaSection({ data }: { data: CtaData }) {
               </div>
             </div>
 
-            {/* Right — admin-set image (desktop only, only when provided) */}
-            {imageUrl && (
-              <div className="hidden lg:block relative overflow-hidden">
-                <Image
-                  src={imageUrl}
-                  alt="THE AIRCONDITION SHOP — professional HVAC installation"
-                  fill
-                  sizes="420px"
-                  className="object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
-              </div>
-            )}
+            {/* Right — HVAC image (desktop only) */}
+            <div className="hidden lg:block relative overflow-hidden">
+              <Image
+                src={imageUrl}
+                alt="THE AIRCONDITION SHOP — professional HVAC installation"
+                fill
+                sizes="420px"
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
+            </div>
           </div>
         </motion.div>
       </div>
