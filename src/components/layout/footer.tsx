@@ -17,7 +17,7 @@ export default async function Footer() {
   const hoursSaturday  = str(settings.company_hours_saturday)
   const facebook       = str(settings.social_facebook)
   const instagram      = str(settings.social_instagram)
-  const googleReview   = str(settings.google_review_url)
+  const googleReview   = str(settings.google_review_url) || 'https://g.page/r/CdjWGAZmBi4pEAE/review'
   const vatNumber      = str(settings.vat_number)
   const copyrightText  = str(settings.copyright_text) || 'THE AIRCONDITION SHOP. All rights reserved.'
 
@@ -26,6 +26,7 @@ export default async function Footer() {
   const hoursLine = [
     hoursWeekday   ? `Mon–Fri: ${hoursWeekday}` : null,
     hoursSaturday  ? `Sat: ${hoursSaturday}` : null,
+    'Sun: Closed',
   ].filter(Boolean).join(' · ')
 
   return (

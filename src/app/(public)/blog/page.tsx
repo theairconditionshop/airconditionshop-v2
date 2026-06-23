@@ -47,7 +47,11 @@ export default async function BlogPage() {
             ))}
           </div>
           {!posts.length && (
-            <p className="mt-12 text-center text-slate-400">No articles published yet. Check back soon.</p>
+            <div className="mt-16 text-center">
+              <p className="text-slate-500 font-medium mb-2">Articles coming soon</p>
+              <p className="text-slate-400 text-sm max-w-md mx-auto">We&apos;re working on practical guides for Malta homeowners — covering AC selection, energy savings, and maintenance. Follow us on Facebook for updates.</p>
+              <a href="https://facebook.com/theairconditionshop" target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">Follow us on Facebook →</a>
+            </div>
           )}
         </div>
       </main>

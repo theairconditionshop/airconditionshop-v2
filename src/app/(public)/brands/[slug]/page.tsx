@@ -63,7 +63,11 @@ export default async function BrandPage({ params }: Props) {
               {products.map(p => <ProductCard key={p.id} product={p} userRole={userRole} />)}
             </div>
           ) : (
-            <p className="py-12 text-center text-slate-400">No products available for this brand yet.</p>
+            <div className="py-16 text-center">
+              <p className="text-slate-500 font-medium mb-2">Products being added</p>
+              <p className="text-slate-400 text-sm mb-5">Our full range isn&apos;t listed online yet. Call or message us — we can quote any model from this brand.</p>
+              <a href="/contact" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">Contact us to enquire →</a>
+            </div>
           )}
         </div>
       </main>

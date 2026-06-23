@@ -19,7 +19,7 @@ interface HeroData {
 
 const TRUST_METRICS = [
   { label: 'Malta Based' },
-  { label: 'Trade Focused' },
+  { label: 'Residential & Commercial' },
   { label: 'Fast Response' },
   { label: 'Professional Support' },
 ]

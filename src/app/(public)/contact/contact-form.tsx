@@ -54,7 +54,7 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input label="Full name" {...register('name')} error={errors.name?.message} required placeholder="John Borg" />
+        <Input label="Full name" {...register('name')} error={errors.name?.message} required placeholder="Your full name" />
         <Input label="Email address" type="email" {...register('email')} error={errors.email?.message} required placeholder="your@email.com" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

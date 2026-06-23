@@ -123,9 +123,9 @@ export default function ProductCard({ product, userRole, className }: ProductCar
             )}
           </div>
 
-          <div className="w-7 h-7 rounded-full border border-slate-100 flex items-center justify-center group-hover:bg-blue-600 group-hover:border-blue-600 transition-all duration-200">
-            <ArrowUpRight aria-hidden="true" className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors duration-200" />
-          </div>
+          <span className="text-xs font-semibold text-blue-600 group-hover:text-blue-700 transition-colors duration-200 flex items-center gap-1">
+            View Product <ArrowUpRight aria-hidden="true" className="w-3 h-3" />
+          </span>
         </div>
       </div>
     </Link>

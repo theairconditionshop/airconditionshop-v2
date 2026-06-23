@@ -6,6 +6,7 @@ import TradeRegisterForm from './trade-register-form'
 export const metadata: Metadata = {
   title: 'Trade Account Application',
   description: 'Apply for a trade account to unlock exclusive pricing and benefits.',
+  alternates: { canonical: 'https://theairconditionshop.com/trade/register' },
 }
 
 export default function TradeRegisterPage() {

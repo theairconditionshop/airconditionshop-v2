@@ -88,7 +88,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
 
                 {/* Trust signals */}
                 <div className="mt-10 pt-8 border-t border-white/[0.06] flex flex-wrap gap-x-6 gap-y-2">
-                  {['Malta & Gozo coverage', 'Same-day emergency response', 'Certified technicians'].map(t => (
+                  {['Malta-wide coverage', 'Same-day emergency response', 'Certified technicians'].map(t => (
                     <span key={t} className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
                       <span className="w-1 h-1 rounded-full bg-blue-600/60 shrink-0" />
                       {t}

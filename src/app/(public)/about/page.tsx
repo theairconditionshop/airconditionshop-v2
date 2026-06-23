@@ -12,10 +12,10 @@ export const metadata: Metadata = {
 }
 
 const PILLARS = [
-  { icon: Globe,     value: 'Malta Based',          label: 'Locally owned and operated from Mosta' },
-  { icon: Briefcase, value: 'Trade Focused',         label: 'Serving installers, contractors and businesses' },
-  { icon: Building2, value: 'Commercial & Residential', label: 'Full range from domestic split units to VRF systems' },
-  { icon: Home,      value: 'Expert Support',        label: 'Technical guidance and after-sales service' },
+  { icon: Globe,     value: 'Malta Based',             label: 'Locally owned and operated from Mosta' },
+  { icon: Home,      value: 'Homes & Trade',           label: 'Serving homeowners, contractors and businesses' },
+  { icon: Building2, value: 'Residential & Commercial', label: 'From domestic split units to full VRF systems' },
+  { icon: Briefcase, value: 'Expert Support',           label: 'Technical guidance and after-sales service' },
 ]
 
 const VALUES = [
@@ -94,8 +94,9 @@ export default function AboutPage() {
                     systems, refrigeration cabinets, cold rooms, heat pumps, ventilation, and HVAC accessories.
                   </p>
                   <p>
-                    Whether you are a homeowner upgrading your living room unit or a contractor fitting out
-                    a hotel, we have the products, technical expertise, and support to get the job done right.
+                    Whether you are a homeowner upgrading your living room unit, a property manager
+                    overseeing multiple sites, or a contractor fitting out a hotel, we have the products,
+                    technical expertise, and support to get the job done right.
                   </p>
                 </div>
 
@@ -123,6 +124,31 @@ export default function AboutPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Google Review CTA ── */}
+        <section className="py-12 bg-white border-t border-slate-100">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+            <div className="max-w-xl mx-auto text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-50 mb-4">
+                <svg className="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.545 10.239v3.821h5.445c-.712 2.315-2.647 3.972-5.445 3.972a6.033 6.033 0 0 1 0-12.064c1.498 0 2.866.549 3.921 1.453l2.814-2.814A9.969 9.969 0 0 0 12.545 2C7.021 2 2.543 6.477 2.543 12s4.478 10 10.002 10c8.396 0 10.249-7.85 9.426-11.748l-9.426-.013z"/>
+                </svg>
+              </div>
+              <h2 className="font-display text-2xl text-slate-900 mb-2">Happy with our service?</h2>
+              <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                A Google review takes under a minute and helps other Maltese homeowners and businesses find a trustworthy HVAC supplier.
+              </p>
+              <a
+                href="https://g.page/r/CdjWGAZmBi4pEAE/review"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 hover:bg-amber-400 text-white text-sm font-semibold rounded-xl transition-colors duration-200"
+              >
+                Leave a Google Review →
+              </a>
             </div>
           </div>
         </section>

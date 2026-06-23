@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createOtpSession } from '@/lib/auth/otp'
 import { sendOtpEmail } from '@/lib/resend/send'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
   const cookieStore = await cookies()
@@ -12,8 +13,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No pending session.' }, { status: 400 })
   }
 
-  // Take only the first IP — Vercel sends "client, proxy, ..." which is invalid
-  // for a PostgreSQL INET column.
+  // Rate limit per pending user ID: 5 resends per 15 minutes
+  const rl = rateLimit(`resend-otp:${pendingUserId}`, 5, 15 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl.resetAt)
+
   const rawIp = request.headers.get('x-forwarded-for')
   const ip = rawIp ? rawIp.split(',')[0].trim() : undefined
 

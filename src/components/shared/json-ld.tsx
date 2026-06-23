@@ -1,4 +1,5 @@
 import { getSiteSettings } from '@/lib/data/queries'
+import { safeJsonLd } from '@/lib/sanitize'
 
 function str(v: unknown): string {
   return typeof v === 'string' ? v : ''
@@ -57,7 +58,7 @@ export async function LocalBusinessJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }}
     />
   )
 }
@@ -98,7 +99,7 @@ export function ProductJsonLd({ name, description, image, price, currency = 'EUR
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }}
     />
   )
 }
@@ -118,7 +119,7 @@ export function BreadcrumbJsonLd({ items }: { items: { name: string; url: string
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }}
     />
   )
 }

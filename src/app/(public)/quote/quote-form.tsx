@@ -66,13 +66,11 @@ export default function QuoteForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="grid sm:grid-cols-2 gap-4">
-        <Input label="Full name" {...register('name')} error={errors.name?.message} required placeholder="John Borg" />
-        <Input label="Email" type="email" {...register('email')} error={errors.email?.message} required />
-      </div>
-      <div className="grid sm:grid-cols-2 gap-4">
+        <Input label="Full name" {...register('name')} error={errors.name?.message} required placeholder="Your full name" />
         <Input label="Phone" type="tel" {...register('phone')} placeholder="+356 ···· ····" />
-        <Input label="Company" {...register('company')} placeholder="Optional" />
       </div>
+      <Input label="Email" type="email" {...register('email')} error={errors.email?.message} required />
+      <Input label="Company" {...register('company')} placeholder="Optional — leave blank if you're a homeowner" />
       <Input label="Property / site address" {...register('address')} placeholder="Where is the installation?" />
 
       <div className="grid sm:grid-cols-2 gap-4">

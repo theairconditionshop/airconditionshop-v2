@@ -2,22 +2,30 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendTradeApplicationEmails } from '@/lib/resend/send'
 import { z } from 'zod'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({
-  name:          z.string().min(2),
-  email:         z.string().email(),
-  phone:         z.string().min(4),
-  company:       z.string().min(2),
-  vat_number:    z.string().optional(),
-  business_type: z.string().min(1),
-  message:       z.string().optional(),
-  password:      z.string().min(8),
+  name:          z.string().min(2).max(100),
+  email:         z.string().email().max(254),
+  phone:         z.string().min(4).max(30),
+  company:       z.string().min(2).max(100),
+  vat_number:    z.string().max(30).optional(),
+  business_type: z.string().min(1).max(100),
+  message:       z.string().max(1000).optional(),
+  password:      z.string().min(8).max(128),
 })
 
 export async function POST(request: Request) {
-  const body = await request.json()
-  const parsed = schema.safeParse(body)
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  const rl = rateLimit(`trade-register:${ip}`, 5, 60 * 60 * 1000) // 5 per hour
+  if (rl.limited) return rateLimitResponse(rl.resetAt)
 
+  let body: unknown
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+
+  const parsed = schema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
   }
@@ -25,7 +33,6 @@ export async function POST(request: Request) {
   const { name, email, phone, company, vat_number, business_type, message, password } = parsed.data
   const db = createAdminClient()
 
-  // Create Supabase auth user
   const { data: authData, error: authError } = await db.auth.admin.createUser({
     email,
     password,
@@ -41,7 +48,6 @@ export async function POST(request: Request) {
 
   const userId = authData.user.id
 
-  // Update profile with role=trade, status=pending
   await db.from('profiles').update({
     full_name:    name,
     phone,
@@ -50,7 +56,6 @@ export async function POST(request: Request) {
     trade_status: 'pending',
   }).eq('id', userId)
 
-  // Insert trade application
   const { error: appError } = await db.from('trade_applications').insert({
     user_id:       userId,
     company_name:  company,
@@ -64,7 +69,6 @@ export async function POST(request: Request) {
     console.error('trade_applications insert failed:', appError.message)
   }
 
-  // Send notification emails
   await sendTradeApplicationEmails({ name, email, companyName: company })
 
   return NextResponse.json({ ok: true })

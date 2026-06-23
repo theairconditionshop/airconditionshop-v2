@@ -21,7 +21,7 @@ export default async function BrandsPage() {
       <Navbar />
       <main className="min-h-screen pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <PageHeader eyebrow="Authorised Dealer" title="Premium Brands We Stock" description="We are the authorised dealer for the world's leading HVAC manufacturers." center />
+          <PageHeader eyebrow="Authorised Dealer" title="Premium Brands We Stock" description="Authorised to supply and support Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu and more — with genuine parts, full warranty cover, and manufacturer-trained technicians." center />
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
             {brands.map(brand => (
               <Link key={brand.id} href={`/brands/${brand.slug}`}

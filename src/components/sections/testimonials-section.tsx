@@ -13,6 +13,9 @@ const AVATAR_COLORS = [
 export default function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) {
   if (!testimonials.length) return null
 
+  const avgRating = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length
+  const displayRating = Number.isInteger(avgRating) ? avgRating.toFixed(1) : avgRating.toFixed(1)
+
   return (
     <section className="py-10 lg:py-16 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -29,15 +32,15 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
             <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Customer Reviews</p>
             <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight">What Our Customers Say</h2>
           </div>
-          {/* Aggregate rating badge */}
+          {/* Aggregate rating badge — calculated from actual ratings */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <Star key={i} className={`w-4 h-4 ${i < Math.round(avgRating) ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`} />
               ))}
             </div>
-            <span className="text-sm font-semibold text-slate-900">5.0</span>
-            <span className="text-sm text-slate-400">· {testimonials.length} reviews</span>
+            <span className="text-sm font-semibold text-slate-900">{displayRating}</span>
+            <span className="text-sm text-slate-400">· {testimonials.length} {testimonials.length === 1 ? 'review' : 'reviews'}</span>
           </div>
         </motion.div>
 
@@ -73,15 +76,6 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
                   <p className="text-xs text-slate-400 truncate">
                     {[t.title, t.company].filter(Boolean).join(', ') || 'Malta'}
                   </p>
-                </div>
-                {/* Verified badge */}
-                <div className="ml-auto shrink-0">
-                  <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5">
-                    <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Verified
-                  </span>
                 </div>
               </div>
             </motion.div>

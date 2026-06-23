@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Calendar, User } from 'lucide-react'
 import { format } from 'date-fns'
 import { getBlogPostBySlug } from '@/lib/data/queries'
+import { sanitizeHtml } from '@/lib/sanitize'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
@@ -69,7 +70,7 @@ export default async function BlogPostPage({ params }: Props) {
                 prose-headings:font-bold prose-headings:text-slate-900
                 prose-a:text-sky-600 prose-a:no-underline hover:prose-a:underline
                 prose-img:rounded-xl"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
             />
           )}
         </article>
