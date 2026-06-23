@@ -14,7 +14,7 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
   if (!testimonials.length) return null
 
   return (
-    <section className="py-14 lg:py-20 bg-[#FAFAF9]">
+    <section className="py-10 lg:py-16 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
         {/* Header */}

@@ -1,7 +1,6 @@
 'use client'
 
-import { motion, useInView, useMotionValue, animate } from 'framer-motion'
-import { useEffect, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { ShieldCheck, Wrench, Clock, Star, Zap, Users, Award, Headphones } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -26,11 +25,11 @@ interface WhyData {
   items?: WhyItem[]
 }
 
-const STATS = [
-  { value: 15,    suffix: '+', label: 'Years in Malta' },
-  { value: 1200,  suffix: '+', label: 'Installations' },
-  { value: 6,     suffix: '',  label: 'Premium Brands' },
-  { value: 24,    suffix: 'h', label: 'Response Time' },
+const QUALIFIERS = [
+  { label: 'Malta Based' },
+  { label: 'Trade Focused' },
+  { label: 'Fast Response' },
+  { label: 'Professional Support' },
 ]
 
 const DEFAULT_ITEMS: WhyItem[] = [
@@ -56,42 +55,13 @@ const DEFAULT_ITEMS: WhyItem[] = [
   },
 ]
 
-function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
-  const displayRef = useRef<HTMLSpanElement>(null)
-  const triggerRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(triggerRef, { once: true, margin: '-80px' })
-  const motionValue = useMotionValue(0)
-
-  useEffect(() => {
-    if (!isInView) return
-    const controls = animate(motionValue, value, {
-      duration: 1.8,
-      ease: [0.16, 1, 0.3, 1],
-    })
-    const unsub = motionValue.on('change', (v) => {
-      if (displayRef.current) {
-        displayRef.current.textContent = Math.round(v).toLocaleString() + suffix
-      }
-    })
-    return () => {
-      controls.stop()
-      unsub()
-    }
-  }, [isInView, motionValue, value, suffix])
-
-  return (
-    <div ref={triggerRef}>
-      <span ref={displayRef}>0{suffix}</span>
-    </div>
-  )
-}
 
 export default function WhyChooseUs({ data }: { data: WhyData }) {
   const heading = data.heading ?? 'Why Choose THE AIRCONDITION SHOP'
   const items = data.items ?? DEFAULT_ITEMS
 
   return (
-    <section className="bg-white py-14 lg:py-20">
+    <section className="bg-white py-10 lg:py-16">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
@@ -110,23 +80,22 @@ export default function WhyChooseUs({ data }: { data: WhyData }) {
           </h2>
         </motion.div>
 
-        {/* Stats — animated counters */}
+        {/* Qualifier badges */}
         <motion.div
-          className="mb-12 grid grid-cols-2 gap-px bg-slate-100 rounded-2xl overflow-hidden lg:grid-cols-4"
+          className="mb-12 flex flex-wrap gap-2"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.55, delay: 0.1 }}
         >
-          {STATS.map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center justify-center py-8 px-4 bg-white text-center">
-              <span className="text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-none tabular-nums">
-                <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-              </span>
-              <span className="mt-2 text-[11px] font-semibold text-slate-400 uppercase tracking-[0.14em]">
-                {stat.label}
-              </span>
-            </div>
+          {QUALIFIERS.map(({ label }) => (
+            <span
+              key={label}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-slate-200 bg-slate-50 text-[13px] font-medium text-slate-600"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500/60 shrink-0" />
+              {label}
+            </span>
           ))}
         </motion.div>
 

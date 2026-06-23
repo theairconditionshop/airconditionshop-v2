@@ -41,12 +41,12 @@ export default async function HomePage() {
       <Navbar transparent />
       <main>
         <Hero data={sections.hero || {}} />
-        <BtuPromo />
+        <BtuPromo data={sections.btu_promo as Record<string, string> || {}} />
         <BrandShowcase brands={brands} />
         <ProductCategories categories={categories} />
         <FeaturedProducts products={featuredProducts} userRole={userRole} />
         <WhyChooseUs data={sections.why_choose_us || {}} />
-        <TradeCta />
+        <TradeCta data={sections.trade_cta as Record<string, string> || {}} />
         <ServicesSection data={sections.services || {}} />
         <TestimonialsSection testimonials={testimonials} />
         <FaqSection faqs={faqs} />

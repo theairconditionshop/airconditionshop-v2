@@ -35,22 +35,6 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'spare-parts':              CircleDot,
 }
 
-// Fallback Unsplash images for categories that don't have a DB image_url
-const CATEGORY_IMAGES: Record<string, string> = {
-  'air-conditioners':         'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=75',
-  'multi-split-systems':      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=75',
-  'vrf-systems':              'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=75',
-  'heat-pumps':               'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=75',
-  'commercial-refrigeration': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=75',
-  'cold-rooms':               'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&q=75',
-  'freezers-fridges':         'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75',
-  'hvac-tools':               'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
-  'accessories':              'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=75',
-  'ventilation':              'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75',
-  'air-curtains':             'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=600&q=75',
-  'refrigerants':             'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=600&q=75',
-  'spare-parts':              'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&q=75',
-}
 
 const containerVariants = {
   hidden: {},
@@ -70,7 +54,7 @@ export default function ProductCategories({ categories }: { categories: Category
   const displayed = categories.slice(0, 8)
 
   return (
-    <section className="bg-slate-950 py-14 lg:py-20 border-t border-white/[0.04]">
+    <section className="bg-slate-950 py-10 lg:py-16 border-t border-white/[0.04]">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
@@ -109,7 +93,8 @@ export default function ProductCategories({ categories }: { categories: Category
           viewport={{ once: true, margin: '-60px' }}
         >
           {displayed.map((category) => {
-            const imageUrl = category.image_url || CATEGORY_IMAGES[category.slug]
+            const imageUrl = category.image_url || null
+            const Icon = CATEGORY_ICONS[category.slug]
             return (
               <motion.div key={category.id} variants={cardVariants}>
                 <Link
@@ -133,6 +118,11 @@ export default function ProductCategories({ categories }: { categories: Category
                       <>
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950/70" />
                         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-transparent to-transparent" />
+                        {Icon && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <Icon className="w-10 h-10 text-blue-700/40 group-hover:text-blue-600/60 transition-colors duration-300" />
+                          </div>
+                        )}
                       </>
                     )}
 

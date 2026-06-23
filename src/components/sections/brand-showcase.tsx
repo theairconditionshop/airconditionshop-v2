@@ -28,23 +28,20 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
   if (!brands.length) return null
 
   return (
-    <section className="py-10 lg:py-14 bg-slate-950 border-t border-white/[0.04]">
+    <section className="py-5 lg:py-7 bg-slate-950 border-t border-white/[0.04]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <motion.div
-          className="text-center mb-8"
+          className="text-center mb-5"
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
         >
           <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.28em]">
-            Authorised Dealer
+            Products From Leading Manufacturers
           </p>
-          <h2 className="mt-2 font-display text-xl sm:text-2xl text-white/50 tracking-tight">
-            World-Leading HVAC Brands
-          </h2>
         </motion.div>
 
         {/* Brand row */}
@@ -84,7 +81,7 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
 
         {/* Certification strip */}
         <motion.div
-          className="mt-14 pt-8 border-t border-white/[0.05] flex flex-wrap justify-center gap-x-8 gap-y-2"
+          className="mt-6 pt-5 border-t border-white/[0.05] flex flex-wrap justify-center gap-x-8 gap-y-2"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

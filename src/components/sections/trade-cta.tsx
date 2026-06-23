@@ -5,6 +5,10 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Tag, Zap, Headphones, ArrowRight } from 'lucide-react'
 
+interface TradeCtaData {
+  image_url?: string
+}
+
 const features = [
   {
     icon: Tag,
@@ -37,9 +41,13 @@ const itemVariants = {
   },
 }
 
-export default function TradeCta() {
+const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=760&q=80'
+
+export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
+  const imageUrl = data.image_url || DEFAULT_IMAGE
+
   return (
-    <section className="bg-slate-950 py-14 lg:py-20 text-white overflow-hidden">
+    <section className="bg-slate-950 py-10 lg:py-16 text-white overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-[1fr_380px] lg:gap-14 lg:items-stretch">
 
@@ -134,7 +142,7 @@ export default function TradeCta() {
           >
             <div className="relative h-full min-h-[440px] overflow-hidden rounded-2xl">
               <Image
-                src="https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=760&q=80"
+                src={imageUrl}
                 alt="Professional HVAC installer at work"
                 fill
                 sizes="380px"

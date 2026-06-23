@@ -18,10 +18,10 @@ interface HeroData {
 }
 
 const TRUST_METRICS = [
-  { value: '15+',    label: 'Years in Malta' },
-  { value: '1,200+', label: 'Installations' },
-  { value: '6',      label: 'Premium Brands' },
-  { value: '24h',    label: 'Response Time' },
+  { label: 'Malta Based' },
+  { label: 'Trade Focused' },
+  { label: 'Fast Response' },
+  { label: 'Professional Support' },
 ]
 
 const container: Variants = {
@@ -159,19 +159,19 @@ export default function Hero({ data }: { data: HeroData }) {
             Call us: +356 7966 1889
           </motion.a>
 
-          {/* Trust metrics strip */}
+          {/* Trust qualifier strip */}
           <motion.div
             variants={fadeUp}
-            className="mt-20 grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/[0.05] rounded-2xl overflow-hidden border border-white/[0.06] w-full max-w-2xl"
+            className="mt-16 flex flex-wrap items-center justify-center gap-2"
           >
-            {TRUST_METRICS.map(({ value, label }) => (
-              <div
+            {TRUST_METRICS.map(({ label }) => (
+              <span
                 key={label}
-                className="flex flex-col items-center justify-center py-5 px-4 bg-slate-950/90 backdrop-blur-sm hover:bg-slate-900/80 transition-colors duration-200"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/[0.09] bg-white/[0.03] backdrop-blur-sm text-[12px] font-medium text-slate-400"
               >
-                <span className="text-2xl font-bold text-white tracking-tight">{value}</span>
-                <span className="mt-0.5 text-[11px] text-slate-500 tracking-wide">{label}</span>
-              </div>
+                <span className="w-1 h-1 rounded-full bg-blue-500/70 shrink-0" />
+                {label}
+              </span>
             ))}
           </motion.div>
         </motion.div>

@@ -147,6 +147,10 @@ function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange
           placeholder="Contact us today for a free site survey…"
           onChange={e => onChange({ ...data, description: e.target.value })} />
       </Field>
+      <Field label="Right-side image URL" hint="Optional HVAC image shown on desktop — leave blank for text-only layout">
+        <input className={inputCls} value={(data.image_url as string) ?? ''} placeholder="https://…"
+          onChange={e => onChange({ ...data, image_url: e.target.value })} />
+      </Field>
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 space-y-3">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Primary Button</p>
@@ -171,6 +175,37 @@ function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange
           </Field>
         </div>
       </div>
+    </div>
+  )
+}
+
+function BtuPromoEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <Field label="Heading" hint="Leave blank for default text">
+        <input className={inputCls} value={(data.heading as string) ?? ''} placeholder="Not sure which air conditioner you need?"
+          onChange={e => onChange({ ...data, heading: e.target.value })} />
+      </Field>
+      <Field label="Description">
+        <textarea className={textareaCls} rows={2} value={(data.description as string) ?? ''}
+          placeholder="Calculate the right cooling capacity…"
+          onChange={e => onChange({ ...data, description: e.target.value })} />
+      </Field>
+      <Field label="Right-side image URL" hint="HVAC-related image only — leave blank to show BTU process steps illustration">
+        <input className={inputCls} value={(data.image_url as string) ?? ''} placeholder="https://…"
+          onChange={e => onChange({ ...data, image_url: e.target.value })} />
+      </Field>
+    </div>
+  )
+}
+
+function TradeCtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <Field label="Right-side image URL" hint="HVAC installer image — leave blank for default technician photo">
+        <input className={inputCls} value={(data.image_url as string) ?? ''} placeholder="https://…"
+          onChange={e => onChange({ ...data, image_url: e.target.value })} />
+      </Field>
     </div>
   )
 }
@@ -222,6 +257,8 @@ const SECTION_LABELS: Record<string, string> = {
   cta:            'Call To Action',
   services:       'Services Section',
   btu_calculator: 'BTU Calculator Promo',
+  btu_promo:      'BTU Calculator Promo',
+  trade_cta:      'Trade Programme',
   brands:         'Featured Brands',
   products:       'Featured Products',
   testimonials:   'Customer Reviews',
@@ -281,10 +318,12 @@ export default function HomepageSectionEditor({ section }: { section: Section })
   const key = section.section_key
 
   function renderEditor() {
-    if (key === 'hero')          return <HeroEditor data={data} onChange={handleChange} />
-    if (key === 'why_choose_us') return <WhyChooseUsEditor data={data} onChange={handleChange} />
-    if (key === 'cta')           return <CtaEditor data={data} onChange={handleChange} />
-    if (key === 'services')      return <ServicesEditor data={data} onChange={handleChange} />
+    if (key === 'hero')           return <HeroEditor data={data} onChange={handleChange} />
+    if (key === 'why_choose_us')  return <WhyChooseUsEditor data={data} onChange={handleChange} />
+    if (key === 'cta')            return <CtaEditor data={data} onChange={handleChange} />
+    if (key === 'services')       return <ServicesEditor data={data} onChange={handleChange} />
+    if (key === 'btu_promo' || key === 'btu_calculator') return <BtuPromoEditor data={data} onChange={handleChange} />
+    if (key === 'trade_cta')      return <TradeCtaEditor data={data} onChange={handleChange} />
     return <GenericEditor data={data} onChange={handleChange} />
   }
 

@@ -8,6 +8,7 @@ import { ArrowRight, Phone } from 'lucide-react'
 interface CtaData {
   heading?: string
   description?: string
+  image_url?: string
   cta_primary?: { label: string; href: string }
   cta_secondary?: { label: string; href: string }
 }
@@ -17,9 +18,10 @@ export default function CtaSection({ data }: { data: CtaData }) {
   const description  = data.description  || 'Request a free site survey or speak to our team about your HVAC requirements.'
   const ctaPrimary   = data.cta_primary   || { label: 'Request a Quote', href: '/quote' }
   const ctaSecondary = data.cta_secondary || { label: 'Contact Us',      href: '/contact' }
+  const imageUrl     = data.image_url     || null
 
   return (
-    <section className="py-12 lg:py-16 bg-[#FAFAF9]">
+    <section className="py-8 lg:py-12 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -28,8 +30,8 @@ export default function CtaSection({ data }: { data: CtaData }) {
           transition={{ duration: 0.5 }}
           className="relative overflow-hidden rounded-3xl bg-slate-950"
         >
-          {/* Two-column layout on desktop */}
-          <div className="grid lg:grid-cols-[1fr_420px]">
+          {/* Two-column layout on desktop — only when image is set */}
+          <div className={imageUrl ? 'grid lg:grid-cols-[1fr_420px]' : undefined}>
 
             {/* Left — text content */}
             <div className="relative z-10 px-8 py-16 sm:px-14 sm:py-20">
@@ -83,19 +85,20 @@ export default function CtaSection({ data }: { data: CtaData }) {
               </div>
             </div>
 
-            {/* Right — premium interior image (desktop only) */}
-            <div className="hidden lg:block relative overflow-hidden">
-              <Image
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=840&q=80"
-                alt="Premium home interior — comfortable climate control"
-                fill
-                sizes="420px"
-                className="object-cover object-center"
-              />
-              {/* Blend left edge into dark background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
-            </div>
+            {/* Right — admin-set image (desktop only, only when provided) */}
+            {imageUrl && (
+              <div className="hidden lg:block relative overflow-hidden">
+                <Image
+                  src={imageUrl}
+                  alt="THE AIRCONDITION SHOP — professional HVAC installation"
+                  fill
+                  sizes="420px"
+                  className="object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

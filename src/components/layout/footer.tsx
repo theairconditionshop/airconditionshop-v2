@@ -130,7 +130,7 @@ export default function Footer() {
 
           {/* Products — accordion on mobile */}
           <AccordionSection title="Products">
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 md:flex md:flex-col md:space-y-3">
               {PRODUCT_LINKS.map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">
@@ -143,7 +143,7 @@ export default function Footer() {
 
           {/* Company — accordion on mobile */}
           <AccordionSection title="Company">
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 md:flex md:flex-col md:space-y-3">
               {COMPANY_LINKS.map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">
@@ -156,7 +156,7 @@ export default function Footer() {
 
           {/* Tools — accordion on mobile */}
           <AccordionSection title="Tools &amp; Info">
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-2 gap-x-4 gap-y-2.5 md:flex md:flex-col md:space-y-3">
               {TOOL_LINKS.map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="text-sm text-slate-400 hover:text-white transition-colors duration-200 cursor-pointer">
