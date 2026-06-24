@@ -48,7 +48,7 @@ function HeroEditor({ data, onChange }: { data: Record<string, unknown>; onChang
             onChange={e => onChange({ ...data, headline: e.target.value })} />
         </Field>
         <Field label="Badge / eyebrow text" hint="Small text above the headline">
-          <input className={inputCls} value={(data.badge as string) ?? ''} placeholder="Authorised Dealer · Daikin · Mitsubishi"
+          <input className={inputCls} value={(data.badge as string) ?? ''} placeholder="HVAC · Refrigeration · Ventilation · Installation Materials"
             onChange={e => onChange({ ...data, badge: e.target.value })} />
         </Field>
       </div>

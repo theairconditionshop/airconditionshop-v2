@@ -42,7 +42,7 @@ const fadeIn: Variants = {
 export default function Hero({ data }: { data: HeroData }) {
   const headline     = data.headline     ?? "Malta's Premier HVAC & Refrigeration Specialists"
   const description  = data.description  ?? 'Premium air conditioning, refrigeration and climate control solutions for homes, hotels and commercial spaces across Malta.'
-  const badge        = data.badge        ?? 'Authorised Dealer · Daikin · Mitsubishi Electric · Panasonic'
+  const badge        = data.badge        ?? 'HVAC · Refrigeration · Ventilation · Installation Materials'
   const ctaPrimary   = data.cta_primary  ?? { label: 'Explore Products', href: '/products' }
   const ctaSecondary = data.cta_secondary ?? { label: 'Get a Quote', href: '/quote' }
   const overlayOpacity = data.overlay_opacity ?? 0.62

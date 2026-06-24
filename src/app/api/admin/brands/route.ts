@@ -4,13 +4,17 @@ import { getProfile } from '@/lib/auth/session'
 import { z } from 'zod'
 
 const brandSchema = z.object({
-  name:        z.string().min(1).max(200),
-  slug:        z.string().min(1).max(200),
-  logo_url:    z.string().url().optional().or(z.literal('')),
-  website_url: z.string().url().optional().or(z.literal('')),
-  description: z.string().max(2000).optional(),
-  is_active:   z.boolean().default(true),
-  display_order: z.number().int().optional(),
+  name:              z.string().min(1).max(200),
+  slug:              z.string().min(1).max(200),
+  logo_url:          z.string().max(500).nullable().optional(),
+  hero_url:          z.string().max(500).nullable().optional(),
+  logo_display_mode: z.enum(['invert', 'grayscale', 'normal']).optional(),
+  description:       z.string().max(2000).nullable().optional(),
+  seo_title:         z.string().max(200).nullable().optional(),
+  seo_desc:          z.string().max(500).nullable().optional(),
+  website_url:       z.string().max(500).nullable().optional(),
+  is_active:         z.boolean().default(true),
+  display_order:     z.number().int().optional(),
 })
 
 async function requireAdmin() {

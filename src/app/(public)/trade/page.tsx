@@ -15,7 +15,7 @@ const BENEFITS = [
   {
     icon: Tag,
     title: 'Installer Pricing',
-    desc: 'Trade-only rates across our full catalogue of Daikin, Mitsubishi Electric, Panasonic and more.',
+    desc: 'Trade-only rates across our full catalogue of HVAC, refrigeration and installation materials.',
   },
   {
     icon: Zap,

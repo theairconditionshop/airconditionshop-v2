@@ -56,14 +56,14 @@ export default async function Image() {
           maxWidth: '700px',
           lineHeight: '1.4',
         }}>
-          Premium HVAC &amp; Refrigeration — Daikin, Mitsubishi Electric, Panasonic &amp; more
+          Premium HVAC, Refrigeration &amp; Ventilation — Malta&apos;s Specialist Supplier
         </div>
 
         {/* Bottom row */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
-            <span style={{ fontSize: '18px', color: '#64748b' }}>Authorised Dealer</span>
+            <span style={{ fontSize: '18px', color: '#64748b' }}>F-Gas Certified</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
