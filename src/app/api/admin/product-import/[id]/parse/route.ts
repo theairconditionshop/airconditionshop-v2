@@ -13,6 +13,15 @@ async function requireAdmin() {
 }
 
 const BATCH_SIZE = 200
+// Slightly under the 5-minute stated limit so the DB update still has time to run
+const PARSE_TIMEOUT_MS = 4.5 * 60 * 1000
+
+function withTimeout<T>(promise: Promise<T>, ms: number, message: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ])
+}
 
 // POST /api/admin/product-import/[id]/parse
 export async function POST(_: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -34,10 +43,18 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     if (dlError || !fileData) throw new Error(`Could not download PDF: ${dlError?.message}`)
     const buffer = Buffer.from(await fileData.arrayBuffer())
 
-    const pdfType  = imp.type as 'catalogue' | 'price_list'
-    const products = pdfType === 'price_list'
-      ? await parsePriceListPdf(buffer)
-      : await parseCataloguePdf(buffer)
+    const pdfType = imp.type as 'catalogue' | 'price_list'
+    const parseOp = pdfType === 'price_list'
+      ? parsePriceListPdf(buffer)
+      : parseCataloguePdf(buffer)
+
+    const products = await withTimeout(parseOp, PARSE_TIMEOUT_MS, 'Parsing timed out')
+
+    // Guard: if the import was cancelled while Gemini was running, abort silently
+    const { data: current } = await db.from('product_imports').select('status').eq('id', id).single()
+    if (current?.status === 'cancelled') {
+      return NextResponse.json({ ok: false, cancelled: true })
+    }
 
     const { data: allProducts } = await db
       .from('products')
@@ -62,7 +79,6 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
       }
     })
 
-    // Batch insert in chunks of 200 (Phase 12 performance)
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
       await db.from('product_import_rows').insert(rows.slice(i, i + BATCH_SIZE))
     }
@@ -82,15 +98,15 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     return NextResponse.json({ ok: true, parsed: products.length, needs_review: needs_review_count })
   } catch (err) {
     const raw = err instanceof Error ? err.message : String(err)
-    // Replace raw SDK error strings with a friendly message for Gemini 503s
     const msg = (
+      raw === 'Parsing timed out' ||
       raw.includes('503') ||
       raw.toLowerCase().includes('service unavailable') ||
       raw.toLowerCase().includes('overloaded') ||
       raw === GEMINI_BUSY_MSG
-    ) ? GEMINI_BUSY_MSG : raw
+    ) ? (raw === 'Parsing timed out' ? raw : GEMINI_BUSY_MSG) : raw
 
-    // PDF is intentionally kept in storage so the admin can retry without re-uploading
+    // Always update to failed — this is the guard against infinite "parsing" state
     await db.from('product_imports').update({ status: 'failed', error_message: msg }).eq('id', id)
     return NextResponse.json({ error: msg }, { status: 500 })
   }

@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import {
   Loader2, Play, Send, Download, CheckCircle2, XCircle,
-  ChevronDown, ChevronUp, AlertTriangle, RefreshCw, FileJson, Clock,
+  ChevronDown, ChevronUp, AlertTriangle, RefreshCw, FileJson, Clock, Ban,
 } from 'lucide-react'
 import type { ParsedProduct } from '@/services/ai/gemini-product-parser'
 
 const GEMINI_BUSY_PHRASE = 'Google Gemini is currently busy'
 
-type ImportStatus = 'pending' | 'parsing' | 'preview' | 'importing' | 'complete' | 'failed'
+type ImportStatus = 'pending' | 'parsing' | 'preview' | 'importing' | 'complete' | 'failed' | 'cancelled'
 type RowAction    = 'create' | 'update' | 'skip' | 'review' | 'failed'
 
 interface ImportRecord {
@@ -185,6 +185,26 @@ export default function ImportWizard({ initialImport, initialRows }: Props) {
     setLoading(false)
   }
 
+  async function handleCancel() {
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/admin/product-import/${imp.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel' }),
+      })
+      if (!res.ok) {
+        const e = await res.json()
+        throw new Error(e.error || 'Cancel failed')
+      }
+      toast.success('Import cancelled')
+      await refreshImport()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Cancel failed')
+    }
+    setLoading(false)
+  }
+
   async function handleExecute() {
     setLoading(true)
     try {
@@ -219,7 +239,8 @@ export default function ImportWizard({ initialImport, initialRows }: Props) {
 
   const isParsing   = imp.status === 'parsing' || (loading && imp.status === 'pending')
   const isImporting = imp.status === 'importing' || (loading && imp.status === 'preview')
-  const canParse    = ['pending', 'failed'].includes(imp.status) && !loading
+  const canParse    = ['pending', 'failed', 'cancelled'].includes(imp.status) && !loading
+  const canCancel   = imp.status === 'parsing' && !loading
   const canExecute  = imp.status === 'preview' && !loading
 
   const actionCounts = rows.reduce(
@@ -253,12 +274,13 @@ export default function ImportWizard({ initialImport, initialRows }: Props) {
               </div>
             ) : (
               <p className="text-sm text-slate-400">
-                {imp.status === 'pending'   && 'Ready to parse — click Parse PDF to extract products with AI.'}
-                {imp.status === 'parsing'   && 'Analysing PDF with Gemini AI — this may take up to 60 seconds…'}
-                {imp.status === 'preview'   && `${rows.length} products extracted. Review and import.`}
-                {imp.status === 'importing' && 'Importing products…'}
-                {imp.status === 'complete'  && 'Import complete.'}
-                {imp.status === 'failed'    && `Parse failed: ${imp.error_message}`}
+                {imp.status === 'pending'    && 'Ready to parse — click Parse PDF to extract products with AI.'}
+                {imp.status === 'parsing'    && 'Analysing PDF with Gemini AI — this may take up to 2 minutes…'}
+                {imp.status === 'preview'    && `${rows.length} products extracted. Review and import.`}
+                {imp.status === 'importing'  && 'Importing products…'}
+                {imp.status === 'complete'   && 'Import complete.'}
+                {imp.status === 'cancelled'  && 'Import was cancelled. Click Parse PDF to start again.'}
+                {imp.status === 'failed'     && `Parse failed: ${imp.error_message}`}
               </p>
             )}
           </div>
@@ -288,6 +310,15 @@ export default function ImportWizard({ initialImport, initialRows }: Props) {
               </div>
             )}
 
+            {canCancel && (
+              <button
+                onClick={handleCancel}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-red-50 text-red-600 text-sm font-semibold rounded-xl border border-red-200 hover:border-red-300 transition-colors cursor-pointer"
+              >
+                <Ban className="w-4 h-4" /> Cancel Import
+              </button>
+            )}
+
             {canParse && (
               <button
                 onClick={handleParse}
@@ -297,12 +328,12 @@ export default function ImportWizard({ initialImport, initialRows }: Props) {
               </button>
             )}
 
-            {imp.status === 'failed' && !loading && (
+            {['failed', 'cancelled'].includes(imp.status) && !loading && (
               <button
                 onClick={handleParse}
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-600 hover:bg-slate-500 text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer"
               >
-                <RefreshCw className="w-4 h-4" /> Retry Parse
+                <RefreshCw className="w-4 h-4" /> {imp.status === 'cancelled' ? 'Parse PDF' : 'Retry Parse'}
               </button>
             )}
 
