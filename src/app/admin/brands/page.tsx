@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 import AdminPageHeader from '@/components/admin/page-header'
 import AdminTable from '@/components/admin/admin-table'
-import DeleteButton from '@/components/admin/delete-button'
+import BrandDeleteButton from '@/components/admin/brand-delete-button'
 
 export const metadata: Metadata = { title: 'Brands — Admin' }
 export const dynamic = 'force-dynamic'
@@ -34,7 +34,7 @@ export default async function AdminBrandsPage() {
           { label: '', render: r => (
             <div className="flex gap-2">
               <a href={`/admin/brands/${r.id}/edit`} className="text-xs text-sky-600 hover:underline">Edit</a>
-              <DeleteButton id={r.id} entity="brands" label={r.name} />
+              <BrandDeleteButton id={r.id} label={r.name} />
             </div>
           )},
         ]}

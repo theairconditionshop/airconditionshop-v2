@@ -44,10 +44,10 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
   const { id } = await params
   const db = createAdminClient()
 
-  // Fetch logo/hero URLs before deletion so we can clean up storage
+  // Fetch brand details before touching anything
   const { data: brand, error: fetchError } = await db
     .from('brands')
-    .select('logo_url, hero_url')
+    .select('name, logo_url, hero_url')
     .eq('id', id)
     .single()
 
@@ -55,7 +55,28 @@ export async function DELETE(_: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({ error: 'Brand not found' }, { status: 404 })
   }
 
-  // Delete the brand row first — if this fails we don't orphan anything
+  // Block deletion if products are attached — FK constraint would reject it anyway
+  const { count, error: countError } = await db
+    .from('products')
+    .select('id', { count: 'exact', head: true })
+    .eq('brand_id', id)
+
+  if (countError) {
+    return NextResponse.json({ error: 'Could not check attached products' }, { status: 500 })
+  }
+
+  if (count && count > 0) {
+    return NextResponse.json(
+      {
+        error: `Cannot delete "${brand.name}" — ${count} product${count === 1 ? '' : 's'} are assigned to this brand. Deactivate it instead, or reassign those products first.`,
+        products_count: count,
+        code: 'HAS_PRODUCTS',
+      },
+      { status: 409 }
+    )
+  }
+
+  // No products attached — safe to delete
   const { error: deleteError } = await db.from('brands').delete().eq('id', id)
   if (deleteError) {
     return NextResponse.json({ error: deleteError.message }, { status: 400 })
