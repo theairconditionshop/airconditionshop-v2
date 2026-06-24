@@ -110,14 +110,27 @@ export default function ProductCard({ product, userRole, className }: ProductCar
         <div className="mt-4 flex items-end justify-between">
           <div>
             {priceResult.price != null ? (
-              <p className="text-base font-bold text-slate-900 tracking-tight">
-                {formatPrice(priceResult.price, product.currency)}
-                {priceResult.isTrade && (
-                  <span className="ml-2 text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
-                    Trade
-                  </span>
+              <div>
+                {priceResult.originalPrice != null && (
+                  <p className="text-xs text-slate-400 line-through leading-none mb-0.5">
+                    {formatPrice(priceResult.originalPrice, product.currency)}
+                  </p>
                 )}
-              </p>
+                <p className={`text-base font-bold tracking-tight ${priceResult.originalPrice != null ? 'text-emerald-600' : 'text-slate-900'}`}>
+                  {formatPrice(priceResult.price, product.currency)}
+                  {priceResult.isTrade && (
+                    <span className="ml-2 text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                      Trade
+                    </span>
+                  )}
+                </p>
+                {priceResult.savingsAmount != null && priceResult.savingsAmount > 0 && (
+                  <p className="text-[10px] text-emerald-600 font-medium mt-0.5">
+                    Save {formatPrice(priceResult.savingsAmount, product.currency)}
+                    {priceResult.saleDiscountPct != null && ` (${priceResult.saleDiscountPct}% off)`}
+                  </p>
+                )}
+              </div>
             ) : (
               <p className="text-sm text-slate-400 font-medium">Contact for price</p>
             )}

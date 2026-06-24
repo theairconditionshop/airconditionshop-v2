@@ -50,8 +50,10 @@ async function performPriceUpdate(
     last_import_source: `import:${opts.importId}`,
     last_import_at:     new Date().toISOString(),
   }
-  if (p.price != null)      up.retail_price  = p.price
-  if (p.cost_price != null) up.cost_price    = p.cost_price
+  if (p.price != null)          up.retail_price  = p.price
+  if (p.original_price != null) up.original_price = p.original_price
+  if (p.sale_price != null)     up.sale_price    = p.sale_price
+  if (p.cost_price != null)     up.cost_price    = p.cost_price
   // availability defaults to in_stock when a price list provides data for a product
   up.availability = 'in_stock'
   await db.from('products').update(up).eq('id', opts.matchedProductId!)
@@ -125,8 +127,10 @@ async function performCreate(
     description:        p.description ?? null,
     specifications:     p.specifications ?? {},
     features:           p.features ?? [],
-    retail_price:       p.price    ?? null,
-    cost_price:         p.cost_price ?? null,
+    retail_price:       p.price         ?? null,
+    original_price:     p.original_price ?? null,
+    sale_price:         p.sale_price     ?? null,
+    cost_price:         p.cost_price     ?? null,
     brand_id,
     category_id,
     ac_type:            p.ac_type  ?? null,

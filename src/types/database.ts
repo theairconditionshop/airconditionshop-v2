@@ -94,6 +94,11 @@ export interface Product {
   warranty_years: number | null
   currency: string
   retail_price: number | null
+  original_price: number | null
+  sale_price: number | null
+  effective_price: number | null
+  cost_price: number | null
+  product_type: string | null
   trade_price: number | null
   trade_discount_pct: number | null
   trade_price_mode: TradePriceMode

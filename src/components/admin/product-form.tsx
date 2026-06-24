@@ -27,6 +27,8 @@ const schema = z.object({
   sku:                z.string().optional(),
   description:        z.string().optional(),
   retail_price:       z.coerce.number().optional(),
+  original_price:     z.coerce.number().optional(),
+  sale_price:         z.coerce.number().optional(),
   category_id:        z.string().optional(),
   brand_id:           z.string().optional(),
   ac_type:            z.string().optional(),
@@ -74,6 +76,8 @@ export default function ProductForm({ product, categories, brands }: Props) {
       sku:                product.sku as string,
       description:        product.description as string,
       retail_price:       product.retail_price as number,
+      original_price:     product.original_price as number,
+      sale_price:         product.sale_price as number,
       category_id:        product.category_id as string,
       brand_id:           product.brand_id as string,
       ac_type:            product.ac_type as string,
@@ -208,7 +212,11 @@ export default function ProductForm({ product, categories, brands }: Props) {
 
       <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
         <h3 className="font-semibold text-slate-900 text-sm">Pricing</h3>
-        <Input label="Retail price (€)" type="number" step="0.01" {...register('retail_price')} />
+        <Input label="Retail price (€)" type="number" step="0.01" {...register('retail_price')} hint="Legacy price field — prefer Original Price below" />
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Input label="Original price / RRP (€)" type="number" step="0.01" {...register('original_price')} hint="Shown struck-through when a sale price is set" />
+          <Input label="Sale price (€)" type="number" step="0.01" {...register('sale_price')} hint="Discounted price shown in green — leave blank for no sale" />
+        </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Trade pricing mode</label>
           <select {...register('trade_price_mode')}

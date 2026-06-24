@@ -48,8 +48,8 @@ export default async function AdminProductsPage({
 
   if (sort === 'az')     query = query.order('name', { ascending: true  })
   else if (sort === 'za') query = query.order('name', { ascending: false })
-  else if (sort === 'price_asc')  query = query.order('retail_price', { ascending: true,  nullsFirst: false })
-  else if (sort === 'price_desc') query = query.order('retail_price', { ascending: false, nullsFirst: false })
+  else if (sort === 'price_asc')  query = query.order('effective_price', { ascending: true,  nullsFirst: false })
+  else if (sort === 'price_desc') query = query.order('effective_price', { ascending: false, nullsFirst: false })
   else query = query.order('created_at', { ascending: false })  // newest
 
   const from = (page - 1) * PAGE_SIZE

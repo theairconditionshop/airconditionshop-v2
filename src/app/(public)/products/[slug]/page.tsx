@@ -223,7 +223,19 @@ export default async function ProductPage({ params }: Props) {
               <div className="mt-6 p-5 bg-slate-50 rounded-2xl">
                 {priceResult.price != null ? (
                   <div>
-                    <p className="text-3xl font-bold text-slate-900">{formatPrice(priceResult.price, product.currency)}</p>
+                    {priceResult.originalPrice != null && (
+                      <p className="text-base text-slate-400 line-through leading-none mb-1">
+                        {formatPrice(priceResult.originalPrice, product.currency)}
+                      </p>
+                    )}
+                    <p className={`text-3xl font-bold ${priceResult.originalPrice != null ? 'text-emerald-600' : 'text-slate-900'}`}>
+                      {formatPrice(priceResult.price, product.currency)}
+                    </p>
+                    {priceResult.savingsAmount != null && priceResult.savingsAmount > 0 && (
+                      <p className="mt-1 text-sm font-medium text-emerald-600">
+                        Save {formatPrice(priceResult.savingsAmount, product.currency)} · {priceResult.saleDiscountPct}% off
+                      </p>
+                    )}
                     {priceResult.isTrade ? (
                       <div className="mt-1 flex items-center gap-2">
                         <Badge variant="trade">{priceResult.label}</Badge>

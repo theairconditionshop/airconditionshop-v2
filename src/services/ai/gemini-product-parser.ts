@@ -106,6 +106,8 @@ export interface ParsedProduct {
   features:       string[]
   applications:   string[]
   price:          number | null
+  original_price: number | null
+  sale_price:     number | null
   cost_price:     number | null
   images:         string[]
 }
@@ -271,6 +273,8 @@ function sanitiseProducts(raw: Partial<ParsedProduct>[]): ParsedProduct[] {
       features:       sanitiseStringArray(p.features),
       applications:   sanitiseStringArray(p.applications),
       price:          typeof p.price === 'number' ? Math.round(p.price * 100) / 100 : null,
+      original_price: typeof p.original_price === 'number' ? Math.round(p.original_price * 100) / 100 : null,
+      sale_price:     typeof p.sale_price === 'number' ? Math.round(p.sale_price * 100) / 100 : null,
       cost_price:     typeof p.cost_price === 'number' ? Math.round(p.cost_price * 100) / 100 : null,
       images:         [],
     }))
