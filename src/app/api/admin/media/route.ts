@@ -2,15 +2,16 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
 
-// Allowlist of MIME types accepted for upload. SVG and HTML are excluded to
-// prevent stored XSS — they would be served by the public storage bucket with
-// the correct Content-Type, executing scripts in visitor browsers.
+// Allowlist of MIME types accepted for upload. HTML is excluded to prevent stored XSS.
+// SVG is permitted because this endpoint is admin-only (trusted uploaders). Admins uploading
+// brand logos need SVG support. Non-admin access is blocked by requireAdmin() above.
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
   'image/webp',
   'image/avif',
   'image/gif',
+  'image/svg+xml',
   'application/pdf',
 ])
 
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
     const bytes  = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
     // Derive extension from the validated MIME type — not from the client filename.
-    const ext    = file.type.split('/')[1].replace('jpeg', 'jpg')
+    const ext    = file.type.split('/')[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg')
     const path   = `media/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
     const { error } = await db.storage.from('media').upload(path, buffer, { contentType: file.type })

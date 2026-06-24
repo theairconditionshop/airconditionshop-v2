@@ -11,10 +11,10 @@ export default async function AdminBrandsPage() {
   const db = createAdminClient()
   const { data } = await db
     .from('brands')
-    .select('id, name, slug, country_of_origin, is_active, sort_order')
-    .order('sort_order')
+    .select('id, name, slug, display_order, is_active')
+    .order('display_order')
 
-  type Row = { id: string; name: string; slug: string; country_of_origin?: string; is_active: boolean; sort_order?: number }
+  type Row = { id: string; name: string; slug: string; display_order?: number; is_active: boolean }
   const rows: Row[] = (data ?? []) as Row[]
 
   return (
@@ -23,10 +23,10 @@ export default async function AdminBrandsPage() {
       <AdminTable<Row>
         rows={rows}
         columns={[
-          { label: 'Name',    render: r => <span className="font-medium">{r.name}</span> },
-          { label: 'Slug',    render: r => <span className="text-xs font-mono text-slate-500">{r.slug}</span> },
-          { label: 'Country', render: r => <span className="text-xs text-slate-500">{r.country_of_origin || '—'}</span> },
-          { label: 'Active',  render: r => (
+          { label: 'Name',  render: r => <span className="font-medium">{r.name}</span> },
+          { label: 'Slug',  render: r => <span className="text-xs font-mono text-slate-500">{r.slug}</span> },
+          { label: 'Order', render: r => <span className="text-xs text-slate-500">{r.display_order ?? '—'}</span> },
+          { label: 'Active', render: r => (
             <span className={`text-xs px-1.5 py-0.5 rounded-full ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
               {r.is_active ? 'Active' : 'Hidden'}
             </span>

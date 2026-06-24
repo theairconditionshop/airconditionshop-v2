@@ -19,7 +19,7 @@ const PILLARS = [
 ]
 
 const VALUES = [
-  { title: 'Expert Knowledge', desc: 'Manufacturer certifications from Daikin, Mitsubishi Electric, Panasonic, and more. We know the products inside out.' },
+  { title: 'Expert Knowledge', desc: 'Technical knowledge across leading HVAC and refrigeration brands. We know the products inside out.' },
   { title: 'Quality First',    desc: 'We only stock brands we trust. Every product is backed by manufacturer warranty and our own after-sales support.' },
   { title: 'Fast Response',    desc: 'Emergency call-outs answered quickly. Scheduled service confirmed the same business day.' },
   { title: 'Transparent Pricing', desc: 'No hidden fees. Clear trade and retail pricing. Honest quotes with no surprises.' },
@@ -89,8 +89,8 @@ export default function AboutPage() {
                     residential and commercial properties.
                   </p>
                   <p>
-                    We are authorised dealers for Daikin, Mitsubishi Electric, Panasonic, Toshiba, Fujitsu,
-                    and more. Our range covers domestic split systems, multi-split configurations, VRF commercial
+                    We supply and support a comprehensive range of HVAC and refrigeration equipment from leading
+                    manufacturers. Our range covers domestic split systems, multi-split configurations, VRF commercial
                     systems, refrigeration cabinets, cold rooms, heat pumps, ventilation, and HVAC accessories.
                   </p>
                   <p>

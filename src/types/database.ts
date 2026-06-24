@@ -36,6 +36,7 @@ export interface Brand {
   slug: string
   logo_url: string | null
   hero_url: string | null
+  logo_display_mode: string
   description: string | null
   website_url: string | null
   display_order: number

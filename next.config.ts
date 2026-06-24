@@ -2,6 +2,8 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   images: {
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'none'; style-src 'unsafe-inline'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',

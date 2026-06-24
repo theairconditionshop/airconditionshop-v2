@@ -5,23 +5,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Brand } from '@/types/database'
 
-// White wordmarks on slate-950 dark background.
-// Parent wrapper applies opacity-50 → opacity-95 on hover.
-function BrandWordmark({ slug, name }: { slug: string; name: string }) {
-  const s = slug.toLowerCase()
-  const base: React.CSSProperties = { color: '#ffffff', fontFamily: 'Arial, sans-serif' }
-  if (s.includes('daikin'))     return <span style={{ ...base, fontWeight: 900, fontSize: 17, letterSpacing: '0.14em', fontFamily: 'Arial Black, Arial, sans-serif' }}>DAIKIN</span>
-  if (s.includes('mitsubishi')) return (
-    <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'Arial, sans-serif' }}>
-      <span style={{ color: '#ffffff', fontSize: 11, letterSpacing: '-1px' }}>◆◆◆</span>
-      <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.08em', color: '#ffffff', lineHeight: 1.2, textTransform: 'uppercase' }}>Mitsubishi<br />Electric</span>
-    </span>
-  )
-  if (s.includes('panasonic'))  return <span style={{ ...base, fontWeight: 700, fontSize: 15, letterSpacing: '0.04em' }}>Panasonic</span>
-  if (s.includes('toshiba'))    return <span style={{ ...base, fontWeight: 800, fontSize: 16, letterSpacing: '0.12em', fontFamily: 'Arial Black, Arial, sans-serif' }}>TOSHIBA</span>
-  if (s.includes('fujitsu'))    return <span style={{ ...base, fontWeight: 700, fontSize: 16, letterSpacing: '0.06em' }}>Fujitsu</span>
-  if (s.includes('gree'))       return <span style={{ ...base, fontWeight: 900, fontSize: 18, letterSpacing: '0.18em', fontFamily: 'Arial Black, Arial, sans-serif' }}>GREE</span>
-  return <span style={{ ...base, fontWeight: 700, fontSize: 13, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{name}</span>
+function logoClasses(mode: string): string {
+  if (mode === 'invert')
+    return 'object-contain max-h-9 w-auto brightness-0 invert opacity-40 group-hover:opacity-85 transition-all duration-[350ms]'
+  if (mode === 'normal')
+    return 'object-contain max-h-9 w-auto opacity-60 group-hover:opacity-100 transition-opacity duration-[350ms]'
+  // grayscale (default)
+  return 'object-contain max-h-9 w-auto grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-95 transition-all duration-[350ms]'
 }
 
 export default function BrandShowcase({ brands }: { brands: Brand[] }) {
@@ -70,12 +60,12 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
                     alt={brand.name}
                     width={110}
                     height={44}
-                    className="object-contain max-h-9 w-auto grayscale group-hover:grayscale-0 opacity-30 group-hover:opacity-95 transition-all duration-[350ms]"
+                    className={logoClasses(brand.logo_display_mode)}
                   />
                 ) : (
-                  <div className="opacity-50 group-hover:opacity-95 transition-opacity duration-300">
-                    <BrandWordmark slug={brand.slug} name={brand.name} />
-                  </div>
+                  <span className="text-[13px] font-bold tracking-[0.12em] uppercase text-white opacity-40 group-hover:opacity-90 transition-opacity duration-300">
+                    {brand.name}
+                  </span>
                 )}
               </Link>
             </motion.div>

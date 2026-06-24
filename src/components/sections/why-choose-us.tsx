@@ -35,8 +35,8 @@ const QUALIFIERS = [
 const DEFAULT_ITEMS: WhyItem[] = [
   {
     icon: 'shield-check',
-    title: 'Authorised Dealer',
-    description: 'Official dealer for Daikin, Mitsubishi Electric, Panasonic and more premium brands.',
+    title: 'Quality Brands',
+    description: 'Leading HVAC and refrigeration brands sourced direct — backed by full manufacturer warranty.',
   },
   {
     icon: 'wrench',

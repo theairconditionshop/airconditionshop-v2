@@ -226,7 +226,7 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                   <div className="py-6">
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Popular searches</p>
                     <div className="flex flex-wrap gap-2 mb-8">
-                      {['Daikin', 'Mitsubishi', 'Panasonic', '9000 BTU', '12000 BTU', 'Heat Pump', 'Inverter'].map(term => (
+                      {['9000 BTU', '12000 BTU', '18000 BTU', 'Heat Pump', 'Inverter', 'Split System', 'VRF'].map(term => (
                         <button
                           key={term}
                           onClick={() => { setQuery(term); doSearch(term) }}
@@ -238,16 +238,13 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                     </div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Browse by brand</p>
                     <div className="flex flex-wrap gap-2">
-                      {['Daikin', 'Mitsubishi Electric', 'Panasonic', 'Toshiba', 'Fujitsu', 'Gree'].map(brand => (
-                        <Link
-                          key={brand}
-                          href={`/brands/${brand.toLowerCase().replace(/\s+/g, '-')}`}
-                          onClick={onClose}
-                          className="px-3 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-slate-200 transition-colors"
-                        >
-                          {brand}
-                        </Link>
-                      ))}
+                      <Link
+                        href="/brands"
+                        onClick={onClose}
+                        className="px-3 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-blue-50 hover:text-blue-600 rounded-xl border border-slate-200 transition-colors"
+                      >
+                        Browse all brands →
+                      </Link>
                     </div>
                   </div>
                 )}

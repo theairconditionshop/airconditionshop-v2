@@ -47,7 +47,7 @@ export default function ImageUploadField({
 
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file (JPG, PNG, WebP)')
+      toast.error('Please select an image file (SVG, PNG, WebP, JPG)')
       return
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -101,7 +101,7 @@ export default function ImageUploadField({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/avif"
+        accept="image/svg+xml,image/png,image/webp,image/jpeg,image/avif"
         className="hidden"
         onChange={e => {
           const file = e.target.files?.[0]
@@ -209,7 +209,7 @@ export default function ImageUploadField({
                 <p className={`text-sm font-semibold transition-colors ${dragging ? 'text-sky-600' : 'text-slate-600'}`}>
                   {dragging ? 'Drop image here' : 'Click to upload or drag & drop'}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">JPG, PNG, WebP · Max 10 MB</p>
+                <p className="text-xs text-slate-400 mt-1">SVG, PNG, WebP, JPG · Max 10 MB</p>
               </div>
             </>
           )}

@@ -16,10 +16,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const brand = await getBrandBySlug(slug)
   if (!brand) return {}
+
+  const title       = brand.seo_title || `${brand.name} Products Malta | THE AIRCONDITION SHOP`
+  const description = brand.seo_desc  || brand.description || `Explore ${brand.name} products available from THE AIRCONDITION SHOP Malta.`
+  const ogImage     = brand.hero_url  || brand.logo_url    || undefined
+
   return {
-    title: brand.seo_title || `${brand.name} Products`,
-    description: brand.seo_desc || brand.description || undefined,
+    title,
+    description,
     alternates: { canonical: `https://theairconditionshop.com/brands/${slug}` },
+    openGraph: {
+      title,
+      description,
+      url:      `https://theairconditionshop.com/brands/${slug}`,
+      siteName: 'THE AIRCONDITION SHOP',
+      ...(ogImage ? { images: [{ url: ogImage, alt: brand.name }] } : {}),
+    },
   }
 }
 
@@ -30,8 +42,30 @@ export default async function BrandPage({ params }: Props) {
 
   const products = await getProducts({ brandId: brand.id })
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home',   item: 'https://theairconditionshop.com' },
+          { '@type': 'ListItem', position: 2, name: 'Brands', item: 'https://theairconditionshop.com/brands' },
+          { '@type': 'ListItem', position: 3, name: brand.name, item: `https://theairconditionshop.com/brands/${brand.slug}` },
+        ],
+      },
+      {
+        '@type': 'Brand',
+        name: brand.name,
+        url:  `https://theairconditionshop.com/brands/${brand.slug}`,
+        ...(brand.logo_url   ? { logo: brand.logo_url }         : {}),
+        ...(brand.description ? { description: brand.description } : {}),
+      },
+    ],
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
       <main className="min-h-screen pt-20">
         {brand.hero_url && (

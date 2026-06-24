@@ -43,8 +43,8 @@ export default async function Footer() {
               </span>
             </Link>
             <p className="text-sm text-slate-500 leading-relaxed mb-8">
-              Malta&apos;s premier HVAC and refrigeration specialists. Authorised dealers for
-              Daikin, Mitsubishi Electric, Panasonic and more.
+              Malta&apos;s premier HVAC and refrigeration specialists. Premium AC, refrigeration,
+              ventilation and installation materials.
             </p>
 
             {/* Contact info */}
@@ -123,9 +123,8 @@ export default async function Footer() {
       <div className="border-t border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
           {[
-            'Authorised Daikin Dealer',
-            'Mitsubishi Electric Approved',
             'F-Gas Certified',
+            'Certified Engineers',
             vatNumber ? `VAT ${vatNumber}` : 'Malta VAT Registered',
             'Fully Insured',
           ].map(cert => (

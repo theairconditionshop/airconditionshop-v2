@@ -13,7 +13,7 @@ const features = [
   {
     icon: Tag,
     title: 'Installer Pricing',
-    body: 'Trade-only rates across our full catalogue of Daikin, Mitsubishi Electric, Panasonic and more.',
+    body: 'Trade-only rates across our full catalogue of HVAC, refrigeration and installation materials.',
   },
   {
     icon: Zap,
