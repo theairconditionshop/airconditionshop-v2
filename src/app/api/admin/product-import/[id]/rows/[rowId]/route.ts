@@ -10,7 +10,7 @@ async function requireAdmin() {
 }
 
 const patchSchema = z.object({
-  action:   z.enum(['create', 'update', 'skip']).optional(),
+  action:   z.enum(['create', 'update', 'skip', 'review']).optional(),
   raw_data: z.record(z.string(), z.unknown()).optional(),
 })
 

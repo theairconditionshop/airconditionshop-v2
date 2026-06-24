@@ -146,20 +146,38 @@ async function resolveOrCreate(
 ): Promise<string | null> {
   if (!name?.trim()) return null
 
-  const { data } = await db
+  // Try to find existing row first
+  const { data: existing } = await db
     .from(table)
     .select('id')
     .ilike('name', name.trim())
     .limit(1)
-    .single()
+    .maybeSingle()
 
-  if (data) return data.id
+  if (existing) return existing.id
 
-  const { data: created } = await db
+  // Upsert on slug to handle the parallel-batch race condition where two rows
+  // for the same brand/category execute simultaneously — the second writer just
+  // gets back the id the first writer already inserted.
+  const slug = slugify(name)
+  const { data: upserted } = await db
     .from(table)
-    .insert({ name: name.trim(), slug: slugify(name), is_active: true })
+    .upsert(
+      { name: name.trim(), slug, is_active: true },
+      { onConflict: 'slug', ignoreDuplicates: false },
+    )
     .select('id')
-    .single()
+    .maybeSingle()
 
-  return created?.id ?? null
+  if (upserted) return upserted.id
+
+  // Final fallback: another concurrent writer won the upsert — just select their row
+  const { data: fallback } = await db
+    .from(table)
+    .select('id')
+    .ilike('name', name.trim())
+    .limit(1)
+    .maybeSingle()
+
+  return fallback?.id ?? null
 }

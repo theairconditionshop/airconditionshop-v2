@@ -13,6 +13,7 @@ const schema = z.object({
   category_id:        z.string().optional(),
   brand_id:           z.string().optional(),
   ac_type:            z.string().max(100).nullable().optional(),
+  product_type:       z.string().max(100).nullable().optional(),
   availability:       z.enum(['in_stock', 'out_of_stock', 'on_order', 'discontinued']).default('in_stock'),
   trade_price_mode:   z.enum(['fixed', 'discount']).optional(),
   trade_price:        z.number().optional(),

@@ -3,6 +3,9 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
 import { detectPdfType } from '@/services/ai/gemini-product-parser'
 
+// detectPdfType sends the PDF to Gemini — needs the same generous timeout as parse/execute
+export const maxDuration = 120
+
 async function requireAdmin() {
   const profile = await getProfile()
   if (!profile || !['super_admin', 'admin', 'staff'].includes(profile.role)) return null

@@ -20,6 +20,7 @@ const updateSchema = z.object({
   category_id:        z.string().uuid().nullable().optional(),
   model_number:       z.string().max(100).nullable().optional(),
   ac_type:            z.string().max(100).nullable().optional(),
+  product_type:       z.string().max(100).nullable().optional(),
   retail_price:       z.number().nonnegative().nullable().optional(),
   trade_price:        z.number().nonnegative().nullable().optional(),
   trade_price_mode:   z.enum(['fixed', 'discount']).nullable().optional(),
