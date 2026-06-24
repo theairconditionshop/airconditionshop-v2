@@ -14,6 +14,7 @@ import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
 import ProductCard from '@/components/products/product-card'
 import ProductGallery from '@/components/products/product-gallery'
+import InstallationOffer from '@/components/products/installation-offer'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/shared/json-ld'
@@ -26,9 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const product  = await getProductBySlug(slug)
   if (!product) return {}
+  const acTypePart = product.ac_type ? ` | ${product.ac_type}` : ''
   return {
     title: product.seo_title || product.name,
-    description: product.seo_desc || product.description?.slice(0, 160) || undefined,
+    description: product.seo_desc || `${product.description?.slice(0, 130) || product.name}${acTypePart}` || undefined,
     alternates: { canonical: `https://theairconditionshop.com/products/${slug}` },
   }
 }
@@ -123,6 +125,7 @@ export default async function ProductPage({ params }: Props) {
         brand={product.brand?.name}
         availability={product.availability === 'out_of_stock' ? 'OutOfStock' : 'InStock'}
         url={`${BASE}/products/${product.slug}`}
+        acType={product.ac_type ?? undefined}
       />
       <BreadcrumbJsonLd items={crumbs.map(c => ({ name: c.label, url: `${BASE}${c.href || '/'}` }))} />
       <Navbar />
@@ -158,6 +161,40 @@ export default async function ProductPage({ params }: Props) {
               </h1>
               {product.model_number && (
                 <p className="mt-1 text-sm text-slate-400">Model: {product.model_number}</p>
+              )}
+
+              {/* Quick spec row */}
+              {(product.brand || product.ac_type || product.cooling_btu || priceResult.price != null || product.availability) && (
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                  {product.brand && (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-slate-400 uppercase tracking-wide font-semibold">Brand</span>
+                      <span className="text-slate-700 font-medium">{product.brand.name}</span>
+                    </div>
+                  )}
+                  {product.ac_type && (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-slate-400 uppercase tracking-wide font-semibold">AC Type</span>
+                      <span className="text-slate-700 font-medium">{product.ac_type}</span>
+                    </div>
+                  )}
+                  {product.cooling_btu && (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-slate-400 uppercase tracking-wide font-semibold">BTU Capacity</span>
+                      <span className="text-slate-700 font-medium">{product.cooling_btu.toLocaleString()} BTU</span>
+                    </div>
+                  )}
+                  {priceResult.price != null && (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-slate-400 uppercase tracking-wide font-semibold">Price</span>
+                      <span className="text-slate-700 font-medium">{formatPrice(priceResult.price, product.currency)}</span>
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-slate-400 uppercase tracking-wide font-semibold">Availability</span>
+                    <span className="text-slate-700 font-medium capitalize">{product.availability.replace(/_/g, ' ')}</span>
+                  </div>
+                </div>
               )}
 
               {/* Trust badges row */}
@@ -219,6 +256,9 @@ export default async function ProductPage({ params }: Props) {
                   </Button>
                 </a>
               </div>
+
+              {/* Installation offer block */}
+              <InstallationOffer acType={product.ac_type ?? null} coolingBtu={product.cooling_btu ?? null} />
 
               {/* Description */}
               {product.description && (

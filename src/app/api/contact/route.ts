@@ -46,7 +46,11 @@ export async function POST(request: Request) {
     ip_address: ip !== 'anonymous' ? ip : null,
   })
 
-  await sendContactEnquiryEmails({ name, email, phone, company, message })
+  try {
+    await sendContactEnquiryEmails({ name, email, phone, company, message })
+  } catch (err) {
+    console.error('[contact] Email notification failed (enquiry saved):', err)
+  }
 
   return NextResponse.json({ ok: true })
 }

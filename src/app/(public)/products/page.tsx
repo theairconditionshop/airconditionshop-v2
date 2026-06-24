@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 }
 
 interface Props {
-  searchParams: Promise<{ category?: string; brand?: string; search?: string }>
+  searchParams: Promise<{ category?: string; brand?: string; search?: string; ac_type?: string }>
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
@@ -26,6 +26,7 @@ export default async function ProductsPage({ searchParams }: Props) {
       categoryId: params.category,
       brandId: params.brand,
       search: params.search,
+      acType: params.ac_type,
     }),
     getCategories(null),
     getBrands(),
@@ -34,8 +35,8 @@ export default async function ProductsPage({ searchParams }: Props) {
 
   const activeCategory = categories.find(c => c.id === params.category)
   const activeBrand    = brands.find(b => b.id === params.brand)
-  const title = activeCategory?.name || activeBrand?.name || 'All Products'
-  const isFiltered = !!(params.category || params.brand || params.search)
+  const title = activeCategory?.name || activeBrand?.name || (params.ac_type ? `${params.ac_type} Units` : 'All Products')
+  const isFiltered = !!(params.category || params.brand || params.search || params.ac_type)
 
   return (
     <>
@@ -62,6 +63,7 @@ export default async function ProductsPage({ searchParams }: Props) {
               activeCategory={params.category}
               activeBrand={params.brand}
               activeSearch={params.search}
+              activeAcType={params.ac_type}
             />
 
             {/* Product grid */}

@@ -56,6 +56,14 @@ const SECTIONS: Section[] = [
       { key: 'default_seo_desc',  label: 'Default meta description', type: 'textarea' },
     ],
   },
+  {
+    title: 'Installation Offer',
+    fields: [
+      { key: 'installation_offer_enabled', label: 'Enable installation offer block', hint: 'Set to "true" to show the FREE installation block on AC product pages, "false" to hide it' },
+      { key: 'installation_pipe_price_12k',   label: 'Extra pipe price — 12,000 BTU units (€ per metre)', hint: 'e.g. 25' },
+      { key: 'installation_pipe_price_large', label: 'Extra pipe price — 18,000 & 24,000 BTU units (€ per metre)', hint: 'e.g. 29' },
+    ],
+  },
 ]
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {

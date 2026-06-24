@@ -11,7 +11,10 @@ import ProductCard from '@/components/products/product-card'
 
 export const revalidate = 300
 
-interface Props { params: Promise<{ slug: string }> }
+interface Props {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ ac_type?: string }>
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
@@ -24,13 +27,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params
+  const { ac_type } = await searchParams
   const [category, userRole] = await Promise.all([getCategoryBySlug(slug), getRole()])
   if (!category) notFound()
 
   const [products, subcategories] = await Promise.all([
-    getProducts({ categoryId: category.id }),
+    getProducts({ categoryId: category.id, acType: ac_type }),
     getCategories(category.id),
   ])
 

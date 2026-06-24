@@ -86,6 +86,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 export async function getProducts(opts?: {
   categoryId?: string
   brandId?: string
+  acType?: string
   featured?: boolean
   search?: string
   limit?: number
@@ -101,6 +102,7 @@ export async function getProducts(opts?: {
 
   if (opts?.categoryId) query = query.eq('category_id', opts.categoryId)
   if (opts?.brandId)    query = query.eq('brand_id', opts.brandId)
+  if (opts?.acType)     query = query.eq('ac_type', opts.acType)
   if (opts?.featured)   query = query.eq('is_featured', true)
   if (opts?.search)     query = query.ilike('name', `%${opts.search}%`)
   if (opts?.limit)      query = query.limit(opts.limit)

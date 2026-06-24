@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { AC_TYPES } from '@/lib/ac-types'
 
 function slugify(str: string) {
   return str
@@ -27,6 +28,7 @@ const schema = z.object({
   retail_price:       z.coerce.number().optional(),
   category_id:        z.string().optional(),
   brand_id:           z.string().optional(),
+  ac_type:            z.string().optional(),
   availability:       z.enum(['in_stock', 'out_of_stock', 'on_order', 'discontinued']).default('in_stock'),
   trade_price_mode:   z.enum(['fixed', 'discount']).optional(),
   trade_price:        z.coerce.number().optional(),
@@ -72,6 +74,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
       retail_price:       product.retail_price as number,
       category_id:        product.category_id as string,
       brand_id:           product.brand_id as string,
+      ac_type:            product.ac_type as string,
       availability:       (product.availability as 'in_stock' | 'out_of_stock' | 'on_order' | 'discontinued') ?? 'in_stock',
       trade_price_mode:   product.trade_price_mode as 'fixed' | 'discount',
       trade_price:        product.trade_price as number,
@@ -169,6 +172,15 @@ export default function ProductForm({ product, categories, brands }: Props) {
               {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-700">AC Type</label>
+          <select {...register('ac_type')}
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <option value="">— Not an AC unit —</option>
+            {AC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <p className="text-[11px] text-slate-400">Select to enable AC Type filtering and the installation offer block</p>
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Availability</label>

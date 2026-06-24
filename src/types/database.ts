@@ -90,6 +90,7 @@ export interface Product {
   indoor_noise_db: number | null
   outdoor_noise_db: number | null
   voltage: number | null
+  ac_type: string | null
   warranty_years: number | null
   currency: string
   retail_price: number | null

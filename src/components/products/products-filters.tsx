@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { SlidersHorizontal, X, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { AC_TYPES } from '@/lib/ac-types'
 
 interface Category { id: string; name: string }
 interface Brand    { id: string; name: string }
@@ -14,6 +15,7 @@ interface Props {
   activeCategory?: string
   activeBrand?: string
   activeSearch?: string
+  activeAcType?: string
 }
 
 interface FilterContentProps {
@@ -22,10 +24,11 @@ interface FilterContentProps {
   activeCategory?: string
   activeBrand?: string
   activeSearch?: string
+  activeAcType?: string
   onNavigate: (params: Record<string, string | undefined>) => void
 }
 
-function FilterContent({ categories, brands, activeCategory, activeBrand, activeSearch, onNavigate }: FilterContentProps) {
+function FilterContent({ categories, brands, activeCategory, activeBrand, activeSearch, activeAcType, onNavigate }: FilterContentProps) {
   return (
     <div className="space-y-6">
       {/* Search */}
@@ -34,7 +37,7 @@ function FilterContent({ categories, brands, activeCategory, activeBrand, active
         <form onSubmit={e => {
           e.preventDefault()
           const fd = new FormData(e.currentTarget)
-          onNavigate({ search: fd.get('search') as string || undefined })
+          onNavigate({ category: activeCategory, brand: activeBrand, ac_type: activeAcType, search: fd.get('search') as string || undefined })
         }}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
@@ -53,7 +56,7 @@ function FilterContent({ categories, brands, activeCategory, activeBrand, active
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Categories</p>
         <nav className="space-y-0.5">
           <button
-            onClick={() => onNavigate({})}
+            onClick={() => onNavigate({ ac_type: activeAcType, search: activeSearch })}
             className={cn(
               'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
               !activeCategory ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
@@ -64,7 +67,7 @@ function FilterContent({ categories, brands, activeCategory, activeBrand, active
           {categories.map(cat => (
             <button
               key={cat.id}
-              onClick={() => onNavigate({ category: cat.id })}
+              onClick={() => onNavigate({ category: cat.id, ac_type: activeAcType, search: activeSearch })}
               className={cn(
                 'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
                 activeCategory === cat.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
@@ -84,7 +87,7 @@ function FilterContent({ categories, brands, activeCategory, activeBrand, active
             {brands.map(brand => (
               <button
                 key={brand.id}
-                onClick={() => onNavigate({ brand: brand.id })}
+                onClick={() => onNavigate({ brand: brand.id, ac_type: activeAcType, search: activeSearch })}
                 className={cn(
                   'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
                   activeBrand === brand.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
@@ -97,8 +100,36 @@ function FilterContent({ categories, brands, activeCategory, activeBrand, active
         </div>
       )}
 
+      {/* AC Type */}
+      <div>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">AC Type</p>
+        <nav className="space-y-0.5">
+          <button
+            onClick={() => onNavigate({ category: activeCategory, brand: activeBrand, search: activeSearch })}
+            className={cn(
+              'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
+              !activeAcType ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
+            )}
+          >
+            All Types
+          </button>
+          {AC_TYPES.map(type => (
+            <button
+              key={type}
+              onClick={() => onNavigate({ category: activeCategory, brand: activeBrand, search: activeSearch, ac_type: type })}
+              className={cn(
+                'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
+                activeAcType === type ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
+              )}
+            >
+              {type}
+            </button>
+          ))}
+        </nav>
+      </div>
+
       {/* Clear filters */}
-      {(activeCategory || activeBrand || activeSearch) && (
+      {(activeCategory || activeBrand || activeSearch || activeAcType) && (
         <button
           onClick={() => onNavigate({})}
           className="flex items-center gap-1.5 text-xs text-red-500 hover:text-red-600 font-medium transition-colors cursor-pointer"
@@ -111,7 +142,7 @@ function FilterContent({ categories, brands, activeCategory, activeBrand, active
   )
 }
 
-export default function ProductsFilters({ categories, brands, activeCategory, activeBrand, activeSearch }: Props) {
+export default function ProductsFilters({ categories, brands, activeCategory, activeBrand, activeSearch, activeAcType }: Props) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const router = useRouter()
 
@@ -131,9 +162,9 @@ export default function ProductsFilters({ categories, brands, activeCategory, ac
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filters
-          {(activeCategory || activeBrand || activeSearch) && (
+          {(activeCategory || activeBrand || activeSearch || activeAcType) && (
             <span className="ml-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">
-              {[activeCategory, activeBrand, activeSearch].filter(Boolean).length}
+              {[activeCategory, activeBrand, activeSearch, activeAcType].filter(Boolean).length}
             </span>
           )}
         </button>
@@ -155,6 +186,7 @@ export default function ProductsFilters({ categories, brands, activeCategory, ac
                 activeCategory={activeCategory}
                 activeBrand={activeBrand}
                 activeSearch={activeSearch}
+                activeAcType={activeAcType}
                 onNavigate={navigate}
               />
             </div>
@@ -171,6 +203,7 @@ export default function ProductsFilters({ categories, brands, activeCategory, ac
             activeCategory={activeCategory}
             activeBrand={activeBrand}
             activeSearch={activeSearch}
+            activeAcType={activeAcType}
             onNavigate={navigate}
           />
         </div>

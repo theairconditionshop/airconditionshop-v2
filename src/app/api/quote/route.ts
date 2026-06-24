@@ -54,7 +54,11 @@ export async function POST(request: Request) {
     message,
   })
 
-  await sendQuoteRequestEmails({ name, email, company, message })
+  try {
+    await sendQuoteRequestEmails({ name, email, company, message })
+  } catch (err) {
+    console.error('[quote] Email notification failed (quote request saved):', err)
+  }
 
   return NextResponse.json({ ok: true })
 }

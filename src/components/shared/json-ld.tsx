@@ -55,6 +55,9 @@ export async function LocalBusinessJsonLd() {
   if (vatNumber) data.taxID = vatNumber
   if (sameAs.length) data.sameAs = sameAs
 
+  // suppress unused variable warning
+  void address
+
   return (
     <script
       type="application/ld+json"
@@ -74,9 +77,10 @@ interface ProductJsonLdProps {
   brand?: string
   availability?: 'InStock' | 'OutOfStock' | 'PreOrder'
   url: string
+  acType?: string
 }
 
-export function ProductJsonLd({ name, description, image, price, currency = 'EUR', sku, brand, availability = 'InStock', url }: ProductJsonLdProps) {
+export function ProductJsonLd({ name, description, image, price, currency = 'EUR', sku, brand, availability = 'InStock', url, acType }: ProductJsonLdProps) {
   const data: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -87,6 +91,13 @@ export function ProductJsonLd({ name, description, image, price, currency = 'EUR
   if (image)       data.image = image
   if (sku)         data.sku = sku
   if (brand)       data.brand = { '@type': 'Brand', name: brand }
+  if (acType) {
+    data.additionalProperty = [{
+      '@type': 'PropertyValue',
+      name: 'AC Type',
+      value: acType,
+    }]
+  }
   if (price != null) {
     data.offers = {
       '@type': 'Offer',

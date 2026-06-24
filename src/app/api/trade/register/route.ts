@@ -69,7 +69,11 @@ export async function POST(request: Request) {
     console.error('trade_applications insert failed:', appError.message)
   }
 
-  await sendTradeApplicationEmails({ name, email, companyName: company })
+  try {
+    await sendTradeApplicationEmails({ name, email, companyName: company })
+  } catch (err) {
+    console.error('[trade/register] Email notification failed (application saved):', err)
+  }
 
   return NextResponse.json({ ok: true })
 }
