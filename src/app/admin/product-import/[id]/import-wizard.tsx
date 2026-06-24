@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import {
   Loader2, Play, Send, Download, CheckCircle2, XCircle,
-  ChevronDown, ChevronUp, AlertTriangle, RefreshCw, FileJson,
+  ChevronDown, ChevronUp, AlertTriangle, RefreshCw, FileJson, Clock,
 } from 'lucide-react'
 import type { ParsedProduct } from '@/services/ai/gemini-product-parser'
+
+const GEMINI_BUSY_PHRASE = 'Google Gemini is currently busy'
 
 type ImportStatus = 'pending' | 'parsing' | 'preview' | 'importing' | 'complete' | 'failed'
 type RowAction    = 'create' | 'update' | 'skip' | 'review' | 'failed'
@@ -241,14 +243,24 @@ export default function ImportWizard({ initialImport, initialRows }: Props) {
                 {imp.type === 'price_list' ? 'Price List' : 'Catalogue'}
               </span>
             </div>
-            <p className="text-sm text-slate-400">
-              {imp.status === 'pending'   && 'Ready to parse — click Parse PDF to extract products with AI.'}
-              {imp.status === 'parsing'   && 'Analysing PDF with Gemini AI — this may take up to 60 seconds…'}
-              {imp.status === 'preview'   && `${rows.length} products extracted. Review and import.`}
-              {imp.status === 'importing' && 'Importing products…'}
-              {imp.status === 'complete'  && 'Import complete.'}
-              {imp.status === 'failed'    && `Parse failed: ${imp.error_message}`}
-            </p>
+            {imp.status === 'failed' && imp.error_message?.includes(GEMINI_BUSY_PHRASE) ? (
+              <div className="flex items-start gap-2 mt-1">
+                <Clock className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-amber-700">{imp.error_message}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Your PDF is saved — click Retry Parse when ready.</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">
+                {imp.status === 'pending'   && 'Ready to parse — click Parse PDF to extract products with AI.'}
+                {imp.status === 'parsing'   && 'Analysing PDF with Gemini AI — this may take up to 60 seconds…'}
+                {imp.status === 'preview'   && `${rows.length} products extracted. Review and import.`}
+                {imp.status === 'importing' && 'Importing products…'}
+                {imp.status === 'complete'  && 'Import complete.'}
+                {imp.status === 'failed'    && `Parse failed: ${imp.error_message}`}
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-3 shrink-0 flex-wrap">

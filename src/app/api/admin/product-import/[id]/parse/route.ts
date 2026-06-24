@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
-import { parseCataloguePdf, parsePriceListPdf } from '@/services/ai/gemini-product-parser'
+import { parseCataloguePdf, parsePriceListPdf, GEMINI_BUSY_MSG } from '@/services/ai/gemini-product-parser'
 import { buildLookup, matchProduct } from '@/lib/import/matcher'
 
 export const maxDuration = 120
@@ -81,7 +81,16 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
 
     return NextResponse.json({ ok: true, parsed: products.length, needs_review: needs_review_count })
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
+    const raw = err instanceof Error ? err.message : String(err)
+    // Replace raw SDK error strings with a friendly message for Gemini 503s
+    const msg = (
+      raw.includes('503') ||
+      raw.toLowerCase().includes('service unavailable') ||
+      raw.toLowerCase().includes('overloaded') ||
+      raw === GEMINI_BUSY_MSG
+    ) ? GEMINI_BUSY_MSG : raw
+
+    // PDF is intentionally kept in storage so the admin can retry without re-uploading
     await db.from('product_imports').update({ status: 'failed', error_message: msg }).eq('id', id)
     return NextResponse.json({ error: msg }, { status: 500 })
   }

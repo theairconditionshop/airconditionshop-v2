@@ -1,7 +1,62 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-const MODEL = 'gemini-2.5-flash'
+
+// Model priority list — primary first, then fallbacks
+const MODEL_PRIORITY = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'] as const
+
+// Retry delays in ms: 2s, 5s, 10s, 20s, 30s
+const RETRY_DELAYS = [2_000, 5_000, 10_000, 20_000, 30_000]
+
+// User-facing message stored in the DB when all retries fail
+export const GEMINI_BUSY_MSG =
+  'Google Gemini is currently busy. Retrying automatically. This may take a few moments.'
+
+function is503(err: unknown): boolean {
+  const msg = String(err instanceof Error ? err.message : err).toLowerCase()
+  return msg.includes('503') || msg.includes('service unavailable') || msg.includes('overloaded') || msg.includes('resource_exhausted')
+}
+
+const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms))
+
+// Calls Gemini with retry + model fallback. Parsing logic is untouched — only the
+// generateContent call is wrapped.
+async function callWithRetry(
+  parts: Parameters<ReturnType<typeof genAI.getGenerativeModel>['generateContent']>[0],
+  label: string,
+): Promise<string> {
+  for (const modelName of MODEL_PRIORITY) {
+    const model = genAI.getGenerativeModel({ model: modelName })
+
+    for (let attempt = 0; attempt <= RETRY_DELAYS.length; attempt++) {
+      const globalAttempt = MODEL_PRIORITY.indexOf(modelName) * (RETRY_DELAYS.length + 1) + attempt + 1
+
+      if (attempt > 0) {
+        const delay = RETRY_DELAYS[attempt - 1]
+        console.warn(`[gemini:${label}] 503 — model=${modelName} retry=${attempt} wait=${delay}ms`)
+        await sleep(delay)
+      }
+
+      try {
+        console.log(`[gemini:${label}] model=${modelName} attempt=${globalAttempt}`)
+        const result = await model.generateContent(parts)
+        const text   = result.response.text()
+        console.log(`[gemini:${label}] success model=${modelName} attempt=${globalAttempt}`)
+        return text
+      } catch (err) {
+        if (!is503(err)) {
+          console.error(`[gemini:${label}] non-503 error on model=${modelName}:`, err)
+          throw err
+        }
+        if (attempt === RETRY_DELAYS.length) {
+          console.warn(`[gemini:${label}] all retries exhausted for model=${modelName} — trying next`)
+        }
+      }
+    }
+  }
+
+  throw new Error(GEMINI_BUSY_MSG)
+}
 
 // ── Product Type taxonomy ─────────────────────────────────────────────────
 export const PRODUCT_TYPES = [
@@ -173,35 +228,29 @@ Respond with EXACTLY one word: catalogue  OR  price_list`
 
 // ── Public API ────────────────────────────────────────────────────────────
 export async function parseCataloguePdf(pdfBuffer: Buffer): Promise<ParsedProduct[]> {
-  const model  = genAI.getGenerativeModel({ model: MODEL })
-  const result = await model.generateContent([
+  const text   = await callWithRetry([
     { inlineData: { mimeType: 'application/pdf', data: pdfBuffer.toString('base64') } },
     CATALOGUE_PROMPT,
-  ])
-  const text   = result.response.text()
+  ], 'catalogue')
   const parsed = JSON.parse(extractJson(text))
   return sanitiseProducts((parsed.products || []) as ParsedProduct[])
 }
 
 export async function parsePriceListPdf(pdfBuffer: Buffer): Promise<ParsedProduct[]> {
-  const model  = genAI.getGenerativeModel({ model: MODEL })
-  const result = await model.generateContent([
+  const text   = await callWithRetry([
     { inlineData: { mimeType: 'application/pdf', data: pdfBuffer.toString('base64') } },
     PRICE_LIST_PROMPT,
-  ])
-  const text   = result.response.text()
+  ], 'price_list')
   const parsed = JSON.parse(extractJson(text))
   return sanitiseProducts((parsed.products || []) as ParsedProduct[])
 }
 
 export async function detectPdfType(pdfBuffer: Buffer): Promise<'catalogue' | 'price_list'> {
-  const model  = genAI.getGenerativeModel({ model: MODEL })
-  const result = await model.generateContent([
+  const text = await callWithRetry([
     { inlineData: { mimeType: 'application/pdf', data: pdfBuffer.toString('base64') } },
     DETECT_PROMPT,
-  ])
-  const text = result.response.text().trim().toLowerCase()
-  return text.includes('price') ? 'price_list' : 'catalogue'
+  ], 'detect')
+  return text.trim().toLowerCase().includes('price') ? 'price_list' : 'catalogue'
 }
 
 // ── Sanitise / coerce Gemini output ──────────────────────────────────────
