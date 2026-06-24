@@ -7,7 +7,7 @@ import type { UserRole } from '@/types/database'
 import {
   LayoutDashboard, Package, BookOpen, Wrench, FileText, Users,
   MessageSquare, Globe, Settings, Building2, ChevronDown, Megaphone,
-  Tag, Layers, Image,
+  Tag, Layers, Image, Upload,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -44,6 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
           { label: 'Brands',       href: '/admin/brands' },
         ],
       },
+      { label: 'Product Import', href: '/admin/product-import', icon: Upload },
     ],
   },
   {
