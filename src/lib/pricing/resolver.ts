@@ -28,9 +28,9 @@ export function resolvePrice(product: Product, role: UserRole | null): PriceResu
     if (
       product.trade_price_mode === 'discount' &&
       product.trade_discount_pct != null &&
-      product.retail_price != null
+      product.original_price != null
     ) {
-      const discounted = product.retail_price * (1 - product.trade_discount_pct / 100)
+      const discounted = product.original_price * (1 - product.trade_discount_pct / 100)
       return {
         price: Math.round(discounted * 100) / 100,
         label: `Trade Price`,
@@ -45,7 +45,7 @@ export function resolvePrice(product: Product, role: UserRole | null): PriceResu
 
   // Sale pricing: sale_price is the discounted price, original_price is RRP
   if (product.sale_price != null) {
-    const rrp = product.original_price ?? product.retail_price
+    const rrp = product.original_price
     const savings = rrp != null ? Math.round((rrp - product.sale_price) * 100) / 100 : null
     const pct = rrp != null && rrp > 0
       ? Math.round(((rrp - product.sale_price) / rrp) * 100)
@@ -60,10 +60,8 @@ export function resolvePrice(product: Product, role: UserRole | null): PriceResu
     }
   }
 
-  // No sale — use original_price if set, else retail_price
-  const basePrice = product.original_price ?? product.retail_price
   return {
-    price: basePrice,
+    price: product.original_price,
     label: 'Price',
     isTrade: false,
     originalPrice: null,

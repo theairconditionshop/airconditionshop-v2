@@ -26,7 +26,6 @@ const schema = z.object({
   slug:               z.string().min(2).regex(SLUG_REGEX, 'Slug must be lowercase letters, numbers and hyphens only — no spaces'),
   sku:                z.string().optional(),
   description:        z.string().optional(),
-  retail_price:       z.coerce.number().optional(),
   original_price:     z.coerce.number().optional(),
   sale_price:         z.coerce.number().optional(),
   category_id:        z.string().optional(),
@@ -75,7 +74,6 @@ export default function ProductForm({ product, categories, brands }: Props) {
       slug:               product.slug as string,
       sku:                product.sku as string,
       description:        product.description as string,
-      retail_price:       product.retail_price as number,
       original_price:     product.original_price as number,
       sale_price:         product.sale_price as number,
       category_id:        product.category_id as string,
@@ -212,9 +210,8 @@ export default function ProductForm({ product, categories, brands }: Props) {
 
       <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
         <h3 className="font-semibold text-slate-900 text-sm">Pricing</h3>
-        <Input label="Retail price (€)" type="number" step="0.01" {...register('retail_price')} hint="Legacy price field — prefer Original Price below" />
         <div className="grid sm:grid-cols-2 gap-4">
-          <Input label="Original price / RRP (€)" type="number" step="0.01" {...register('original_price')} hint="Shown struck-through when a sale price is set" />
+          <Input label="Original price / RRP (€)" type="number" step="0.01" {...register('original_price')} hint="Regular price — shown struck-through when on sale" />
           <Input label="Sale price (€)" type="number" step="0.01" {...register('sale_price')} hint="Discounted price shown in green — leave blank for no sale" />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -230,7 +227,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
           <Input label="Trade price (€)" type="number" step="0.01" {...register('trade_price')} />
         )}
         {tradeMode === 'discount' && (
-          <Input label="Trade discount (%)" type="number" step="0.1" {...register('trade_discount_pct')} hint="e.g. 15 = 15% off retail" />
+          <Input label="Trade discount (%)" type="number" step="0.1" {...register('trade_discount_pct')} hint="e.g. 15 = 15% off original price" />
         )}
       </div>
 

@@ -40,7 +40,7 @@ export default async function AdminProductsPage({
   // Build product query
   let query = db
     .from('products')
-    .select('id, name, slug, retail_price, availability, is_active, is_featured, ac_type, product_type, cooling_btu, categories(id, name), brands(id, name), product_images(id)', { count: 'exact' })
+    .select('id, name, slug, original_price, sale_price, availability, is_active, is_featured, ac_type, product_type, cooling_btu, categories(id, name), brands(id, name), product_images(id)', { count: 'exact' })
 
   if (q)        query = query.ilike('name', `%${q}%`)
   if (brand)    query = query.eq('brand_id', brand)
@@ -59,7 +59,7 @@ export default async function AdminProductsPage({
   if (error) console.error('[admin/products] query error:', error.message)
 
   type Row = {
-    id: string; name: string; slug: string; retail_price?: number; availability?: string;
+    id: string; name: string; slug: string; original_price?: number | null; sale_price?: number | null; availability?: string;
     is_active: boolean; is_featured: boolean; ac_type?: string | null; product_type?: string | null; cooling_btu?: number | null;
     categories?: { id: string; name: string } | null
     brands?:     { id: string; name: string } | null
@@ -203,9 +203,11 @@ export default async function AdminProductsPage({
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs font-medium">
-                        {r.retail_price != null
-                          ? `€${r.retail_price.toFixed(2)}`
-                          : <span className="text-slate-400 italic">No price</span>}
+                        {r.sale_price != null
+                          ? <><span className="line-through text-slate-400 mr-1">€{r.original_price?.toFixed(2)}</span><span className="text-emerald-600">€{r.sale_price.toFixed(2)}</span></>
+                          : r.original_price != null
+                            ? `€${r.original_price.toFixed(2)}`
+                            : <span className="text-slate-400 italic">No price</span>}
                       </span>
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">

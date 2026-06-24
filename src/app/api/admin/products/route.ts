@@ -9,7 +9,6 @@ const schema = z.object({
   slug:               z.string().min(2),
   sku:                z.string().optional(),
   description:        z.string().optional(),
-  retail_price:       z.number().optional(),
   original_price:     z.number().nonnegative().nullable().optional(),
   sale_price:         z.number().nonnegative().nullable().optional(),
   category_id:        z.string().optional(),

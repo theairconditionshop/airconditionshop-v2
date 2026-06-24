@@ -50,8 +50,9 @@ async function performPriceUpdate(
     last_import_source: `import:${opts.importId}`,
     last_import_at:     new Date().toISOString(),
   }
-  if (p.price != null)          up.retail_price  = p.price
-  if (p.original_price != null) up.original_price = p.original_price
+  // p.original_price takes precedence; p.price is the fallback from AI parser
+  const priceVal = p.original_price ?? p.price
+  if (priceVal != null) up.original_price = priceVal
   if (p.sale_price != null)     up.sale_price    = p.sale_price
   if (p.cost_price != null)     up.cost_price    = p.cost_price
   // availability defaults to in_stock when a price list provides data for a product
@@ -68,7 +69,7 @@ async function performCatalogueUpdate(
 
   const { data: existing } = await db
     .from('products')
-    .select('description, model_number, sku, specifications, features, retail_price, manually_edited, ac_type, product_type, cooling_btu')
+    .select('description, model_number, sku, specifications, features, original_price, manually_edited, ac_type, product_type, cooling_btu')
     .eq('id', opts.matchedProductId!)
     .single()
 
@@ -90,7 +91,7 @@ async function performCatalogueUpdate(
   if (p.sku)                                                     up.sku           = merge(existing.sku,          p.sku)
   if (p.specifications && Object.keys(p.specifications).length)  up.specifications = merge(existing.specifications, p.specifications)
   if (p.features?.length)                                        up.features      = merge(existing.features,     p.features)
-  if (p.price != null)                                           up.retail_price  = merge(existing.retail_price, p.price)
+  if (p.price != null)                                           up.original_price = merge(existing.original_price, p.price)
   // HVAC attributes — only fill if missing
   if (p.ac_type && !existing.ac_type)                            up.ac_type       = p.ac_type
   if (p.product_type && !existing.product_type)                  up.product_type  = p.product_type
@@ -127,8 +128,7 @@ async function performCreate(
     description:        p.description ?? null,
     specifications:     p.specifications ?? {},
     features:           p.features ?? [],
-    retail_price:       p.price         ?? null,
-    original_price:     p.original_price ?? null,
+    original_price:     p.original_price ?? p.price ?? null,
     sale_price:         p.sale_price     ?? null,
     cost_price:         p.cost_price     ?? null,
     brand_id,

@@ -21,7 +21,6 @@ const updateSchema = z.object({
   model_number:       z.string().max(100).nullable().optional(),
   ac_type:            z.string().max(100).nullable().optional(),
   product_type:       z.string().max(100).nullable().optional(),
-  retail_price:       z.number().nonnegative().nullable().optional(),
   original_price:     z.number().nonnegative().nullable().optional(),
   sale_price:         z.number().nonnegative().nullable().optional(),
   trade_price:        z.number().nonnegative().nullable().optional(),
