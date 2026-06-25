@@ -56,11 +56,11 @@ export default function TradePage() {
             <div className="absolute bottom-1/3 left-1/4 w-72 h-72 rounded-full bg-blue-600/10 blur-[100px]" />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 pt-28 sm:pt-32 lg:pt-40 lg:pb-16 w-full">
             <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-[0.28em] mb-4">
               For Installers &amp; Contractors
             </p>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white leading-tight max-w-2xl mb-5">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-6xl text-white leading-tight max-w-2xl mb-4 sm:mb-5">
               The Trade
               <br />
               <span className="text-amber-400 italic">Programme</span>
@@ -85,7 +85,7 @@ export default function TradePage() {
         </section>
 
         {/* ── Benefits ── */}
-        <section className="py-14 lg:py-20 bg-white">
+        <section className="py-12 lg:py-16 bg-white">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="mb-10">
               <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3">Trade Benefits</p>
@@ -107,7 +107,7 @@ export default function TradePage() {
         </section>
 
         {/* ── Eligibility + CTA ── */}
-        <section className="py-14 lg:py-20 bg-[#FAFAF9]">
+        <section className="py-12 lg:py-16 bg-[#FAFAF9]">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 

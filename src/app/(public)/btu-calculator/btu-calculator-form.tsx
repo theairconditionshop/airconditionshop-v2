@@ -188,24 +188,24 @@ export default function BtuCalculatorForm() {
       {result && (
         <div className="mt-10 space-y-8">
           {/* Result cards */}
-          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-100 p-6">
+          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-100 p-4 sm:p-6 overflow-hidden">
             <h2 className="font-bold text-slate-900 text-xl mb-1">Your Result</h2>
             <p className="text-sm text-slate-500 mb-5">Based on your room measurements and conditions</p>
 
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <div className="bg-white rounded-2xl border border-sky-100 p-4 text-center shadow-sm">
-                <p className="text-2xl font-bold text-sky-600 tabular-nums">{result.btu.toLocaleString()}</p>
-                <p className="text-xs text-slate-500 mt-1 font-medium">BTU/hr</p>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-sky-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+                <p className="text-lg sm:text-2xl font-bold text-sky-600 tabular-nums truncate">{result.btu.toLocaleString()}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">BTU/hr</p>
               </div>
-              <div className="bg-white rounded-2xl border border-sky-100 p-4 text-center shadow-sm">
-                <p className="text-2xl font-bold text-sky-600">{result.kw.toFixed(1)}</p>
-                <p className="text-xs text-slate-500 mt-1 font-medium">kW output</p>
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-sky-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+                <p className="text-lg sm:text-2xl font-bold text-sky-600">{result.kw.toFixed(1)}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">kW output</p>
               </div>
-              <div className="bg-white rounded-2xl border border-sky-100 p-4 text-center shadow-sm">
-                <p className="text-lg font-bold text-sky-600 leading-tight tabular-nums">
-                  {result.recommendedBtuRange.min.toLocaleString()}–{result.recommendedBtuRange.max.toLocaleString()}
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-sky-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+                <p className="text-[11px] sm:text-sm lg:text-base font-bold text-sky-600 leading-tight tabular-nums">
+                  {result.recommendedBtuRange.min.toLocaleString()}<span className="block sm:inline">–</span>{result.recommendedBtuRange.max.toLocaleString()}
                 </p>
-                <p className="text-xs text-slate-500 mt-1 font-medium">Recommended BTU</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">Rec. BTU</p>
               </div>
             </div>
 
@@ -247,7 +247,7 @@ export default function BtuCalculatorForm() {
             )}
 
             {!loadingRecs && recommendations.length > 0 && (
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {recommendations.map(product => {
                   const img = product.images?.find(i => i.is_primary) || product.images?.[0]
                   return (

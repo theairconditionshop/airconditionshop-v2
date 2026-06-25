@@ -125,15 +125,9 @@ function LoginForm() {
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-sky-600 font-medium hover:underline">
-              Create one
-            </Link>
-          </p>
-          <p className="mt-2 text-center text-sm text-slate-500">
             Installer or contractor?{' '}
             <Link href="/trade/register" className="text-sky-600 font-medium hover:underline">
-              Apply for trade pricing
+              Apply for a trade account
             </Link>
           </p>
         </div>

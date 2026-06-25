@@ -54,7 +54,7 @@ export default function Hero({ data }: { data: HeroData }) {
     : [headline, null]
 
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden bg-slate-950">
+    <section className="relative min-h-[88vh] flex flex-col justify-center overflow-hidden bg-slate-950">
 
       {/* Background image — set via Admin → Homepage → Hero */}
       {bgImage && (
@@ -89,7 +89,7 @@ export default function Hero({ data }: { data: HeroData }) {
       />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-32 flex flex-col items-center text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 sm:pt-24 sm:pb-20 lg:pt-28 lg:pb-28 flex flex-col items-center text-center">
 
         <motion.div
           variants={container}
@@ -98,7 +98,7 @@ export default function Hero({ data }: { data: HeroData }) {
           className="flex flex-col items-center w-full"
         >
           {/* Pill badge */}
-          <motion.div variants={fadeUp} className="mb-10">
+          <motion.div variants={fadeUp} className="mb-6 sm:mb-10">
             <span className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-amber-500/20 bg-amber-500/[0.07] text-amber-400 text-xs font-semibold tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />
               {badge}
@@ -108,7 +108,7 @@ export default function Hero({ data }: { data: HeroData }) {
           {/* Headline — display font */}
           <motion.h1
             variants={fadeUp}
-            className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-[5.5rem] text-white leading-[1.05] tracking-tight max-w-5xl"
+            className="font-display text-4xl sm:text-5xl lg:text-7xl xl:text-[5.5rem] text-white leading-[1.05] tracking-tight max-w-5xl"
           >
             {headlineAfter ? (
               <>
@@ -122,7 +122,7 @@ export default function Hero({ data }: { data: HeroData }) {
           {/* Description */}
           <motion.p
             variants={fadeUp}
-            className="mt-7 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed"
+            className="mt-4 sm:mt-7 text-base sm:text-lg lg:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed"
           >
             {description}
           </motion.p>
@@ -130,22 +130,22 @@ export default function Hero({ data }: { data: HeroData }) {
           {/* CTA row */}
           <motion.div
             variants={fadeUp}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="mt-7 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto"
           >
-            <Link href={ctaPrimary.href}>
+            <Link href={ctaPrimary.href} className="w-full sm:w-auto">
               <Button
                 size="lg"
-                className="px-8 text-base gap-2.5 group bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/25 hover:shadow-blue-500/35 transition-all duration-300 cursor-pointer"
+                className="w-full sm:w-auto px-8 text-base gap-2.5 group bg-blue-600 hover:bg-blue-500 text-white shadow-xl shadow-blue-600/25 hover:shadow-blue-500/35 transition-all duration-300 cursor-pointer"
               >
                 {ctaPrimary.label}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
               </Button>
             </Link>
-            <Link href={ctaSecondary.href}>
+            <Link href={ctaSecondary.href} className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="outline"
-                className="px-8 text-base border-white/15 bg-white/[0.03] text-white hover:bg-white/[0.08] hover:border-white/30 backdrop-blur-sm transition-all duration-300 cursor-pointer"
+                className="w-full sm:w-auto px-8 text-base border-white/15 bg-white/[0.03] text-white hover:bg-white/[0.08] hover:border-white/30 backdrop-blur-sm transition-all duration-300 cursor-pointer"
               >
                 {ctaSecondary.label}
               </Button>
@@ -165,7 +165,7 @@ export default function Hero({ data }: { data: HeroData }) {
           {/* Trust qualifier strip */}
           <motion.div
             variants={fadeUp}
-            className="mt-16 flex flex-wrap items-center justify-center gap-2"
+            className="mt-10 sm:mt-16 flex flex-wrap items-center justify-center gap-2"
           >
             {TRUST_METRICS.map(({ label }) => (
               <span

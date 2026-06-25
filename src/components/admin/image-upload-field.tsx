@@ -117,6 +117,7 @@ export default function ImageUploadField({
               src={value}
               alt="Uploaded image preview"
               fill
+              unoptimized={value.toLowerCase().endsWith('.svg')}
               className="object-cover"
             />
           </div>

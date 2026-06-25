@@ -69,17 +69,17 @@ export default function ServicesPage() {
       <main id="top" className="min-h-screen">
 
         {/* Hero */}
-        <section className="relative min-h-[68vh] flex items-end overflow-hidden bg-slate-950">
+        <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full bg-blue-600/10 blur-[120px]" />
             <div className="absolute bottom-1/4 right-1/4 w-72 h-72 rounded-full bg-blue-500/8 blur-[100px]" />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-20 pt-44 w-full">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 pt-28 sm:pt-36 lg:pt-44 lg:pb-20 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">
               Professional Services
             </p>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white leading-tight max-w-3xl mb-5">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-6xl text-white leading-tight max-w-3xl mb-4 sm:mb-5">
               HVAC &amp; Refrigeration
               <br />
               <span className="text-blue-400 italic">Services in Malta</span>
@@ -100,7 +100,7 @@ export default function ServicesPage() {
         </section>
 
         {/* Service types */}
-        <section className="py-20 lg:py-24 bg-white">
+        <section className="py-14 lg:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="mb-14 max-w-2xl">
               <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">What We Do</p>
@@ -124,7 +124,7 @@ export default function ServicesPage() {
         </section>
 
         {/* How it works */}
-        <section className="py-20 lg:py-24 bg-slate-950">
+        <section className="py-14 lg:py-20 bg-slate-950">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="mb-16 text-center max-w-2xl mx-auto">
               <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.22em] mb-3">Our Process</p>
@@ -147,7 +147,7 @@ export default function ServicesPage() {
         </section>
 
         {/* Why us + booking */}
-        <section id="book" className="py-20 lg:py-24 bg-[#FAFAF9] scroll-mt-20">
+        <section id="book" className="py-14 lg:py-20 bg-[#FAFAF9] scroll-mt-20">
           <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-14 items-start">
 

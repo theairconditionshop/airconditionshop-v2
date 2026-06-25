@@ -36,7 +36,7 @@ const textareaCls = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-
 
 // ── Section editors ──────────────────────────────────────────────────────────
 
-function HeroEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
   const cta1 = (data.cta_primary  as { label?: string; href?: string }) ?? {}
   const cta2 = (data.cta_secondary as { label?: string; href?: string }) ?? {}
 
@@ -62,7 +62,11 @@ function HeroEditor({ data, onChange }: { data: Record<string, unknown>; onChang
         hint="Upload a high-quality HVAC photo. Recommended: 1920×1080px or wider."
         aspectRatio="16 / 9"
         value={(data.media_url as string) || null}
-        onChange={url => onChange({ ...data, media_url: url ?? '' })}
+        onChange={url => {
+          const next = { ...data, media_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
       />
 
       <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 space-y-3">
@@ -136,7 +140,7 @@ function WhyChooseUsEditor({ data, onChange }: { data: Record<string, unknown>; 
   )
 }
 
-function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+function CtaEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
   const cta1 = (data.cta_primary  as { label?: string; href?: string }) ?? {}
   const cta2 = (data.cta_secondary as { label?: string; href?: string }) ?? {}
 
@@ -156,7 +160,11 @@ function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange
         hint="Shown on desktop beside the text. Leave empty for full-width text layout."
         aspectRatio="4 / 3"
         value={(data.image_url as string) || null}
-        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+        onChange={url => {
+          const next = { ...data, image_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
       />
       <div className="grid sm:grid-cols-2 gap-4">
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 space-y-3">
@@ -186,7 +194,7 @@ function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange
   )
 }
 
-function BtuPromoEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+function BtuPromoEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <Field label="Heading" hint="Leave blank for default text">
@@ -203,13 +211,17 @@ function BtuPromoEditor({ data, onChange }: { data: Record<string, unknown>; onC
         hint="Optional — leave empty to show the 3-step process illustration instead."
         aspectRatio="4 / 3"
         value={(data.image_url as string) || null}
-        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+        onChange={url => {
+          const next = { ...data, image_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
       />
     </div>
   )
 }
 
-function TradeCtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+function TradeCtaEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <ImageUploadField
@@ -217,13 +229,17 @@ function TradeCtaEditor({ data, onChange }: { data: Record<string, unknown>; onC
         hint="HVAC installer or technician at work. Shown beside the trade content."
         aspectRatio="3 / 4"
         value={(data.image_url as string) || null}
-        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+        onChange={url => {
+          const next = { ...data, image_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
       />
     </div>
   )
 }
 
-function ServicesEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
+function ServicesEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <Field label="Section heading">
@@ -240,7 +256,11 @@ function ServicesEditor({ data, onChange }: { data: Record<string, unknown>; onC
         hint="HVAC technician or installation. Shown above the heading on mobile, beside services on desktop."
         aspectRatio="4 / 3"
         value={(data.image_url as string) || null}
-        onChange={url => onChange({ ...data, image_url: url ?? '' })}
+        onChange={url => {
+          const next = { ...data, image_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
       />
     </div>
   )
@@ -318,32 +338,47 @@ export default function HomepageSectionEditor({ section }: { section: Section })
     setDirty(true)
   }
 
-  async function save() {
+  async function saveData(payload: Record<string, unknown>) {
     setSaving(true)
     const res = await fetch(`/api/admin/homepage/${section.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data }),
+      body: JSON.stringify({ data: payload }),
     })
     if (res.ok) {
-      toast.success('Section saved — changes are now live')
       setDirty(false)
       router.refresh()
-    } else {
-      toast.error('Save failed. Please try again.')
     }
     setSaving(false)
+    return res.ok
+  }
+
+  async function save() {
+    const ok = await saveData(data)
+    if (ok) toast.success('Section saved — changes are now live')
+    else toast.error('Save failed. Please try again.')
+  }
+
+  async function handleImageChange(next: Record<string, unknown>) {
+    setData(next)
+    setDirty(false)
+    const ok = await saveData(next)
+    if (ok) toast.success('Image saved automatically')
+    else {
+      setDirty(true)
+      toast.error('Auto-save failed — click Save Changes to retry.')
+    }
   }
 
   const key = section.section_key
 
   function renderEditor() {
-    if (key === 'hero')           return <HeroEditor data={data} onChange={handleChange} />
+    if (key === 'hero')           return <HeroEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
     if (key === 'why_choose_us')  return <WhyChooseUsEditor data={data} onChange={handleChange} />
-    if (key === 'cta')            return <CtaEditor data={data} onChange={handleChange} />
-    if (key === 'services')       return <ServicesEditor data={data} onChange={handleChange} />
-    if (key === 'btu_promo' || key === 'btu_calculator') return <BtuPromoEditor data={data} onChange={handleChange} />
-    if (key === 'trade_cta')      return <TradeCtaEditor data={data} onChange={handleChange} />
+    if (key === 'cta')            return <CtaEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'services')       return <ServicesEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'btu_promo' || key === 'btu_calculator') return <BtuPromoEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'trade_cta')      return <TradeCtaEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
     return <GenericEditor data={data} onChange={handleChange} />
   }
 

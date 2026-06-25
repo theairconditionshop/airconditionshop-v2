@@ -1,21 +1,21 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import Link from 'next/link'
 import type { Brand } from '@/types/database'
 
 function logoClasses(mode: string): string {
   if (mode === 'invert')
-    return 'object-contain max-h-9 w-auto brightness-0 invert opacity-40 group-hover:opacity-85 transition-all duration-[350ms]'
+    return 'object-contain max-h-9 w-auto brightness-0 invert opacity-55 group-hover:opacity-90 transition-all duration-300'
   if (mode === 'normal')
-    return 'object-contain max-h-9 w-auto opacity-60 group-hover:opacity-100 transition-opacity duration-[350ms]'
+    return 'object-contain max-h-9 w-auto opacity-65 group-hover:opacity-100 transition-opacity duration-300'
   // grayscale (default)
-  return 'object-contain max-h-9 w-auto grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-95 transition-all duration-[350ms]'
+  return 'object-contain max-h-9 w-auto grayscale opacity-55 group-hover:grayscale-0 group-hover:opacity-95 transition-all duration-300'
 }
 
 export default function BrandShowcase({ brands }: { brands: Brand[] }) {
-  if (!brands.length) return null
+  const brandsWithLogos = brands.filter(b => b.logo_url)
+  if (!brandsWithLogos.length) return null
 
   return (
     <section className="py-5 lg:py-7 bg-slate-950 border-t border-white/[0.04]">
@@ -24,7 +24,7 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
         {/* Header */}
         <motion.div
           className="text-center mb-5"
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.45 }}
@@ -39,37 +39,38 @@ export default function BrandShowcase({ brands }: { brands: Brand[] }) {
 
         {/* Brand row */}
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          {brands.map((brand, i) => (
-            <motion.div
-              key={brand.id}
-              initial={{ opacity: 0, scale: 0.94 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Link
-                href={`/brands/${brand.slug}`}
-                className="group relative flex items-center justify-center h-16 px-7 sm:px-9 rounded-xl border border-white/[0.07] hover:border-white/[0.22] bg-white/[0.01] hover:bg-white/[0.05] transition-all duration-300 ease-out cursor-pointer overflow-hidden"
+          {brandsWithLogos.map((brand, i) => {
+            return (
+              <motion.div
+                key={brand.id}
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ scale: 1.04, transition: { duration: 0.2, ease: 'easeOut' } }}
+                style={{ willChange: 'transform' }}
               >
-                {/* Shimmer on hover */}
-                <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] bg-gradient-to-r from-transparent via-white/[0.06] to-transparent transition-transform duration-700 ease-in-out" />
+                <Link
+                  href={`/brands/${brand.slug}`}
+                  className="group relative flex items-center justify-center h-16 px-7 sm:px-9 rounded-xl border border-white/[0.07] hover:border-white/[0.20] bg-white/[0.01] hover:bg-white/[0.05] transition-colors duration-300 cursor-pointer overflow-hidden"
+                >
+                  {/* Shimmer on hover */}
+                  <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] bg-gradient-to-r from-transparent via-white/[0.07] to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
 
-                {brand.logo_url ? (
-                  <Image
-                    src={brand.logo_url}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={brand.logo_url!}
                     alt={brand.name}
                     width={110}
                     height={44}
+                    loading="lazy"
                     className={logoClasses(brand.logo_display_mode)}
+                    style={{ height: '36px', width: 'auto', maxWidth: '110px', objectFit: 'contain' }}
                   />
-                ) : (
-                  <span className="text-[13px] font-bold tracking-[0.12em] uppercase text-white opacity-40 group-hover:opacity-90 transition-opacity duration-300">
-                    {brand.name}
-                  </span>
-                )}
-              </Link>
-            </motion.div>
-          ))}
+                </Link>
+              </motion.div>
+            )
+          })}
         </div>
 
         {/* Certification strip */}

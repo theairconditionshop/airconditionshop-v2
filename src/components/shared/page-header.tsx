@@ -13,7 +13,7 @@ export default function PageHeader({ eyebrow, title, description, center = false
       )}
       <h1 className="font-display text-3xl lg:text-4xl xl:text-5xl text-slate-900 leading-tight">{title}</h1>
       {description && (
-        <p className="mt-4 text-slate-500 leading-relaxed max-w-2xl">{description}</p>
+        <p className={`mt-4 text-slate-500 leading-relaxed max-w-2xl${center ? ' mx-auto' : ''}`}>{description}</p>
       )}
     </div>
   )
