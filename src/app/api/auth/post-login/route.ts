@@ -9,7 +9,7 @@ import type { UserRole } from '@/types/database'
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
   const rl = rateLimit(`post-login:${ip}`, 10, 5 * 60 * 1000)
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   console.log('[post-login] Request received')
 

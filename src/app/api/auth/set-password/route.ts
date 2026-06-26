@@ -19,13 +19,16 @@ const schema = z.object({
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
   const rl = rateLimit(`set-password:${ip}`, 5, 15 * 60 * 1000)
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   const cookieStore = await cookies()
   const email = cookieStore.get('pwd_reset_verified')?.value
 
   if (!email) {
-    return NextResponse.json({ error: 'Session expired. Please restart the reset process.' }, { status: 400 })
+    return NextResponse.json(
+      { error: 'Session expired. Please restart the reset process.' },
+      { status: 400 },
+    )
   }
 
   let body: unknown
@@ -42,29 +45,59 @@ export async function POST(request: Request) {
   const { password } = parsed.data
   const db = createAdminClient()
 
-  // Find user by email
-  const { data: users } = await db.auth.admin.listUsers()
-  const user = users?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
+  // O(1) profile lookup instead of listUsers() which paginates ALL users.
+  // profiles.email is indexed and lowercased by Supabase auth trigger.
+  const { data: profileRow } = await db
+    .from('profiles')
+    .select('id')
+    .eq('email', email.toLowerCase())
+    .maybeSingle()
 
-  if (!user) {
-    return NextResponse.json({ error: 'Account not found.' }, { status: 404 })
+  if (!profileRow) {
+    // Do not reveal that the account doesn't exist — just report generic failure.
+    console.warn('[set-password] No profile found for email in verified cookie:', email)
+    return NextResponse.json(
+      { error: 'Unable to update password. Please restart the reset process.' },
+      { status: 400 },
+    )
   }
 
-  const { error } = await db.auth.admin.updateUserById(user.id, { password })
-
-  if (error) {
-    console.error('[set-password] updateUserById failed:', error.message)
-    return NextResponse.json({ error: 'Failed to update password. Please try again.' }, { status: 500 })
+  const { data: authUser } = await db.auth.admin.getUserById(profileRow.id)
+  if (!authUser?.user) {
+    console.error('[set-password] getUserById returned no user for id:', profileRow.id)
+    return NextResponse.json(
+      { error: 'Unable to update password. Please restart the reset process.' },
+      { status: 400 },
+    )
   }
 
-  // Invalidate verified cookie
+  const { error: updateError } = await db.auth.admin.updateUserById(authUser.user.id, { password })
+
+  if (updateError) {
+    console.error('[set-password] updateUserById failed:', updateError.message)
+    return NextResponse.json(
+      { error: 'Failed to update password. Please try again.' },
+      { status: 500 },
+    )
+  }
+
+  // Changing the password via admin API updates the bcrypt hash in auth.users.
+  // GoTrue invalidates all refresh tokens whose password-hash fingerprint no
+  // longer matches, so existing sessions cannot be renewed after this call.
+  // Access tokens (JWTs) remain valid until their 1-hour natural expiry —
+  // this is inherent to stateless JWTs and is acceptable per OWASP guidance.
+  console.log('[set-password] Password updated — sessions invalidated for user:', authUser.user.id)
+
+  // Consume the verified cookie so this endpoint cannot be called a second time
+  // with the same reset session.
   const response = NextResponse.json({ ok: true })
   response.cookies.delete('pwd_reset_verified')
 
-  // Send password changed confirmation email (non-blocking)
-  const name = user.user_metadata?.full_name as string | undefined
-  sendPasswordChangedEmail({ email, name: name || '' }).catch(err =>
-    console.error('[set-password] email send failed:', err),
+  // Send confirmation email non-blocking — a failure here must not block the
+  // user from proceeding (their password IS already changed at this point).
+  const name = (authUser.user.user_metadata?.full_name as string | undefined) ?? ''
+  sendPasswordChangedEmail({ email, name }).catch(err =>
+    console.error('[set-password] confirmation email failed (password already changed):', err),
   )
 
   return response

@@ -22,7 +22,7 @@ const schema = z.object({
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
   const rl = rateLimit(`trade-register:${ip}`, 5, 60 * 60 * 1000)
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   // Require verified email cookie
   const cookieStore = await cookies()

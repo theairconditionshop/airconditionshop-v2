@@ -7,6 +7,7 @@ import {
   sendTradeSuspendedEmail,
 } from '@/lib/resend/send'
 import { z } from 'zod'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({
   userId:        z.string().uuid(),
@@ -19,6 +20,11 @@ const schema = z.object({
 })
 
 export async function PATCH(request: Request) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  // 60 status changes per hour per IP — generous for admins, still prevents abuse
+  const rl = rateLimit(`admin-trade-action:${ip}`, 60, 60 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
+
   const profile = await getProfile()
   if (!profile || !['super_admin', 'admin', 'staff'].includes(profile.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

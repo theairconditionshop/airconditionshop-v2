@@ -11,11 +11,11 @@ export async function POST(request: Request) {
 
   // 3 OTP requests per email per hour
   const emailRl = rateLimit(`trade-verify-email:${ip}`, 3, 60 * 60 * 1000)
-  if (emailRl.limited) return rateLimitResponse(emailRl.resetAt)
+  if (emailRl.limited) return rateLimitResponse(emailRl)
 
   // 5 requests per IP per day
   const ipRl = rateLimit(`trade-verify-ip:${ip}`, 5, 24 * 60 * 60 * 1000)
-  if (ipRl.limited) return rateLimitResponse(ipRl.resetAt)
+  if (ipRl.limited) return rateLimitResponse(ipRl)
 
   let body: unknown
   try { body = await request.json() } catch {

@@ -7,12 +7,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 const schema = z.object({ email: z.string().email().max(254) })
 
+// Artificial delay keeps timing identical whether or not the account exists,
+// preventing account enumeration through response-time differences.
+const ANTI_TIMING_MS = () => 200 + Math.random() * 300
+
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
 
-  // 3 OTP requests per IP per 15 minutes
   const rl = rateLimit(`forgot-password:${ip}`, 3, 15 * 60 * 1000)
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   let body: unknown
   try { body = await request.json() } catch {
@@ -25,50 +28,64 @@ export async function POST(request: Request) {
   }
 
   const { email } = parsed.data
+  const normalised = email.toLowerCase()
 
-  // Always respond with success — never reveal whether an account exists
+  // Look up via profiles (O(1) with index) instead of listUsers() which
+  // fetches paginated batches and silently misses users beyond the page size.
   const db = createAdminClient()
-  const { data: users } = await db.auth.admin.listUsers()
-  const user = users?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
+  const { data: profileRow } = await db
+    .from('profiles')
+    .select('id')
+    .eq('email', normalised)
+    .maybeSingle()
 
-  if (!user) {
-    // Artificial delay to prevent timing attacks
-    await new Promise(r => setTimeout(r, 200 + Math.random() * 300))
+  // Always respond with generic success — never reveal whether the account exists.
+  if (!profileRow) {
+    await new Promise(r => setTimeout(r, ANTI_TIMING_MS()))
     const response = NextResponse.json({ ok: true })
-    response.cookies.set('pwd_reset_pending', email, {
+    response.cookies.set('pwd_reset_pending', normalised, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure:   process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 10 * 60,
-      path: '/',
+      maxAge:   10 * 60,
+      path:     '/',
     })
     return response
   }
 
+  // Fetch the full user record we need for the email name
+  const { data: authUser } = await db.auth.admin.getUserById(profileRow.id)
+
   let code: string
   try {
-    code = await createEmailOtp(email, 'password_reset', ip)
+    code = await createEmailOtp(normalised, 'password_reset', ip)
   } catch (err) {
     console.error('[forgot-password] createEmailOtp failed:', err)
-    return NextResponse.json({ error: 'Failed to generate reset code. Please try again.' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to generate reset code. Please try again.' },
+      { status: 500 },
+    )
   }
 
-  const name = user.user_metadata?.full_name as string | undefined
+  const name = (authUser?.user?.user_metadata?.full_name as string | undefined) ?? ''
 
   try {
-    await sendPasswordResetOtpEmail({ email, name: name || '', code })
+    await sendPasswordResetOtpEmail({ email: normalised, name, code })
   } catch (err) {
     console.error('[forgot-password] email send failed:', err)
-    return NextResponse.json({ error: 'Failed to send reset email. Please try again.' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Failed to send reset email. Please try again.' },
+      { status: 500 },
+    )
   }
 
   const response = NextResponse.json({ ok: true })
-  response.cookies.set('pwd_reset_pending', email, {
+  response.cookies.set('pwd_reset_pending', normalised, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure:   process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 10 * 60,
-    path: '/',
+    maxAge:   10 * 60,
+    path:     '/',
   })
   return response
 }

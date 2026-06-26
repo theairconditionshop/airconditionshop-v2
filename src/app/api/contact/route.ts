@@ -15,7 +15,7 @@ const schema = z.object({
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
   const rl = rateLimit(`contact:${ip}`, 10, 60 * 60 * 1000) // 10 per hour
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   let body: unknown
   try { body = await request.json() } catch {

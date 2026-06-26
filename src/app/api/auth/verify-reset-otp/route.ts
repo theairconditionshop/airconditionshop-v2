@@ -16,7 +16,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
   const rl = rateLimit(`verify-reset:${ip}`, 10, 5 * 60 * 1000)
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   const cookieStore = await cookies()
   const email = cookieStore.get('pwd_reset_pending')?.value

@@ -26,6 +26,65 @@ function interpolate(template: string, vars: Record<string, string>): string {
   return template.replace(/\{\{(\w+)\}\}/g, (_, key) => vars[key] || '')
 }
 
+// Strip HTML tags to derive a plain-text fallback that passes spam filters
+// that penalise HTML-only messages (RFC 2822 / SpamAssassin).
+function htmlToText(html: string): string {
+  return html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#\d+;/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+}
+
+// Retry wrapper — retries up to MAX_RETRIES times on transient failures.
+// Does NOT retry on validation errors (bad address, domain not found etc.)
+// so we don't waste time on permanently undeliverable addresses.
+const MAX_RETRIES = 2
+const RETRY_BASE_MS = 600
+
+type ResendSendParams = Parameters<ReturnType<typeof getResend>['emails']['send']>[0]
+
+async function sendWithRetry(params: ResendSendParams, context: string): Promise<void> {
+  let lastErr: Error | null = null
+
+  for (let attempt = 1; attempt <= MAX_RETRIES + 1; attempt++) {
+    const { data, error } = await getResend().emails.send(params)
+
+    if (!error) {
+      console.log(`[resend] ${context} sent — to: ${params.to} messageId: ${data?.id}`)
+      return
+    }
+
+    const msg    = error.message ?? JSON.stringify(error)
+    lastErr      = new Error(`Resend API error: ${msg}`)
+
+    // Non-retryable: address validation, domain not found, blocked address.
+    // These will not succeed on retry so bail immediately.
+    const isValidationError =
+      msg.includes('validation_error') ||
+      msg.includes('invalid_to')       ||
+      msg.includes('invalid_from')     ||
+      msg.includes('not verified')     ||
+      msg.includes('blocked')
+
+    if (isValidationError || attempt > MAX_RETRIES) {
+      console.error(`[resend] ${context} failed (no retry) — to: ${params.to} error: ${msg}`)
+      break
+    }
+
+    const delay = RETRY_BASE_MS * attempt // 600ms, 1200ms
+    console.warn(`[resend] ${context} attempt ${attempt} failed — retrying in ${delay}ms: ${msg}`)
+    await new Promise(r => setTimeout(r, delay))
+  }
+
+  throw lastErr!
+}
+
 async function sendEmail(
   key: string,
   to: string,
@@ -38,14 +97,10 @@ async function sendEmail(
 
   console.log('[resend] Sending email — key:', key, 'to:', to, 'template:', template ? 'db' : 'fallback')
 
-  const { data, error } = await getResend().emails.send({ from: FROM, to, subject, html })
-
-  if (error) {
-    console.error('[resend] emails.send failed — key:', key, 'to:', to, 'error:', JSON.stringify(error))
-    throw new Error(`Resend API error: ${error.message ?? JSON.stringify(error)}`)
-  }
-
-  console.log('[resend] Email sent — key:', key, 'messageId:', data?.id)
+  await sendWithRetry(
+    { from: FROM, to, subject, html, text: htmlToText(html) },
+    `key:${key}`,
+  )
 }
 
 // ─── Trade: Email verification OTP ───────────────────────────────────────────
@@ -68,7 +123,11 @@ export async function sendTradeVerificationEmail({ email, code }: { email: strin
     ctaText: undefined,
     ctaUrl:  undefined,
   })
-  await getResend().emails.send({ from: FROM, to: email, subject, html })
+
+  await sendWithRetry(
+    { from: FROM, to: email, subject, html, text: `Your verification code is: ${code}\n\nThis code expires in 10 minutes. If you did not request this, you can safely ignore this email.` },
+    'trade-verify-otp',
+  )
 }
 
 // ─── Password reset OTP ───────────────────────────────────────────────────────
@@ -94,7 +153,10 @@ export async function sendPasswordResetOtpEmail({ email, name, code }: { email: 
     ctaText: undefined,
     ctaUrl:  undefined,
   })
-  await getResend().emails.send({ from: FROM, to: email, subject, html })
+  await sendWithRetry(
+    { from: FROM, to: email, subject, html, text: `Hi ${firstName},\n\nYour password reset code is: ${code}\n\nThis code expires in 10 minutes. If you did not request this, ignore this email — your password will not be changed.\n\nIf this was not you, contact us at support@theairconditionshop.com.` },
+    'password-reset-otp',
+  )
 }
 
 // ─── Password changed confirmation ───────────────────────────────────────────
@@ -114,7 +176,11 @@ export async function sendPasswordChangedEmail({ email, name }: { email: string;
     ctaText: 'Contact Support',
     ctaUrl:  `${SITE_URL}/contact`,
   })
-  await getResend().emails.send({ from: FROM, to: email, subject, html })
+
+  await sendWithRetry(
+    { from: FROM, to: email, subject, html, text: `Hi ${firstName},\n\nYour THE AIRCONDITION SHOP account password has been successfully changed.\n\nIf you did NOT make this change, contact us immediately at support@theairconditionshop.com or call +356 7966 1889.` },
+    'password-changed-confirmation',
+  )
 }
 
 // ─── Admin OTP (2FA) ──────────────────────────────────────────────────────────

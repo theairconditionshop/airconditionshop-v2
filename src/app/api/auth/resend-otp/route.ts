@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
   // Rate limit per pending user ID: 5 resends per 15 minutes
   const rl = rateLimit(`resend-otp:${pendingUserId}`, 5, 15 * 60 * 1000)
-  if (rl.limited) return rateLimitResponse(rl.resetAt)
+  if (rl.limited) return rateLimitResponse(rl)
 
   const rawIp = request.headers.get('x-forwarded-for')
   const ip = rawIp ? rawIp.split(',')[0].trim() : undefined
