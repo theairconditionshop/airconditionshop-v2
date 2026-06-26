@@ -3,9 +3,14 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { createOtpSession } from '@/lib/auth/otp'
 import { requiresTwoFactor } from '@/lib/auth/permissions'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import type { UserRole } from '@/types/database'
 
 export async function POST(request: Request) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  const rl = rateLimit(`post-login:${ip}`, 10, 5 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl.resetAt)
+
   console.log('[post-login] Request received')
 
   // SECURITY: derive userId from the verified Supabase session, NOT from the
@@ -29,11 +34,7 @@ export async function POST(request: Request) {
   }
   const { next } = body
 
-  // Take only the first IP from x-forwarded-for — Vercel sends a comma-separated
-  // list (client, proxy, ...) which is invalid for a PostgreSQL INET column.
-  const rawIp = request.headers.get('x-forwarded-for')
-  const ip = rawIp ? rawIp.split(',')[0].trim() : undefined
-  console.log('[post-login] userId:', userId, 'ip:', ip ?? 'none')
+  console.log('[post-login] userId:', userId, 'ip:', ip)
 
   const adminDb = createAdminClient()
 

@@ -1,217 +1,383 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { createClient } from '@/lib/supabase/client'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2 } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import OtpInput from '@/components/auth/OtpInput'
+import PasswordField, { StrengthMeter, RequirementsList, getPasswordRequirements } from '@/components/auth/PasswordField'
+import { CheckCircle2, Mail, KeyRound, RefreshCw, ArrowLeft } from 'lucide-react'
 
-const requestSchema = z.object({ email: z.string().email('Valid email required') })
-const resetSchema   = z.object({
-  password: z.string().min(8, 'Minimum 8 characters'),
-  confirm:  z.string(),
-}).refine(d => d.password === d.confirm, { message: 'Passwords do not match', path: ['confirm'] })
+// ─── Countdown ────────────────────────────────────────────────────────────────
 
-type RequestData = z.infer<typeof requestSchema>
-type ResetData   = z.infer<typeof resetSchema>
+function useCountdown(seconds: number) {
+  const [remaining, setRemaining] = useState(0)
+  const ref = useRef<ReturnType<typeof setInterval> | null>(null)
 
-// Convert any Supabase error to a human-readable string.
-// Supabase occasionally returns error objects whose .message is a raw JSON
-// string like "{}" when its own email delivery fails — we never pass that
-// raw value to the UI.
-function toErrorMessage(e: unknown): string {
-  if (!e) return 'An unexpected error occurred. Please try again.'
-  if (typeof e === 'string' && e.trim() && e !== '{}') return e
-  if (e instanceof Error && e.message && e.message !== '{}') return e.message
-  if (typeof e === 'object' && e !== null) {
-    const obj = e as Record<string, unknown>
-    if (typeof obj.message === 'string' && obj.message.trim() && obj.message !== '{}') {
-      return obj.message
-    }
-    // Supabase AuthApiError: sometimes status 500 with no message
-    if (typeof obj.status === 'number' && obj.status >= 500) {
-      return 'Email service temporarily unavailable. Please try again in a few minutes.'
-    }
-    if (typeof obj.status === 'number' && obj.status === 429) {
-      return 'Too many attempts. Please wait a few minutes before trying again.'
-    }
+  function start(from = seconds) {
+    setRemaining(from)
+    if (ref.current) clearInterval(ref.current)
+    ref.current = setInterval(() => {
+      setRemaining(prev => {
+        if (prev <= 1) { clearInterval(ref.current!); return 0 }
+        return prev - 1
+      })
+    }, 1000)
   }
-  return 'Failed to send reset link. Please try again.'
+
+  useEffect(() => () => { if (ref.current) clearInterval(ref.current) }, [])
+  return { remaining, start }
 }
 
-function RequestForm() {
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
-    useForm<RequestData>({ resolver: zodResolver(requestSchema) })
+// ─── Brand header ─────────────────────────────────────────────────────────────
 
-  async function onSubmit(data: RequestData) {
-    setError(null)
-    console.log('[reset-password] Requesting reset for:', data.email)
-
-    try {
-      const supabase = createClient()
-      // redirectTo must point to /auth/callback so the PKCE code is exchanged
-      // for a session before the user reaches this page to set a new password.
-      const { error: e } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
-      })
-
-      if (e) {
-        // Log the full error object so it shows in browser devtools
-        console.error('[reset-password] Supabase error:', JSON.stringify(e), e)
-        setError(toErrorMessage(e))
-      } else {
-        console.log('[reset-password] Reset email request succeeded (Supabase always returns success for security)')
-        setSent(true)
-      }
-    } catch (err) {
-      console.error('[reset-password] Unexpected error:', err)
-      setError('An unexpected error occurred. Please try again.')
-    }
-  }
-
-  if (sent) {
-    return (
-      <div className="flex flex-col items-center text-center py-4">
-        <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mb-4">
-          <CheckCircle2 className="w-7 h-7 text-green-500" />
-        </div>
-        <p className="font-semibold text-slate-900 mb-2">Check your inbox</p>
-        <p className="text-sm text-slate-500">If an account exists for that email, we&apos;ve sent a reset link. It expires in 1 hour.</p>
-      </div>
-    )
-  }
-
+function BrandHeader() {
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <Input
-        label="Email address"
-        type="email"
-        {...register('email')}
-        error={errors.email?.message}
-        required
-      />
-      {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
-      )}
-      <Button type="submit" variant="brand" size="lg" className="w-full" loading={isSubmitting}>
-        Send Reset Link
-      </Button>
-    </form>
+    <div className="text-center mb-8">
+      <Link href="/">
+        <span className="text-[11px] font-bold tracking-[0.14em] text-[#0F6FFF] uppercase">
+          THE AIRCONDITION SHOP
+        </span>
+      </Link>
+    </div>
   )
 }
 
-function NewPasswordForm() {
-  const [done, setDone] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
-    useForm<ResetData>({ resolver: zodResolver(resetSchema) })
+// ─── Step 1: Enter email ──────────────────────────────────────────────────────
 
-  async function onSubmit(data: ResetData) {
-    setError(null)
-    console.log('[reset-password] Setting new password')
+function RequestStep({ onNext }: { onNext: (email: string) => void }) {
+  const [email, setEmail]   = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError]   = useState('')
 
-    try {
-      const supabase = createClient()
-      const { error: e } = await supabase.auth.updateUser({ password: data.password })
-      if (e) {
-        console.error('[reset-password] updateUser error:', JSON.stringify(e), e)
-        setError(toErrorMessage(e))
-      } else {
-        console.log('[reset-password] Password updated successfully')
-        setDone(true)
-      }
-    } catch (err) {
-      console.error('[reset-password] Unexpected error on updateUser:', err)
-      setError('An unexpected error occurred. Please try again.')
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email) return
+    setError('')
+    setLoading(true)
+
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+
+    setLoading(false)
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      setError(body?.error || 'Failed to send reset code. Please try again.')
+      return
+    }
+
+    onNext(email)
+  }
+
+  return (
+    <>
+      <div className="text-center mb-6">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+          <Mail className="w-6 h-6 text-blue-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reset your password</h1>
+        <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">
+          Enter your email and we&apos;ll send you a reset code.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <Input
+            label="Email address"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="your@email.com"
+            required
+            autoComplete="email"
+          />
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+          <Button type="submit" variant="brand" size="lg" className="w-full" loading={loading}>
+            Send Reset Code
+          </Button>
+        </form>
+
+        <p className="mt-6 text-sm text-center text-slate-500">
+          <Link href="/login" className="text-blue-600 hover:underline">← Back to sign in</Link>
+        </p>
+      </div>
+    </>
+  )
+}
+
+// ─── Step 2: Enter OTP ────────────────────────────────────────────────────────
+
+function OtpStep({
+  email,
+  onNext,
+  onBack,
+}: {
+  email: string
+  onNext: () => void
+  onBack: () => void
+}) {
+  const [digits, setDigits]   = useState(['', '', '', '', '', ''])
+  const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [error, setError]     = useState('')
+  const { remaining, start }  = useCountdown(60)
+  const code = digits.join('')
+
+  useEffect(() => { start() }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleVerify() {
+    if (code.length !== 6) return
+    setError('')
+    setLoading(true)
+
+    const res = await fetch('/api/auth/verify-reset-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    })
+
+    setLoading(false)
+
+    if (res.ok) {
+      onNext()
+    } else {
+      const body = await res.json().catch(() => ({}))
+      setError(body?.error || 'Incorrect code. Please try again.')
+      setDigits(['', '', '', '', '', ''])
     }
   }
 
-  if (done) {
-    return (
-      <div className="flex flex-col items-center text-center py-4">
-        <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mb-4">
+  // Auto-submit on 6 digits
+  useEffect(() => {
+    if (code.length === 6 && !loading) handleVerify()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [code])
+
+  async function handleResend() {
+    if (remaining > 0 || resending) return
+    setResending(true)
+    setError('')
+
+    const res = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+
+    setResending(false)
+
+    if (res.ok) {
+      setDigits(['', '', '', '', '', ''])
+      start()
+    } else {
+      setError('Could not resend. Please try again.')
+    }
+  }
+
+  return (
+    <>
+      <div className="text-center mb-6">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+          <Mail className="w-6 h-6 text-blue-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Check your email</h1>
+        <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">
+          We sent a 6-digit code to<br />
+          <strong className="text-slate-800">{email}</strong>
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <OtpInput value={digits} onChange={setDigits} error={!!error} disabled={loading} />
+
+        {error && (
+          <p className="mt-3 text-center text-sm text-red-500" role="alert">{error}</p>
+        )}
+        <p className="mt-2 text-center text-xs text-slate-400">Code expires in 10 minutes</p>
+
+        <Button
+          onClick={handleVerify}
+          variant="brand"
+          size="lg"
+          className="w-full mt-6"
+          loading={loading}
+          disabled={code.length !== 6 || loading}
+        >
+          Continue
+        </Button>
+
+        <div className="mt-5 flex flex-col items-center gap-3">
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={remaining > 0 || resending}
+            className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${resending ? 'animate-spin' : ''}`} />
+            {resending ? 'Sending…' : remaining > 0 ? `Resend in ${remaining}s` : 'Resend code'}
+          </button>
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> Use a different email
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Step 3: Set new password ─────────────────────────────────────────────────
+
+function NewPasswordStep({ onNext }: { onNext: () => void }) {
+  const [password, setPassword] = useState('')
+  const [confirm,  setConfirm]  = useState('')
+  const [loading,  setLoading]  = useState(false)
+  const [error,    setError]    = useState('')
+
+  const req = getPasswordRequirements(password)
+  const allMet = Object.values(req).every(Boolean)
+  const matches = password === confirm && confirm.length > 0
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError('')
+
+    if (!allMet) { setError('Password does not meet all requirements.'); return }
+    if (!matches) { setError('Passwords do not match.'); return }
+
+    setLoading(true)
+    const res = await fetch('/api/auth/set-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    })
+    setLoading(false)
+
+    if (res.ok) {
+      onNext()
+    } else {
+      const body = await res.json().catch(() => ({}))
+      setError(body?.error || 'Failed to update password. Please try again.')
+    }
+  }
+
+  return (
+    <>
+      <div className="text-center mb-6">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+          <KeyRound className="w-6 h-6 text-blue-500" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Choose a new password</h1>
+        <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">
+          Make it strong and unique.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <PasswordField
+              label="New password"
+              required
+              autoComplete="new-password"
+              placeholder="Create a strong password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+            <StrengthMeter value={password} />
+            <RequirementsList value={password} />
+          </div>
+
+          <PasswordField
+            label="Confirm password"
+            required
+            autoComplete="new-password"
+            placeholder="Repeat your password"
+            value={confirm}
+            onChange={e => setConfirm(e.target.value)}
+            error={confirm && !matches ? 'Passwords do not match' : undefined}
+          />
+
+          {error && (
+            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          <Button
+            type="submit"
+            variant="brand"
+            size="lg"
+            className="w-full"
+            loading={loading}
+            disabled={!allMet || !matches}
+          >
+            Set New Password
+          </Button>
+        </form>
+      </div>
+    </>
+  )
+}
+
+// ─── Step 4: Success ──────────────────────────────────────────────────────────
+
+function SuccessStep() {
+  return (
+    <>
+      <div className="text-center mb-6">
+        <div className="mx-auto w-14 h-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mb-4">
           <CheckCircle2 className="w-7 h-7 text-green-500" />
         </div>
-        <p className="font-semibold text-slate-900 mb-2">Password updated</p>
-        <Link href="/login" className="text-sm text-sky-600 hover:underline">
-          Sign in with your new password
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Password updated</h1>
+        <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">
+          Your password has been successfully changed.
+        </p>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
+        <p className="text-sm text-slate-500 mb-6">
+          You can now sign in with your new password.
+        </p>
+        <Link href="/login">
+          <Button variant="brand" size="lg" className="w-full">
+            Sign in
+          </Button>
         </Link>
       </div>
-    )
-  }
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <Input
-        label="New password"
-        type="password"
-        {...register('password')}
-        error={errors.password?.message}
-        required
-        hint="Minimum 8 characters"
-      />
-      <Input
-        label="Confirm password"
-        type="password"
-        {...register('confirm')}
-        error={errors.confirm?.message}
-        required
-      />
-      {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
-      )}
-      <Button type="submit" variant="brand" size="lg" className="w-full" loading={isSubmitting}>
-        Set New Password
-      </Button>
-    </form>
+    </>
   )
 }
 
-function ResetPasswordInner() {
-  // After the auth/callback route exchanges the PKCE code for a session, the
-  // user arrives here with no token in the URL — the session lives in a cookie.
-  // We detect an active session to decide which form to show.
-  const [hasSession, setHasSession] = useState<boolean | null>(null)
+// ─── Main page ────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user }, error }) => {
-      console.log('[reset-password] Session check — user:', user?.email ?? 'none', 'error:', error?.message ?? 'none')
-      setHasSession(!!user)
-    })
-  }, [])
+type ResetStep = 'request' | 'otp' | 'password' | 'success'
 
-  if (hasSession === null) {
-    return <div className="py-8 text-center text-slate-400 text-sm">Loading…</div>
-  }
+function ResetPasswordFlow() {
+  const [step,  setStep]  = useState<ResetStep>('request')
+  const [email, setEmail] = useState('')
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#F2F4F8] px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="text-xl font-bold text-slate-900 tracking-tight">
-            THE AIRCONDITION SHOP
-          </Link>
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">
-            {hasSession ? 'Set new password' : 'Reset your password'}
-          </h1>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-          {hasSession ? <NewPasswordForm /> : <RequestForm />}
-          <p className="mt-6 text-sm text-center text-slate-500">
-            <Link href="/login" className="text-sky-600 hover:underline">Back to sign in</Link>
-          </p>
-        </div>
+        <BrandHeader />
+
+        {step === 'request'  && <RequestStep  onNext={e => { setEmail(e); setStep('otp') }} />}
+        {step === 'otp'      && <OtpStep      email={email} onNext={() => setStep('password')} onBack={() => setStep('request')} />}
+        {step === 'password' && <NewPasswordStep onNext={() => setStep('success')} />}
+        {step === 'success'  && <SuccessStep />}
       </div>
     </div>
   )
@@ -220,7 +386,7 @@ function ResetPasswordInner() {
 export default function ResetPasswordPage() {
   return (
     <Suspense>
-      <ResetPasswordInner />
+      <ResetPasswordFlow />
     </Suspense>
   )
 }

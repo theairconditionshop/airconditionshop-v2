@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import { randomInt } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const ROUNDS = parseInt(process.env.OTP_BCRYPT_ROUNDS || '12')
+const ROUNDS = parseInt(process.env.OTP_BCRYPT_ROUNDS || '10')
 const EXPIRY_MINUTES = 10
 const MAX_ATTEMPTS = 5
 
@@ -86,4 +86,95 @@ export async function verifyOtpSession(userId: string, code: string): Promise<bo
     .eq('id', session.id)
 
   return true
+}
+
+// ─── Email-based OTP (no user account required) ───────────────────────────────
+// Used for: trade registration email verification, password reset OTP.
+// Stored in email_otps table keyed by email + purpose.
+
+export type EmailOtpPurpose = 'trade_registration' | 'password_reset'
+
+export async function createEmailOtp(
+  email: string,
+  purpose: EmailOtpPurpose,
+  ipAddress?: string,
+): Promise<string> {
+  const code = generateCode()
+  const hash = await bcrypt.hash(code, ROUNDS)
+  const expiresAt = new Date(Date.now() + EXPIRY_MINUTES * 60 * 1000).toISOString()
+  const db = createAdminClient()
+
+  // Invalidate any prior unused OTPs for same email + purpose
+  await db
+    .from('email_otps')
+    .update({ used: true })
+    .eq('email', email)
+    .eq('purpose', purpose)
+    .eq('used', false)
+
+  const { error } = await db.from('email_otps').insert({
+    email,
+    purpose,
+    otp_hash: hash,
+    expires_at: expiresAt,
+    ip_address: ipAddress ?? null,
+  })
+
+  if (error) {
+    console.error('[email-otp] Insert failed:', error.message)
+    throw new Error('Failed to create email OTP')
+  }
+
+  console.log('[email-otp] Created — email:', email, 'purpose:', purpose)
+  return code
+}
+
+export type EmailOtpResult =
+  | { ok: true }
+  | { ok: false; reason: 'not_found' | 'expired' | 'max_attempts' | 'invalid' }
+
+export async function verifyEmailOtp(
+  email: string,
+  purpose: EmailOtpPurpose,
+  code: string,
+): Promise<EmailOtpResult> {
+  const db = createAdminClient()
+
+  const { data: rows } = await db
+    .from('email_otps')
+    .select('id, otp_hash, expires_at, attempt_count')
+    .eq('email', email)
+    .eq('purpose', purpose)
+    .eq('used', false)
+    .order('created_at', { ascending: false })
+    .limit(1)
+
+  if (!rows || rows.length === 0) return { ok: false, reason: 'not_found' }
+
+  const row = rows[0]
+
+  if ((row.attempt_count ?? 0) >= MAX_ATTEMPTS) {
+    await db.from('email_otps').update({ used: true }).eq('id', row.id)
+    return { ok: false, reason: 'max_attempts' }
+  }
+
+  if (new Date(row.expires_at) < new Date()) {
+    return { ok: false, reason: 'expired' }
+  }
+
+  const valid = await bcrypt.compare(code, row.otp_hash)
+
+  if (!valid) {
+    const newCount = (row.attempt_count ?? 0) + 1
+    await db
+      .from('email_otps')
+      .update({ attempt_count: newCount, used: newCount >= MAX_ATTEMPTS })
+      .eq('id', row.id)
+    console.warn('[email-otp] Wrong code attempt', newCount, '/', MAX_ATTEMPTS, 'id:', row.id)
+    return { ok: false, reason: 'invalid' }
+  }
+
+  await db.from('email_otps').update({ used: true }).eq('id', row.id)
+  console.log('[email-otp] Verified — email:', email, 'purpose:', purpose)
+  return { ok: true }
 }

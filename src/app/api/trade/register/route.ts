@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendTradeApplicationEmails } from '@/lib/resend/send'
 import { z } from 'zod'
@@ -20,8 +21,19 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
-  const rl = rateLimit(`trade-register:${ip}`, 5, 60 * 60 * 1000) // 5 per hour
+  const rl = rateLimit(`trade-register:${ip}`, 5, 60 * 60 * 1000)
   if (rl.limited) return rateLimitResponse(rl.resetAt)
+
+  // Require verified email cookie
+  const cookieStore = await cookies()
+  const verifiedEmail = cookieStore.get('trade_email_verified')?.value
+
+  if (!verifiedEmail) {
+    return NextResponse.json(
+      { error: 'Email verification required. Please verify your email address first.' },
+      { status: 403 },
+    )
+  }
 
   let body: unknown
   try { body = await request.json() } catch {
@@ -37,6 +49,14 @@ export async function POST(request: Request) {
     name, email, phone, company, vat_number, registration_number,
     business_type, address, postal_code, message, password,
   } = parsed.data
+
+  // Verified email must match submitted email (prevents cookie theft across sessions)
+  if (verifiedEmail.toLowerCase() !== email.toLowerCase()) {
+    return NextResponse.json(
+      { error: 'Email mismatch. Please verify the email address you are registering with.' },
+      { status: 403 },
+    )
+  }
 
   const db = createAdminClient()
 
@@ -85,5 +105,8 @@ export async function POST(request: Request) {
     console.error('[trade/register] Email notification failed (application saved):', err)
   }
 
-  return NextResponse.json({ ok: true })
+  // Clear verified cookie — it's been consumed
+  const response = NextResponse.json({ ok: true })
+  response.cookies.delete('trade_email_verified')
+  return response
 }

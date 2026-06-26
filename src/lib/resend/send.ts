@@ -48,7 +48,76 @@ async function sendEmail(
   console.log('[resend] Email sent — key:', key, 'messageId:', data?.id)
 }
 
-// ─── OTP ─────────────────────────────────────────────────────────────────────
+// ─── Trade: Email verification OTP ───────────────────────────────────────────
+
+export async function sendTradeVerificationEmail({ email, code }: { email: string; code: string }) {
+  const subject = 'Verify your email address — THE AIRCONDITION SHOP'
+  const html = tradeEmailTemplate({
+    preheader: `Your verification code is ${code}. It expires in 10 minutes.`,
+    status: 'info',
+    headline: 'Verify your email address.',
+    bodyHtml:
+      p('You are one step away from submitting your Trade Account application. Please enter the code below to verify your email address.') +
+      `<div style="text-align:center;margin:28px 0 32px;">
+         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
+           <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Verification Code</p>
+           <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${code}</p>
+         </div>
+       </div>` +
+      pSmall('This code expires in <strong>10 minutes</strong>. If you did not request this, you can safely ignore this email.'),
+    ctaText: undefined,
+    ctaUrl:  undefined,
+  })
+  await getResend().emails.send({ from: FROM, to: email, subject, html })
+}
+
+// ─── Password reset OTP ───────────────────────────────────────────────────────
+
+export async function sendPasswordResetOtpEmail({ email, name, code }: { email: string; name: string; code: string }) {
+  const firstName = name?.split(' ')[0] || 'there'
+  const subject = 'Reset your password — THE AIRCONDITION SHOP'
+  const html = tradeEmailTemplate({
+    preheader: `Your password reset code is ${code}. It expires in 10 minutes.`,
+    status: 'info',
+    headline: 'Reset your password.',
+    bodyHtml:
+      p(`Hi ${firstName},`) +
+      p('We received a request to reset the password for your account. Enter the code below to continue. If you did not make this request, you can safely ignore this email — your password will not be changed.') +
+      `<div style="text-align:center;margin:28px 0 32px;">
+         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
+           <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Reset Code</p>
+           <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${code}</p>
+         </div>
+       </div>` +
+      pSmall('This code expires in <strong>10 minutes</strong>. For security, do not share this code with anyone.'),
+    footNote: 'If this was not you, please contact us immediately at support@theairconditionshop.com.',
+    ctaText: undefined,
+    ctaUrl:  undefined,
+  })
+  await getResend().emails.send({ from: FROM, to: email, subject, html })
+}
+
+// ─── Password changed confirmation ───────────────────────────────────────────
+
+export async function sendPasswordChangedEmail({ email, name }: { email: string; name: string }) {
+  const firstName = name?.split(' ')[0] || 'there'
+  const subject = 'Your password has been changed — THE AIRCONDITION SHOP'
+  const html = tradeEmailTemplate({
+    preheader: 'Your account password was successfully updated.',
+    status: 'approved',
+    headline: 'Your password has been changed.',
+    bodyHtml:
+      p(`Hi ${firstName},`) +
+      p('This is a confirmation that the password for your THE AIRCONDITION SHOP account has been successfully changed.') +
+      noticeBox('If you made this change, no further action is required. If you did <strong>not</strong> make this change, please contact our support team immediately — your account may be at risk.', 'amber'),
+    footNote: 'For your security, we never store your password in plain text.',
+    ctaText: 'Contact Support',
+    ctaUrl:  `${SITE_URL}/contact`,
+  })
+  await getResend().emails.send({ from: FROM, to: email, subject, html })
+}
+
+// ─── Admin OTP (2FA) ──────────────────────────────────────────────────────────
 
 export async function sendOtpEmail({ email, name, code }: { email: string; name: string; code: string }) {
   await sendEmail('otp_code', email, { code, name }, {
