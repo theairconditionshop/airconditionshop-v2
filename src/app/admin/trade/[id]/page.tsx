@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { ArrowLeft, Building2, Mail, Phone, User, Calendar, FileText, Hash } from 'lucide-react'
+import { ArrowLeft, Building2, Mail, Phone, User, Calendar, FileText, Hash, MapPin } from 'lucide-react'
 import TradeDetailActions from './trade-detail-actions'
 
 export const metadata: Metadata = { title: 'Trade Account — Admin' }
@@ -11,10 +11,10 @@ export const dynamic = 'force-dynamic'
 interface Props { params: Promise<{ id: string }> }
 
 const STATUS_STYLES: Record<string, string> = {
-  pending:  'bg-amber-100 text-amber-700',
-  approved: 'bg-green-100 text-green-700',
-  rejected: 'bg-red-100 text-red-600',
-  suspended:'bg-slate-100 text-slate-600',
+  pending:   'bg-amber-100 text-amber-700',
+  approved:  'bg-green-100 text-green-700',
+  rejected:  'bg-red-100 text-red-600',
+  suspended: 'bg-slate-100 text-slate-600',
 }
 
 function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value?: string | null }) {
@@ -43,14 +43,7 @@ export default async function TradeDetailPage({ params }: Props) {
 
   if (error || !app) notFound()
 
-  type App = typeof app & {
-    profiles?: { full_name?: string; email?: string; trade_status?: string }
-    notes?: string
-    registration_number?: string
-    address?: string
-  }
-  const row = app as App
-
+  const row     = app as typeof app & { profiles?: { full_name?: string; email?: string; trade_status?: string } }
   const profile = row.profiles
 
   return (
@@ -92,26 +85,36 @@ export default async function TradeDetailPage({ params }: Props) {
             <InfoRow icon={FileText}  label="Business Type"       value={row.business_type} />
             <InfoRow icon={Hash}      label="VAT Number"          value={row.vat_number} />
             <InfoRow icon={Hash}      label="Registration Number" value={row.registration_number} />
-            <InfoRow icon={FileText}  label="Address"             value={row.address} />
+            <InfoRow icon={MapPin}    label="Business Address"    value={row.address} />
+            <InfoRow icon={MapPin}    label="Postal Code"         value={row.postal_code} />
           </div>
 
           {/* Contact Information */}
           <div className="bg-white rounded-2xl border border-slate-100 p-5">
             <h2 className="text-sm font-bold text-slate-900 mb-1">Contact Information</h2>
             <p className="text-xs text-slate-400 mb-4">The person who submitted the application</p>
-            <InfoRow icon={User}     label="Full Name" value={profile?.full_name} />
-            <InfoRow icon={Mail}     label="Email"     value={profile?.email} />
-            <InfoRow icon={Phone}    label="Phone"     value={row.phone} />
+            <InfoRow icon={User}  label="Full Name" value={profile?.full_name} />
+            <InfoRow icon={Mail}  label="Email"     value={profile?.email} />
+            <InfoRow icon={Phone} label="Phone"     value={row.phone} />
           </div>
 
           {/* Account Information */}
           <div className="bg-white rounded-2xl border border-slate-100 p-5">
             <h2 className="text-sm font-bold text-slate-900 mb-1">Account Information</h2>
             <p className="text-xs text-slate-400 mb-4">Application and approval details</p>
-            <InfoRow icon={Calendar} label="Applied Date"    value={new Date(row.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} />
-            <InfoRow icon={FileText} label="Current Status"  value={row.status?.charAt(0).toUpperCase() + (row.status as string)?.slice(1)} />
-            <InfoRow icon={User}     label="Account Status"  value={profile?.trade_status} />
+            <InfoRow icon={Calendar} label="Applied Date"   value={new Date(row.created_at as string).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} />
+            <InfoRow icon={FileText} label="Current Status" value={row.status ? row.status.charAt(0).toUpperCase() + row.status.slice(1) : undefined} />
+            <InfoRow icon={User}     label="Account Status" value={profile?.trade_status} />
           </div>
+
+          {/* Applicant Notes (read-only) */}
+          {row.notes && (
+            <div className="bg-white rounded-2xl border border-slate-100 p-5">
+              <h2 className="text-sm font-bold text-slate-900 mb-1">Applicant Notes</h2>
+              <p className="text-xs text-slate-400 mb-3">Submitted by the applicant during registration</p>
+              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{row.notes}</p>
+            </div>
+          )}
         </div>
 
         {/* Right: actions + notes */}
@@ -122,7 +125,8 @@ export default async function TradeDetailPage({ params }: Props) {
             status={row.status as string}
             name={profile?.full_name || ''}
             email={profile?.email || ''}
-            initialNotes={row.notes || ''}
+            companyName={row.company_name || ''}
+            initialNotes={row.admin_notes || ''}
           />
         </div>
       </div>

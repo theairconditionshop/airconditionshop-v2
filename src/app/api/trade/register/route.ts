@@ -5,14 +5,17 @@ import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({
-  name:          z.string().min(2).max(100),
-  email:         z.string().email().max(254),
-  phone:         z.string().min(4).max(30),
-  company:       z.string().min(2).max(100),
-  vat_number:    z.string().max(30).optional(),
-  business_type: z.string().min(1).max(100),
-  message:       z.string().max(1000).optional(),
-  password:      z.string().min(8).max(128),
+  name:                z.string().min(2).max(100),
+  email:               z.string().email().max(254),
+  phone:               z.string().min(4).max(30),
+  company:             z.string().min(2).max(100),
+  vat_number:          z.string().max(30).optional(),
+  registration_number: z.string().max(50).optional(),
+  business_type:       z.string().min(1).max(100),
+  address:             z.string().min(3).max(200),
+  postal_code:         z.string().min(2).max(20),
+  message:             z.string().max(1000).optional(),
+  password:            z.string().min(8).max(128),
 })
 
 export async function POST(request: Request) {
@@ -30,7 +33,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
   }
 
-  const { name, email, phone, company, vat_number, business_type, message, password } = parsed.data
+  const {
+    name, email, phone, company, vat_number, registration_number,
+    business_type, address, postal_code, message, password,
+  } = parsed.data
+
   const db = createAdminClient()
 
   const { data: authData, error: authError } = await db.auth.admin.createUser({
@@ -57,13 +64,16 @@ export async function POST(request: Request) {
   }).eq('id', userId)
 
   const { error: appError } = await db.from('trade_applications').insert({
-    user_id:       userId,
-    company_name:  company,
-    vat_number:    vat_number || null,
+    user_id:             userId,
+    company_name:        company,
+    vat_number:          vat_number          || null,
+    registration_number: registration_number || null,
     business_type,
+    address,
+    postal_code,
     phone,
-    notes:         message || null,
-    status:        'pending',
+    notes:               message             || null,
+    status:              'pending',
   })
   if (appError) {
     console.error('trade_applications insert failed:', appError.message)

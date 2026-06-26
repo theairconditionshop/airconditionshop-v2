@@ -10,12 +10,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const { id } = await params
   const body = await request.json()
-  const notes = typeof body.notes === 'string' ? body.notes : ''
+  const admin_notes = typeof body.notes === 'string' ? body.notes : ''
 
   const db = createAdminClient()
   const { error } = await db
     .from('trade_applications')
-    .update({ notes })
+    .update({ admin_notes })
     .eq('id', id)
 
   if (error) {

@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
-import { sendTradeApprovedEmail, sendTradeRejectedEmail } from '@/lib/resend/send'
+import {
+  sendTradeApprovedEmail,
+  sendTradeRejectedEmail,
+  sendTradeSuspendedEmail,
+} from '@/lib/resend/send'
 import { z } from 'zod'
 
 const schema = z.object({
-  userId:        z.string(),
-  applicationId: z.string(),
+  userId:        z.string().uuid(),
+  applicationId: z.string().uuid(),
   status:        z.enum(['approved', 'rejected', 'suspended']),
   name:          z.string(),
-  email:         z.string(),
+  email:         z.string().email(),
+  companyName:   z.string().optional(),
+  reason:        z.string().max(500).optional(),
 })
 
 export async function PATCH(request: Request) {
@@ -18,25 +24,46 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const body = await request.json()
-  const { userId, applicationId, status, name, email } = schema.parse(body)
+  let body: unknown
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
+  }
+
+  const { userId, applicationId, status, name, email, companyName, reason } = parsed.data
   const db = createAdminClient()
 
+  // Update DB first — never block the admin action on email delivery
   await Promise.all([
     db.from('profiles').update({ trade_status: status }).eq('id', userId),
-    db.from('trade_applications').update({ status }).eq('id', applicationId),
+    db.from('trade_applications').update({
+      status,
+      reviewed_by: profile.id,
+      reviewed_at: new Date().toISOString(),
+    }).eq('id', applicationId),
   ])
+
+  // Attempt email — capture failure without throwing
+  let emailDelivered = true
+  let emailError: string | null = null
 
   try {
     if (status === 'approved') {
-      await sendTradeApprovedEmail({ name, email })
+      await sendTradeApprovedEmail({ name, email, companyName })
     } else if (status === 'rejected') {
-      await sendTradeRejectedEmail({ name, email })
+      await sendTradeRejectedEmail({ name, email, companyName, reason })
+    } else if (status === 'suspended') {
+      await sendTradeSuspendedEmail({ name, email, companyName, reason })
     }
-    // suspended: no email sent
   } catch (err) {
-    console.error('[admin/trade] email send failed (status still updated):', err)
+    emailDelivered = false
+    emailError = err instanceof Error ? err.message : 'Unknown error'
+    console.error('[admin/trade] email send failed (status still updated):', emailError)
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, emailDelivered, emailError })
 }

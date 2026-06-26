@@ -177,8 +177,10 @@ export interface TradeApplication {
   user_id: string | null
   company_name: string
   vat_number: string | null
+  registration_number: string | null
   business_type: string | null
   address: string | null
+  postal_code: string | null
   phone: string | null
   documents: string[]
   notes: string | null
