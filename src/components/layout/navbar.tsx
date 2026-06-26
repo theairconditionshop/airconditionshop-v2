@@ -10,7 +10,8 @@ import {
   Menu, X, Phone, ChevronDown, ChevronRight, ArrowLeft,
   LayoutDashboard, LogOut, User,
   Search, Calculator, Wind, Thermometer, Building2, Layers,
-  Package, Refrigerator, Zap, LogIn, UserPlus,
+  Package, Refrigerator, Zap, LogIn, UserPlus, Snowflake,
+  Wrench, PlugZap, ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -18,19 +19,30 @@ import SearchOverlay from './search-overlay'
 import { cn } from '@/lib/utils'
 
 type Brand    = { id: string; name: string; slug: string; logo_url: string | null }
-type Category = { id: string; name: string; slug: string; icon: string | null }
+type Category = { id: string; name: string; slug: string; icon: string | null; product_count?: number }
 type AuthProfile = { role: string; trade_status: string | null; full_name: string | null }
 
-const CATEGORY_ICONS: Record<string, React.ElementType> = {
-  'air-conditioners':         Zap,
-  'multi-split-systems':      Layers,
-  'heat-pumps':               Thermometer,
-  'ventilation':              Wind,
-  'commercial-refrigeration': Building2,
-  'cold-rooms':               Refrigerator,
-  'accessories':              Package,
+type CategoryMeta = {
+  icon: React.ElementType
+  iconBg: string
+  iconColor: string
+  description: string
 }
-const DEFAULT_ICON = Package
+
+const CATEGORY_META: Record<string, CategoryMeta> = {
+  'air-conditioners':         { icon: Snowflake,  iconBg: 'bg-blue-50',    iconColor: 'text-blue-500',   description: 'Split, multi-split & cassette units' },
+  'heat-pumps':               { icon: Thermometer,iconBg: 'bg-orange-50',  iconColor: 'text-orange-500', description: 'Air-to-air & air-to-water systems' },
+  'multi-split-systems':      { icon: Layers,     iconBg: 'bg-indigo-50',  iconColor: 'text-indigo-500', description: 'One outdoor, multiple indoor units' },
+  'ventilation':              { icon: Wind,       iconBg: 'bg-teal-50',    iconColor: 'text-teal-500',   description: 'Fans, HRVs & ducting solutions' },
+  'commercial-refrigeration': { icon: Building2,  iconBg: 'bg-cyan-50',    iconColor: 'text-cyan-600',   description: 'Display cases & commercial units' },
+  'cold-rooms':               { icon: Refrigerator,iconBg:'bg-sky-50',     iconColor: 'text-sky-500',    description: 'Walk-in & modular cold storage' },
+  'freezers-fridges':         { icon: Refrigerator,iconBg:'bg-slate-100',  iconColor: 'text-slate-500',  description: 'Commercial freezers & fridges' },
+  'hvac-tools':               { icon: Wrench,     iconBg: 'bg-amber-50',   iconColor: 'text-amber-500',  description: 'Installation & service tools' },
+  'accessories':              { icon: Package,    iconBg: 'bg-slate-100',  iconColor: 'text-slate-500',  description: 'Remotes, brackets & consumables' },
+  'controls':                 { icon: PlugZap,    iconBg: 'bg-purple-50',  iconColor: 'text-purple-500', description: 'Thermostats & smart controllers' },
+  'vrf-systems':              { icon: Zap,        iconBg: 'bg-blue-50',    iconColor: 'text-blue-600',   description: 'Variable refrigerant flow systems' },
+}
+const DEFAULT_META: CategoryMeta = { icon: Package, iconBg: 'bg-slate-100', iconColor: 'text-slate-500', description: 'Browse our full range' }
 
 // Mobile panel state
 type MobilePanel = 'main' | 'products' | 'brands'
@@ -195,8 +207,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
               exit={{ opacity: 0, y: 6 }}
               transition={{ duration: 0.13 }}
               className={cn(
-                'absolute top-full left-0 mt-1 bg-white rounded-2xl border border-slate-100 shadow-2xl shadow-slate-200/50 py-2 z-50',
-                wide ? 'w-72' : 'w-56'
+                'absolute top-full left-0 mt-1.5 bg-white rounded-2xl border border-slate-100/80 shadow-2xl shadow-slate-200/60 z-50',
+                wide ? 'w-80' : 'w-56 py-2'
               )}
             >
               {children}
@@ -381,29 +393,45 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             <nav className="hidden lg:flex items-center gap-0.5 ml-4">
               {/* Products ▼ */}
               <Dropdown name="Products" label="Products" href="/products" wide>
-                <div className="px-2">
+                <div className="p-2">
                   {categories.length === 0 ? (
-                    <Link href="/products" className="block px-3 py-2.5 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                      All Products
+                    <Link href="/products" className="flex items-center gap-2 px-3 py-3 text-sm font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
+                      Browse All Products
                     </Link>
                   ) : (
                     <>
                       {categories.map(cat => {
-                        const Icon = CATEGORY_ICONS[cat.slug] ?? DEFAULT_ICON
+                        const meta = CATEGORY_META[cat.slug] ?? DEFAULT_META
+                        const Icon = meta.icon
                         return (
-                          <Link key={cat.id} href={`/products/category/${cat.slug}`}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors group">
-                            <div className="flex-none w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                              <Icon aria-hidden="true" className="w-4 h-4 text-blue-600" />
+                          <Link
+                            key={cat.id}
+                            href={`/products/category/${cat.slug}`}
+                            onClick={() => setActive(null)}
+                            className="flex items-center gap-3.5 px-3 py-3 rounded-xl hover:bg-slate-50 transition-colors duration-150 group"
+                          >
+                            <div className={cn(
+                              'flex-none w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-150',
+                              meta.iconBg, 'group-hover:opacity-80'
+                            )}>
+                              <Icon aria-hidden="true" className={cn('w-5 h-5', meta.iconColor)} />
                             </div>
-                            <span className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors">{cat.name}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-slate-800 group-hover:text-blue-600 transition-colors duration-150 leading-tight">{cat.name}</p>
+                              <p className="text-xs text-slate-400 mt-0.5 leading-tight truncate">{meta.description}</p>
+                            </div>
+                            <ChevronRight className="flex-none w-3.5 h-3.5 text-slate-300 group-hover:text-blue-400 transition-colors duration-150 -mr-0.5" />
                           </Link>
                         )
                       })}
-                      <div className="mx-2 my-1.5 border-t border-slate-100" />
-                      <Link href="/products"
-                        className="flex items-center justify-between px-3 py-2.5 text-sm font-semibold text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
-                        All Products <span className="text-xs text-blue-400">View all →</span>
+                      <div className="mx-3 my-2 border-t border-slate-100" />
+                      <Link
+                        href="/products"
+                        onClick={() => setActive(null)}
+                        className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-blue-50 transition-colors duration-150 group"
+                      >
+                        <span className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">View All Products</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all duration-150" />
                       </Link>
                     </>
                   )}
@@ -596,7 +624,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
 
                       <div className="px-4 py-3 space-y-0.5">
                         {categories.map(cat => {
-                          const Icon = CATEGORY_ICONS[cat.slug] ?? DEFAULT_ICON
+                          const meta = CATEGORY_META[cat.slug] ?? DEFAULT_META
+                          const Icon = meta.icon
                           return (
                             <Link
                               key={cat.id}
@@ -604,8 +633,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                               onClick={() => setMobileOpen(false)}
                               className="flex items-center gap-3.5 px-3 py-3.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
                             >
-                              <div className="flex-none w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
-                                <Icon aria-hidden="true" className="w-4 h-4 text-blue-600" />
+                              <div className={cn('flex-none w-9 h-9 rounded-xl flex items-center justify-center transition-colors', meta.iconBg)}>
+                                <Icon aria-hidden="true" className={cn('w-4 h-4', meta.iconColor)} />
                               </div>
                               <span className="text-[15px] font-medium text-slate-800 group-hover:text-blue-600 transition-colors">{cat.name}</span>
                             </Link>
