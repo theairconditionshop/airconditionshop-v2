@@ -1,6 +1,6 @@
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { tradeEmailTemplate, p, infoBlock, noticeBox } from './templates'
+import { tradeEmailTemplate, p, pSmall, infoBlock, noticeBox } from './templates'
 
 const FROM        = 'THE AIRCONDITION SHOP <support@theairconditionshop.com>'
 const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'support@theairconditionshop.com'
@@ -55,14 +55,15 @@ export async function sendOtpEmail({ email, name, code }: { email: string; name:
     subject: 'Your login verification code — THE AIRCONDITION SHOP',
     html: tradeEmailTemplate({
       preheader: `Your verification code is ${code}`,
-      heading: 'Verification Code',
+      status: 'info',
+      headline: 'Your verification code',
       bodyHtml:
         p(`Hi ${name},`) +
         p('Use the code below to complete your sign-in. It expires in <strong>10 minutes</strong>.') +
         `<div style="text-align:center;margin:24px 0 28px;">
-           <span style="display:inline-block;font-size:36px;font-weight:700;letter-spacing:10px;color:#0f172a;font-family:monospace;">${code}</span>
+           <span style="display:inline-block;font-size:36px;font-weight:700;letter-spacing:10px;color:#0D1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">${code}</span>
          </div>` +
-        p('If you did not request this, you can safely ignore this email.'),
+        p('If you did not request this code, you can safely ignore this email.'),
     }),
   })
 }
@@ -109,37 +110,40 @@ export async function sendTradeApplicationEmails({
   name, email, companyName,
 }: { name: string; email: string; companyName: string }) {
   const vars = { name, email, company_name: companyName }
+  const firstName = name.split(' ')[0]
   await Promise.all([
     sendEmail('trade_application_user', email, vars, {
-      subject: 'Trade Account Application Received — THE AIRCONDITION SHOP',
+      subject: "We've received your Trade Account application — THE AIRCONDITION SHOP",
       html: tradeEmailTemplate({
-        preheader: 'We received your trade account application and will review it within 2 business days.',
-        heading: 'Application Received',
-        subheading: 'Thank you for applying to our Trade Programme',
+        preheader: 'Your application is under review. We will be in touch within 2 business days.',
+        status: 'received',
+        headline: 'Thank you for applying.',
         bodyHtml:
-          p(`Hi ${name},`) +
-          p(`We've received your trade account application for <strong>${companyName}</strong> and it's now under review.`) +
+          p(`Hi ${firstName},`) +
+          p(`We have received your Trade Account application for <strong>${companyName}</strong>. Our team will review your details and verify your business information.`) +
           infoBlock([
+            { label: 'Company',  value: companyName },
             { label: 'Status',   value: 'Under Review' },
-            { label: 'Timeline', value: 'We aim to review all applications within 2 business days' },
+            { label: 'Timeline', value: 'We aim to respond within 2 business days' },
           ]) +
-          p('Our team will verify your business details and contact you with a decision. You will receive a confirmation email once your account is approved.') +
-          p('In the meantime, feel free to browse our full product catalogue or contact us if you have any questions.'),
-        ctaText: 'Browse Products',
-        ctaUrl:  `${SITE_URL}/products`,
+          p('You will receive another email as soon as your application has been reviewed. In the meantime, feel free to browse our full product catalogue.'),
+        footNote: 'If you have any questions, reply to this email or call us on +356 7966 1889.',
+        ctaText: 'Visit Our Website',
+        ctaUrl:  `${SITE_URL}`,
       }),
     }),
     sendEmail('trade_application_admin', ADMIN_EMAIL, vars, {
       subject: `New trade application — ${companyName}`,
       html: tradeEmailTemplate({
         preheader: `${name} from ${companyName} has submitted a trade account application.`,
-        heading: 'New Trade Application',
+        status: 'received',
+        headline: 'New trade application received.',
         bodyHtml:
-          p(`A new trade account application has been submitted.`) +
+          p(`A new trade account application has been submitted and is waiting for review.`) +
           infoBlock([
-            { label: 'Applicant',    value: name },
-            { label: 'Email',        value: email },
-            { label: 'Company',      value: companyName },
+            { label: 'Applicant', value: name },
+            { label: 'Email',     value: email },
+            { label: 'Company',   value: companyName },
           ]),
         ctaText: 'Review Application',
         ctaUrl:  `${SITE_URL}/admin/trade`,
@@ -151,19 +155,20 @@ export async function sendTradeApplicationEmails({
 // ─── Trade: Approved ─────────────────────────────────────────────────────────
 
 export async function sendTradeApprovedEmail({ name, email, companyName }: { name: string; email: string; companyName?: string }) {
+  const firstName = name.split(' ')[0]
   await sendEmail('trade_approved', email, { name, email, company_name: companyName || '' }, {
-    subject: 'Your Trade Account has been Approved — THE AIRCONDITION SHOP',
+    subject: 'Welcome! Your Trade Account has been approved — THE AIRCONDITION SHOP',
     html: tradeEmailTemplate({
-      preheader: 'Congratulations — your trade account is now active.',
-      heading: 'Trade Account Approved',
-      subheading: 'Welcome to the Trade Programme',
+      preheader: 'Your Trade Account is now active. Sign in to access trade pricing and place orders.',
+      status: 'approved',
+      headline: "You're ready to shop with trade pricing.",
       bodyHtml:
-        p(`Hi ${name},`) +
-        p(`Great news — your trade account${companyName ? ` for <strong>${companyName}</strong>` : ''} has been approved.`) +
-        noticeBox('Your account is now active. You have full access to trade pricing, exclusive stock and priority support.', 'blue') +
-        p('Log in to your account to start browsing trade prices and placing orders.') +
-        p('If you have any questions or need help getting started, our team is here to help.'),
-      ctaText: 'Access Trade Dashboard',
+        p(`Hi ${firstName},`) +
+        p(`Great news — your Trade Account${companyName ? ` for <strong>${companyName}</strong>` : ''} has been approved. You now have full access to exclusive trade pricing, priority stock, and dedicated support.`) +
+        noticeBox('Your account is active. Sign in to start browsing trade prices and placing orders today.', 'green') +
+        p('If you have any questions or need help getting started, our team is always happy to help. You can reach us by phone, email, or simply reply to this message.'),
+      footNote: 'Your login email is the same address this email was delivered to.',
+      ctaText: 'Sign In to Your Trade Account',
       ctaUrl:  `${SITE_URL}/trade/dashboard`,
     }),
   })
@@ -174,21 +179,22 @@ export async function sendTradeApprovedEmail({ name, email, companyName }: { nam
 export async function sendTradeRejectedEmail({
   name, email, companyName, reason,
 }: { name: string; email: string; companyName?: string; reason?: string }) {
+  const firstName = name.split(' ')[0]
   await sendEmail('trade_rejected', email, { name, email, company_name: companyName || '', reason: reason || '' }, {
-    subject: 'Trade Account Application Update — THE AIRCONDITION SHOP',
+    subject: 'Update regarding your Trade Account application — THE AIRCONDITION SHOP',
     html: tradeEmailTemplate({
-      preheader: 'An update on your trade account application.',
-      heading: 'Application Update',
+      preheader: 'We have reviewed your application and have an update for you.',
+      status: 'rejected',
+      headline: 'Your application could not be approved at this time.',
       bodyHtml:
-        p(`Hi ${name},`) +
-        p(`Thank you for your interest in our Trade Programme${companyName ? ` and for applying on behalf of <strong>${companyName}</strong>` : ''}.`) +
-        p('After reviewing your application, we are unable to approve a trade account at this time.') +
+        p(`Hi ${firstName},`) +
+        p(`Thank you for applying for a Trade Account${companyName ? ` on behalf of <strong>${companyName}</strong>` : ''}. After carefully reviewing your application, we are unable to approve a trade account at this time.`) +
         (reason
-          ? noticeBox(`<strong>Reason:</strong> ${reason}`, 'amber')
+          ? noticeBox(`<strong>Reason provided by our team:</strong><br>${reason}`, 'red')
           : '') +
-        p('We understand this may be disappointing. If your circumstances change or you believe there has been an error, please don\'t hesitate to contact us — we\'re happy to discuss your application.') +
-        p('You are welcome to reapply in the future, and we encourage you to reach out to our team directly if you have any questions.'),
-      ctaText: 'Contact Us',
+        p('We understand this is not the outcome you were hoping for. If you believe there has been an error, or if your circumstances change in the future, we encourage you to get in touch — we are always happy to discuss your application directly.'),
+      footNote: 'You are welcome to reapply in the future. Our team is here to help.',
+      ctaText: 'Contact Support',
       ctaUrl:  `${SITE_URL}/contact`,
     }),
   })
@@ -199,19 +205,21 @@ export async function sendTradeRejectedEmail({
 export async function sendTradeSuspendedEmail({
   name, email, companyName, reason,
 }: { name: string; email: string; companyName?: string; reason?: string }) {
+  const firstName = name.split(' ')[0]
   await sendEmail('trade_suspended', email, { name, email, company_name: companyName || '', reason: reason || '' }, {
-    subject: 'Your Trade Account has been Suspended — THE AIRCONDITION SHOP',
+    subject: 'Your Trade Account has been suspended — THE AIRCONDITION SHOP',
     html: tradeEmailTemplate({
-      preheader: 'Your trade account access has been temporarily suspended.',
-      heading: 'Account Suspended',
+      preheader: 'Your trade account access has been temporarily suspended. Please contact us.',
+      status: 'suspended',
+      headline: 'Your Trade Account has been temporarily suspended.',
       bodyHtml:
-        p(`Hi ${name},`) +
-        p(`Your trade account${companyName ? ` for <strong>${companyName}</strong>` : ''} has been temporarily suspended.`) +
+        p(`Hi ${firstName},`) +
+        p(`We are writing to let you know that your Trade Account${companyName ? ` for <strong>${companyName}</strong>` : ''} has been temporarily suspended. During this time, access to trade pricing and your trade dashboard has been disabled.`) +
         (reason
-          ? noticeBox(`<strong>Reason:</strong> ${reason}`, 'amber')
-          : noticeBox('Access to trade pricing and your trade dashboard has been temporarily disabled.', 'amber')) +
-        p('If you believe this is an error or would like to discuss your account, please contact our support team directly. We\'re committed to resolving any issues promptly.') +
-        p('We hope to restore your full account access as quickly as possible.'),
+          ? noticeBox(`<strong>Reason:</strong><br>${reason}`, 'amber')
+          : noticeBox('Access to trade pricing and your trade dashboard has been temporarily disabled pending review.', 'amber')) +
+        p('If you believe this is an error or would like to discuss your account, please contact our support team. We are committed to resolving any issues as quickly as possible.'),
+      footNote: 'We hope to restore your full account access promptly.',
       ctaText: 'Contact Support',
       ctaUrl:  `${SITE_URL}/contact`,
     }),
