@@ -28,15 +28,27 @@ function interpolate(template: string, vars: Record<string, string>): string {
 
 // Strip HTML tags to derive a plain-text fallback that passes spam filters
 // that penalise HTML-only messages (RFC 2822 / SpamAssassin).
+// Also removes the preheader `display:none` block and its invisible padding
+// characters (&#847; / U+034F Combining Grapheme Joiner) so they don't
+// appear as garbage in plain-text clients.
 function htmlToText(html: string): string {
   return html
+    // Drop entire preheader div (display:none hidden text + invisible padding chars)
+    .replace(/<div[^>]*display\s*:\s*none[^>]*>[\s\S]*?<\/div>/gi, '')
+    // Drop style blocks
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    // Strip remaining tags
     .replace(/<[^>]+>/g, ' ')
+    // Decode common entities
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&nbsp;/g, ' ')
     .replace(/&#\d+;/g, '')
+    .replace(/&middot;/g, '·')
+    // Remove invisible Unicode control characters (preheader padding)
+    .replace(/[͏​‌‍﻿]/g, '')
+    // Collapse whitespace
     .replace(/\s{2,}/g, ' ')
     .trim()
 }
@@ -331,6 +343,30 @@ export async function sendTradeRejectedEmail({
       footNote: 'You are welcome to reapply in the future. Our team is here to help.',
       ctaText: 'Contact Support',
       ctaUrl:  `${SITE_URL}/contact`,
+    }),
+  })
+}
+
+// ─── Trade: Reactivated (suspended → approved again) ─────────────────────────
+
+export async function sendTradeReactivatedEmail({
+  name, email, companyName,
+}: { name: string; email: string; companyName?: string }) {
+  const firstName = name.split(' ')[0]
+  await sendEmail('trade_reactivated', email, { name, email, company_name: companyName || '' }, {
+    subject: 'Your Trade Account has been reactivated — THE AIRCONDITION SHOP',
+    html: tradeEmailTemplate({
+      preheader: 'Good news — your trade account access has been fully restored.',
+      status: 'reactivated',
+      headline: 'Your Trade Account is active again.',
+      bodyHtml:
+        p(`Hi ${firstName},`) +
+        p(`We are pleased to let you know that your Trade Account${companyName ? ` for <strong>${companyName}</strong>` : ''} has been reviewed and your full access has been restored. You can now sign in and resume trading at your exclusive rates.`) +
+        noticeBox('Your account is active. Trade pricing, priority stock, and your full order history are all available.', 'green') +
+        p('If you have any questions or need help getting back up and running, our team is always happy to help.'),
+      footNote: 'Your login email is the same address this email was delivered to.',
+      ctaText: 'Sign In to Your Trade Account',
+      ctaUrl:  `${SITE_URL}/trade/dashboard`,
     }),
   })
 }

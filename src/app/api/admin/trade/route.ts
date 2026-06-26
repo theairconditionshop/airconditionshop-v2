@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
 import {
   sendTradeApprovedEmail,
+  sendTradeReactivatedEmail,
   sendTradeRejectedEmail,
   sendTradeSuspendedEmail,
 } from '@/lib/resend/send'
@@ -43,6 +44,16 @@ export async function PATCH(request: Request) {
   const { userId, applicationId, status, name, email, companyName, reason } = parsed.data
   const db = createAdminClient()
 
+  // Fetch current trade_status before updating so we can detect reactivation
+  // (suspended → approved sends a different email than a first-time approval)
+  const { data: currentProfile } = await db
+    .from('profiles')
+    .select('trade_status')
+    .eq('id', userId)
+    .single()
+
+  const isReactivation = currentProfile?.trade_status === 'suspended' && status === 'approved'
+
   // Update DB first — never block the admin action on email delivery
   const appUpdate: Record<string, unknown> = {
     status,
@@ -64,7 +75,11 @@ export async function PATCH(request: Request) {
 
   try {
     if (status === 'approved') {
-      await sendTradeApprovedEmail({ name, email, companyName })
+      if (isReactivation) {
+        await sendTradeReactivatedEmail({ name, email, companyName })
+      } else {
+        await sendTradeApprovedEmail({ name, email, companyName })
+      }
     } else if (status === 'rejected') {
       await sendTradeRejectedEmail({ name, email, companyName, reason })
     } else if (status === 'suspended') {

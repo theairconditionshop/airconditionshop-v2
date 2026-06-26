@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
 import { z } from 'zod'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const schema = z.object({ can_reapply: z.boolean() })
 
@@ -9,6 +10,10 @@ export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  const rl = rateLimit(`admin-reapply:${ip}`, 60, 60 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
+
   const profile = await getProfile()
   if (!profile || !['super_admin', 'admin', 'staff'].includes(profile.role)) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })

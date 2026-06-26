@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyOtpSession } from '@/lib/auth/otp'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  // 10 attempts per 5 minutes per IP — brute-force protection at the network layer.
+  // The OTP itself also locks after 5 wrong attempts at the DB layer (defence in depth).
+  const rl = rateLimit(`verify-otp:${ip}`, 10, 5 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
+
   const cookieStore = await cookies()
   const pendingUserId = cookieStore.get('pending_2fa')?.value
 

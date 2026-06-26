@@ -16,7 +16,13 @@ const schema = z.object({
   address:             z.string().min(3).max(200),
   postal_code:         z.string().min(2).max(20),
   message:             z.string().max(1000).optional(),
-  password:            z.string().min(8).max(128),
+  password:            z.string()
+    .min(8,  'Password must be at least 8 characters')
+    .max(128, 'Password too long')
+    .regex(/[A-Z]/, 'Must include an uppercase letter')
+    .regex(/[a-z]/, 'Must include a lowercase letter')
+    .regex(/[0-9]/, 'Must include a number')
+    .regex(/[^A-Za-z0-9]/, 'Must include a special character'),
 })
 
 export async function POST(request: Request) {
@@ -42,7 +48,8 @@ export async function POST(request: Request) {
 
   const parsed = schema.safeParse(body)
   if (!parsed.success) {
-    return NextResponse.json({ error: 'Invalid input' }, { status: 400 })
+    const msg = parsed.error.issues[0]?.message ?? 'Invalid input'
+    return NextResponse.json({ error: msg }, { status: 400 })
   }
 
   const {
