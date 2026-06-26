@@ -154,25 +154,39 @@ export default function Navbar({ transparent = false }: NavbarProps) {
   const isApprovedTrader = isTrade && tradeStatus === 'approved'
 
   // ── Desktop dropdown wrapper ─────────────────────────────────────────────
-  function Dropdown({ name, label, children, wide }: {
-    name: string; label: string; children: React.ReactNode; wide?: boolean
+  function Dropdown({ name, label, href, children, wide }: {
+    name: string; label: string; href?: string; children: React.ReactNode; wide?: boolean
   }) {
     const active = activeDropdown === name
+    const triggerClass = cn(
+      'flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+      isTransparent
+        ? 'text-white/90 hover:text-white hover:bg-white/10'
+        : cn('text-slate-600 hover:text-slate-900 hover:bg-slate-50', active && 'text-slate-900 bg-slate-50')
+    )
     return (
       <div className="relative" onMouseEnter={() => dropdownEnter(name)} onMouseLeave={dropdownLeave}>
-        <button
-          aria-haspopup="true"
-          aria-expanded={active}
-          className={cn(
-            'flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
-            isTransparent
-              ? 'text-white/90 hover:text-white hover:bg-white/10'
-              : cn('text-slate-600 hover:text-slate-900 hover:bg-slate-50', active && 'text-slate-900 bg-slate-50')
-          )}
-        >
-          {label}
-          <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', active && 'rotate-180')} />
-        </button>
+        {href ? (
+          <Link
+            href={href}
+            aria-haspopup="true"
+            aria-expanded={active}
+            className={triggerClass}
+            onClick={() => setActive(null)}
+          >
+            {label}
+            <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', active && 'rotate-180')} />
+          </Link>
+        ) : (
+          <button
+            aria-haspopup="true"
+            aria-expanded={active}
+            className={triggerClass}
+          >
+            {label}
+            <ChevronDown className={cn('w-3.5 h-3.5 transition-transform duration-200', active && 'rotate-180')} />
+          </button>
+        )}
         <AnimatePresence>
           {active && (
             <motion.div
@@ -366,7 +380,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             {/* Desktop: nav (center) */}
             <nav className="hidden lg:flex items-center gap-0.5 ml-4">
               {/* Products ▼ */}
-              <Dropdown name="Products" label="Products" wide>
+              <Dropdown name="Products" label="Products" href="/products" wide>
                 <div className="px-2">
                   {categories.length === 0 ? (
                     <Link href="/products" className="block px-3 py-2.5 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
@@ -397,7 +411,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
               </Dropdown>
 
               {/* Brands ▼ */}
-              <Dropdown name="Brands" label="Brands">
+              <Dropdown name="Brands" label="Brands" href="/brands">
                 <div className="px-2">
                   {brands.length === 0 ? (
                     <Link href="/brands" className="block px-3 py-2.5 text-sm text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">

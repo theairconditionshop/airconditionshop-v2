@@ -82,6 +82,50 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   return data
 }
 
+// ── Categories with product count (non-empty only) ───────────
+export async function getCategoriesWithCount(): Promise<Array<Category & { product_count: number }>> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('categories')
+    .select('*, products(count)')
+    .eq('is_active', true)
+    .is('parent_id', null)
+    .order('display_order')
+  if (!data) return []
+  return (data as unknown as Array<Category & { products: [{ count: number }] }>)
+    .map(c => ({ ...c, product_count: c.products?.[0]?.count ?? 0 }))
+    .filter(c => c.product_count > 0)
+    .sort((a, b) => b.product_count - a.product_count)
+}
+
+// ── Brands with product count (non-empty only) ────────────────
+export async function getBrandsWithCount(): Promise<Array<Brand & { product_count: number }>> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('brands')
+    .select('*, products(count)')
+    .eq('is_active', true)
+    .order('display_order')
+  if (!data) return []
+  return (data as unknown as Array<Brand & { products: [{ count: number }] }>)
+    .map(b => ({ ...b, product_count: b.products?.[0]?.count ?? 0 }))
+    .filter(b => b.product_count > 0)
+    .sort((a, b) => b.product_count - a.product_count)
+}
+
+// ── Distinct AC types that have products ─────────────────────
+export async function getActiveAcTypes(): Promise<string[]> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('products')
+    .select('ac_type')
+    .eq('is_active', true)
+    .not('ac_type', 'is', null)
+  if (!data) return []
+  const unique = [...new Set(data.map(r => r.ac_type as string))].sort()
+  return unique
+}
+
 // ── Products ──────────────────────────────────────────────────
 export async function getProducts(opts?: {
   categoryId?: string

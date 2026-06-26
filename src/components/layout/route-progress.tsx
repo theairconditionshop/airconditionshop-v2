@@ -1,19 +1,21 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
-import { usePathname } from 'next/navigation'
+import { Suspense, useEffect, useState, useRef } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 
-export default function RouteProgress() {
+function RouteProgressInner() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const key = pathname + '?' + searchParams.toString()
   const [progress, setProgress] = useState(0)
   const [visible, setVisible]   = useState(false)
   const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const prevPath = useRef(pathname)
+  const prevKey = useRef(key)
 
   useEffect(() => {
-    if (pathname === prevPath.current) return
-    prevPath.current = pathname
+    if (key === prevKey.current) return
+    prevKey.current = key
 
     // Reset
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -43,7 +45,7 @@ export default function RouteProgress() {
       clearTimeout(timerRef.current!)
       clearInterval(intervalRef.current!)
     }
-  }, [pathname])
+  }, [key])
 
   if (!visible) return null
 
@@ -58,5 +60,13 @@ export default function RouteProgress() {
         }}
       />
     </div>
+  )
+}
+
+export default function RouteProgress() {
+  return (
+    <Suspense fallback={null}>
+      <RouteProgressInner />
+    </Suspense>
   )
 }
