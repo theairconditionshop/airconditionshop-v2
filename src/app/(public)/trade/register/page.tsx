@@ -7,7 +7,7 @@ import TradeRegisterForm from './trade-register-form'
 import { getProfile } from '@/lib/auth/session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
-  Clock, CheckCircle2, XCircle, PauseCircle, ArrowRight, Phone,
+  Clock, XCircle, PauseCircle, ArrowRight, Phone,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -72,25 +72,34 @@ export default async function TradeRegisterPage() {
     redirect('/trade/dashboard')
   }
 
-  // Pending — fetch application date for display
+  // Fetch latest application for gated states
   let applicationDate: string | null = null
-  let companyName: string | null = null
+  let companyName:     string | null = null
+  let rejectionReason: string | null = null
+  let canReapply:      boolean        = false
 
-  if (profile?.role === 'trade' && profile.trade_status === 'pending') {
+  const tradeStatus = profile?.role === 'trade' ? profile.trade_status : null
+
+  if (tradeStatus && ['pending', 'rejected', 'suspended'].includes(tradeStatus)) {
     const db = createAdminClient()
     const { data } = await db
       .from('trade_applications')
-      .select('created_at, company_name')
-      .eq('user_id', profile.id)
+      .select('created_at, company_name, rejection_reason, can_reapply')
+      .eq('user_id', profile!.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .single()
-    applicationDate = data?.created_at ? new Date(data.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : null
-    companyName = data?.company_name ?? null
+    applicationDate = data?.created_at
+      ? new Date(data.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : null
+    companyName     = data?.company_name ?? null
+    rejectionReason = (data as typeof data & { rejection_reason?: string })?.rejection_reason ?? null
+    canReapply      = !!(data as typeof data & { can_reapply?: boolean })?.can_reapply
   }
 
-  const showPending   = profile?.role === 'trade' && profile.trade_status === 'pending'
-  const showSuspended = profile?.role === 'trade' && profile.trade_status === 'suspended'
+  const showPending   = tradeStatus === 'pending'
+  const showRejected  = tradeStatus === 'rejected'
+  const showSuspended = tradeStatus === 'suspended'
 
   function gateContent() {
     if (showPending) {
@@ -108,6 +117,50 @@ export default async function TradeRegisterPage() {
           secondary="Contact Support"
           secondaryHref="/contact"
         />
+      )
+    }
+    if (showRejected) {
+      if (canReapply) {
+        // Admin has enabled reapplication — show new application form below (fall through)
+        return null
+      }
+      return (
+        <div className="flex flex-col items-center text-center max-w-md mx-auto py-4">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-50 border border-red-100">
+            <XCircle className="w-8 h-8 text-red-500" />
+          </div>
+          <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-4 bg-red-50 text-red-600">
+            Application Not Approved
+          </span>
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">
+            We could not approve your application
+          </h2>
+          <p className="text-slate-500 leading-relaxed mb-6 text-sm">
+            Thank you for your interest in our Trade Programme. After reviewing your application
+            {companyName ? ` for ${companyName}` : ''}, we were unable to approve a trade account at this time.
+          </p>
+          {rejectionReason && (
+            <div className="w-full rounded-xl bg-red-50 border border-red-100 px-5 py-4 mb-6 text-left">
+              <p className="text-xs font-bold text-red-500 uppercase tracking-wider mb-1.5">Reason provided</p>
+              <p className="text-sm text-red-800 leading-relaxed">{rejectionReason}</p>
+            </div>
+          )}
+          <p className="text-sm text-slate-400 leading-relaxed mb-8">
+            If you believe there has been an error, or your circumstances have changed, please contact our support team. We will be happy to discuss your application.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Link href="/contact">
+              <Button variant="brand" size="lg" className="w-full sm:w-auto gap-2">
+                <Phone className="w-4 h-4" /> Contact Support
+              </Button>
+            </Link>
+            <Link href="/products">
+              <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
+                Browse Products <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       )
     }
     if (showSuspended) {

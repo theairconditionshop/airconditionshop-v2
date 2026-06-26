@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Clock, ArrowRight } from 'lucide-react'
 
 function LoginForm() {
   const router = useRouter()
@@ -18,6 +18,7 @@ function LoginForm() {
   const [password, setPassword]         = useState('')
   const [loading, setLoading]           = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [pendingInfo, setPendingInfo]   = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -54,9 +55,19 @@ function LoginForm() {
 
     if (result.require2fa) {
       router.push('/verify-otp')
-    } else {
-      router.push(result.redirect || next)
+      return
     }
+
+    const redirect: string = result.redirect || next
+
+    // Pending applicant — show a helpful inline message for 3 seconds before redirecting
+    if (redirect.includes('status=pending')) {
+      setPendingInfo(true)
+      setTimeout(() => router.push(redirect), 3000)
+      return
+    }
+
+    router.push(redirect)
   }
 
   return (
@@ -71,6 +82,25 @@ function LoginForm() {
           </Link>
           <p className="mt-2 text-sm text-slate-500">Sign in to your account</p>
         </div>
+
+        {/* Pending application notice — shown briefly before redirect */}
+        {pendingInfo && (
+          <div className="mb-4 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4 flex gap-3 items-start">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+              <Clock className="w-4 h-4 text-amber-600" aria-hidden="true" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-800">Your application is still under review</p>
+              <p className="text-sm text-amber-700 mt-0.5 leading-relaxed">
+                Our team is reviewing your Trade Account application. You&apos;ll receive an email once a decision has been made — normally within 1–2 business days.
+              </p>
+              <p className="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                <ArrowRight className="w-3 h-3" />
+                Redirecting you to your application status…
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
           <form onSubmit={handleLogin} className="space-y-5">

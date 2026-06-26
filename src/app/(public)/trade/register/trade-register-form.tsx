@@ -6,13 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import OtpInput from '@/components/auth/OtpInput'
 import PasswordField, { StrengthMeter, RequirementsList } from '@/components/auth/PasswordField'
 import {
-  CheckCircle2, ArrowRight, Home, Phone as PhoneIcon,
-  Mail, ArrowLeft, RefreshCw,
+  CheckCircle2, ArrowRight, Mail, ArrowLeft, RefreshCw,
 } from 'lucide-react'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
@@ -111,9 +111,10 @@ function useCountdown(seconds: number) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-type Step = 'form' | 'verify' | 'success'
+type Step = 'form' | 'verify'
 
 export default function TradeRegisterForm() {
+  const router                      = useRouter()
   const [step, setStep]             = useState<Step>('form')
   const [submittedEmail, setEmail]  = useState('')
   const [otpDigits, setOtpDigits]   = useState(['', '', '', '', '', ''])
@@ -201,7 +202,15 @@ export default function TradeRegisterForm() {
     }
 
     sessionStorage.removeItem('trade_form')
-    setStep('success')
+
+    // Redirect to dedicated success page with context in URL
+    const params = new URLSearchParams({
+      email:     formData.email,
+      name:      formData.name,
+      company:   formData.company,
+      submitted: new Date().toISOString(),
+    })
+    router.push(`/trade/application-submitted?${params.toString()}`)
   }
 
   async function handleResend() {
@@ -228,28 +237,6 @@ export default function TradeRegisterForm() {
       const body = await res.json().catch(() => ({}))
       toast.error(body?.error || 'Failed to resend. Please try again.')
     }
-  }
-
-  // ── Success ────────────────────────────────────────────────────────────────
-  if (step === 'success') {
-    return (
-      <div className="flex flex-col items-center text-center py-4">
-        <div className="w-16 h-16 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mb-5">
-          <CheckCircle2 className="w-8 h-8 text-green-500" aria-hidden="true" />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Application Submitted</h2>
-        <p className="text-slate-500 max-w-sm leading-relaxed mb-1">
-          Thank you for applying to our Trade Programme.
-        </p>
-        <p className="text-slate-500 max-w-sm leading-relaxed mb-8">
-          Our team will review your application within 1–2 business days and contact you with a decision.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <Link href="/"><Button variant="brand" size="lg" className="w-full sm:w-auto"><Home className="w-4 h-4" /> Return Home</Button></Link>
-          <Link href="/contact"><Button variant="outline" size="lg" className="w-full sm:w-auto"><PhoneIcon className="w-4 h-4" /> Contact Us</Button></Link>
-        </div>
-      </div>
-    )
   }
 
   // ── Verify email step ──────────────────────────────────────────────────────

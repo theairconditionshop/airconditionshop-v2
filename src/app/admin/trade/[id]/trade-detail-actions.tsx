@@ -7,13 +7,14 @@ import { CheckCircle2, XCircle, PauseCircle, Save, AlertTriangle, X } from 'luci
 import { AnimatePresence, motion } from 'framer-motion'
 
 interface Props {
-  userId:        string
-  applicationId: string
-  status:        string
-  name:          string
-  email:         string
-  companyName:   string
-  initialNotes:  string
+  userId:           string
+  applicationId:    string
+  status:           string
+  name:             string
+  email:            string
+  companyName:      string
+  initialNotes:     string
+  initialCanReapply: boolean
 }
 
 type ConfirmModal = 'suspend' | 'reject' | null
@@ -119,13 +120,15 @@ function ConfirmModal({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function TradeDetailActions({
-  userId, applicationId, status, name, email, companyName, initialNotes,
+  userId, applicationId, status, name, email, companyName, initialNotes, initialCanReapply,
 }: Props) {
   const router = useRouter()
   const [loading, setLoading]           = useState<string | null>(null)
   const [notes, setNotes]               = useState(initialNotes)
   const [savingNotes, setSavingNotes]   = useState(false)
   const [confirmModal, setConfirmModal] = useState<ConfirmModal>(null)
+  const [canReapply, setCanReapply]     = useState(initialCanReapply)
+  const [togglingReapply, setTogglingReapply] = useState(false)
 
   async function executeAction(
     newStatus: 'approved' | 'rejected' | 'suspended',
@@ -174,6 +177,22 @@ export default function TradeDetailActions({
     }
 
     setLoading(null)
+  }
+
+  async function toggleReapply(value: boolean) {
+    setTogglingReapply(true)
+    const res = await fetch(`/api/admin/trade/${applicationId}/reapply`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ can_reapply: value }),
+    })
+    if (res.ok) {
+      setCanReapply(value)
+      toast.success(value ? 'Reapplication enabled — applicant can now resubmit' : 'Reapplication disabled')
+    } else {
+      toast.error('Failed to update reapply permission')
+    }
+    setTogglingReapply(false)
   }
 
   async function saveNotes() {
@@ -268,11 +287,28 @@ export default function TradeDetailActions({
             </div>
           )}
           {status === 'rejected' && (
-            <div className="mt-3 pt-3 border-t border-slate-100">
-              <p className="text-xs text-slate-500 font-medium flex items-center gap-1.5">
+            <div className="mt-3 pt-3 border-t border-slate-100 space-y-3">
+              <p className="text-xs text-red-500 font-medium flex items-center gap-1.5">
                 <XCircle className="w-3.5 h-3.5" />
                 Application rejected
               </p>
+              {/* Reapply toggle */}
+              <div className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-slate-700">Allow reapplication</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Applicant can submit a new application</p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={canReapply}
+                  disabled={togglingReapply}
+                  onClick={() => toggleReapply(!canReapply)}
+                  className={`relative ml-3 flex-none w-9 h-5 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:opacity-50 cursor-pointer ${canReapply ? 'bg-green-500' : 'bg-slate-300'}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform duration-200 ${canReapply ? 'translate-x-4' : 'translate-x-0'}`} />
+                </button>
+              </div>
             </div>
           )}
         </div>

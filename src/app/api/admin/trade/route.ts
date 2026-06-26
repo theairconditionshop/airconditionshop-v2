@@ -38,13 +38,18 @@ export async function PATCH(request: Request) {
   const db = createAdminClient()
 
   // Update DB first — never block the admin action on email delivery
+  const appUpdate: Record<string, unknown> = {
+    status,
+    reviewed_by: profile.id,
+    reviewed_at: new Date().toISOString(),
+  }
+  if (status === 'rejected' && reason) {
+    appUpdate.rejection_reason = reason
+  }
+
   await Promise.all([
     db.from('profiles').update({ trade_status: status }).eq('id', userId),
-    db.from('trade_applications').update({
-      status,
-      reviewed_by: profile.id,
-      reviewed_at: new Date().toISOString(),
-    }).eq('id', applicationId),
+    db.from('trade_applications').update(appUpdate).eq('id', applicationId),
   ])
 
   // Attempt email — capture failure without throwing

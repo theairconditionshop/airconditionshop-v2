@@ -127,6 +127,7 @@ export default async function TradeDetailPage({ params }: Props) {
             email={profile?.email || ''}
             companyName={row.company_name || ''}
             initialNotes={row.admin_notes || ''}
+            initialCanReapply={!!(row as typeof row & { can_reapply?: boolean }).can_reapply}
           />
         </div>
       </div>
