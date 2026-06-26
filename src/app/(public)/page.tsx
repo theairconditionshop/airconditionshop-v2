@@ -4,7 +4,7 @@ import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Hero from '@/components/sections/hero'
-import BrandShowcase from '@/components/sections/brand-showcase'
+import BrandMarquee from '@/components/sections/brand-marquee'
 import ProductCategories from '@/components/sections/product-categories'
 import FeaturedProducts from '@/components/sections/featured-products'
 import WhyChooseUs from '@/components/sections/why-choose-us'
@@ -42,7 +42,7 @@ export default async function HomePage() {
       <main>
         <Hero data={sections.hero || {}} />
         <BtuPromo data={sections.btu_promo as Record<string, string> || {}} />
-        <BrandShowcase brands={brands} />
+        <BrandMarquee brands={brands} duration={32} />
         <ProductCategories categories={categories} />
         <FeaturedProducts products={featuredProducts} userRole={userRole} />
         <WhyChooseUs data={sections.why_choose_us || {}} />

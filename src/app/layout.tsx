@@ -26,17 +26,29 @@ export const metadata: Metadata = {
   description:
     'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta. Expert installation and service.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://theairconditionshop.com'),
+  icons: {
+    icon: [
+      { url: '/icon.jpg', type: 'image/jpeg' },
+    ],
+    apple: [
+      { url: '/icon.jpg', sizes: '180x180', type: 'image/jpeg' },
+    ],
+    shortcut: '/icon.jpg',
+  },
+  manifest: '/site.webmanifest',
   openGraph: {
     type: 'website',
     locale: 'en_MT',
     siteName: 'THE AIRCONDITION SHOP',
     title: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
     description: 'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta.',
+    images: [{ url: '/shop-logo.jpg', width: 1200, height: 1200, alt: 'THE AIRCONDITION SHOP' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
     description: 'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta.',
+    images: ['/shop-logo.jpg'],
   },
   robots: {
     index: true,

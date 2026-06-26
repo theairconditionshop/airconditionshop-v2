@@ -12,6 +12,7 @@ import {
   Search, Calculator, Wind, Thermometer, Building2, Layers,
   Package, Refrigerator, Zap, LogIn, UserPlus, Snowflake,
   Wrench, PlugZap, ArrowRight,
+  Tag, Bookmark, FileText, LifeBuoy, Receipt,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -45,7 +46,17 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
 const DEFAULT_META: CategoryMeta = { icon: Package, iconBg: 'bg-slate-100', iconColor: 'text-slate-500', description: 'Browse our full range' }
 
 // Mobile panel state
-type MobilePanel = 'main' | 'products' | 'brands'
+type MobilePanel = 'main' | 'products' | 'brands' | 'trade'
+
+const TRADE_NAV_ITEMS = [
+  { label: 'Dashboard',        href: '/trade/dashboard',      icon: LayoutDashboard, accent: false },
+  { label: 'Trade Pricing',    href: '/trade/pricing',        icon: Tag,             accent: false },
+  { label: 'Saved Quotes',     href: '/trade/quotes',         icon: Bookmark,        accent: false },
+  { label: 'Order History',    href: '/trade/orders',         icon: Package,         accent: false },
+  { label: 'Invoices',         href: '/trade/invoices',       icon: Receipt,         accent: false },
+  { label: 'Account Info',     href: '/trade/account',        icon: User,            accent: false },
+  { label: 'Contact Support',  href: '/contact',              icon: LifeBuoy,        accent: false },
+] as const
 
 // ── Module-level panel motion helpers (no outer state deps) ─────────────────
 const SLIDE_IN  = { opacity: 1 as const, x: 0 as const }
@@ -242,10 +253,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     )
     if (isApprovedTrader) return (
       <div className="hidden lg:flex items-center gap-3">
-        <Link href="/trade/dashboard" className={cn('flex items-center gap-1.5 text-sm font-medium transition-colors',
-          isTransparent ? 'text-amber-300 hover:text-amber-200' : 'text-amber-600 hover:text-amber-700')}>
-          <LayoutDashboard className="w-3.5 h-3.5" /> Dashboard
-        </Link>
         <button onClick={handleLogout} disabled={loggingOut}
           className={cn('flex items-center gap-1.5 text-sm font-medium transition-colors disabled:opacity-50',
             isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600')}>
@@ -314,18 +321,16 @@ export default function Navbar({ transparent = false }: NavbarProps) {
       </div>
     )
     if (isApprovedTrader) return (
-      <div className="p-4 border-t border-slate-100 space-y-2">
-        <Link href="/trade/dashboard" onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-semibold text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors">
-          <LayoutDashboard className="w-4 h-4" /> Trade Dashboard
-        </Link>
-        <Link href="/account" onClick={() => setMobileOpen(false)}
-          className="flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
-          <User className="w-4 h-4" /> My Account
-        </Link>
-        <button onClick={handleLogout} disabled={loggingOut}
-          className="flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50">
-          <LogOut className="w-4 h-4" />{loggingOut ? 'Signing out…' : 'Logout'}
+      <div className="p-4 border-t border-slate-100">
+        <button
+          onClick={() => setMobilePanel('trade')}
+          className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors group"
+        >
+          <div className="flex items-center gap-2.5">
+            <LayoutDashboard className="w-4 h-4 text-amber-600" />
+            <span className="text-sm font-semibold text-amber-700">My Trade Account</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:text-amber-600 transition-colors" />
         </button>
       </div>
     )
@@ -492,11 +497,51 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                 pathname === '/contact' && !isTransparent && 'text-blue-600 bg-blue-50'
               )}>Contact</Link>
 
-              <Link href="/trade" className={cn(
-                'px-3 py-2 text-sm font-semibold rounded-lg transition-colors',
-                isTransparent ? 'text-amber-300 hover:text-amber-200 hover:bg-white/10' : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50',
-                pathname === '/trade' && !isTransparent && 'text-amber-700 bg-amber-50'
-              )}>Trade</Link>
+              {isApprovedTrader ? (
+                <Dropdown name="TradeAccount" label="My Trade Account" wide>
+                  <div className="p-2">
+                    {/* Account header */}
+                    <div className="px-3 py-2.5 mb-1">
+                      <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em]">Trade Account</p>
+                      {profile && profile !== 'loading' && (profile as AuthProfile).full_name && (
+                        <p className="text-sm font-semibold text-slate-800 mt-0.5 truncate">{(profile as AuthProfile).full_name}</p>
+                      )}
+                    </div>
+                    <div className="mx-2 mb-2 border-t border-slate-100" />
+                    {TRADE_NAV_ITEMS.map(item => {
+                      const Icon = item.icon
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setActive(null)}
+                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group"
+                        >
+                          <Icon aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors flex-none" />
+                          <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">{item.label}</span>
+                        </Link>
+                      )
+                    })}
+                    <div className="mx-2 mt-2 border-t border-slate-100" />
+                    <button
+                      onClick={() => { setActive(null); handleLogout() }}
+                      disabled={loggingOut}
+                      className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors duration-150 group disabled:opacity-50 mt-1"
+                    >
+                      <LogOut aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors flex-none" />
+                      <span className="text-sm font-medium text-slate-500 group-hover:text-red-600 transition-colors">
+                        {loggingOut ? 'Signing out…' : 'Logout'}
+                      </span>
+                    </button>
+                  </div>
+                </Dropdown>
+              ) : (
+                <Link href="/trade" className={cn(
+                  'px-3 py-2 text-sm font-semibold rounded-lg transition-colors',
+                  isTransparent ? 'text-amber-300 hover:text-amber-200 hover:bg-white/10' : 'text-amber-600 hover:text-amber-700 hover:bg-amber-50',
+                  pathname === '/trade' && !isTransparent && 'text-amber-700 bg-amber-50'
+                )}>Trade</Link>
+              )}
             </nav>
 
             {/* Right side */}
@@ -580,27 +625,29 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                         </Link>
 
                         {/* Trade section */}
-                        <div className="mt-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4">
-                          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">Trade Programme</p>
-                          <div className="space-y-2">
-                            <Link
-                              href="/trade/register"
-                              onClick={() => setMobileOpen(false)}
-                              className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors"
-                            >
-                              <UserPlus className="w-4 h-4" aria-hidden="true" />
-                              Apply for Trade Account
-                            </Link>
-                            <Link
-                              href="/login"
-                              onClick={() => setMobileOpen(false)}
-                              className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-white border border-amber-200 hover:bg-amber-50 text-amber-700 text-sm font-semibold transition-colors"
-                            >
-                              <LogIn className="w-4 h-4" aria-hidden="true" />
-                              Trade Login
-                            </Link>
+                        {!isApprovedTrader && (
+                          <div className="mt-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4">
+                            <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">Trade Programme</p>
+                            <div className="space-y-2">
+                              <Link
+                                href="/trade/register"
+                                onClick={() => setMobileOpen(false)}
+                                className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors"
+                              >
+                                <UserPlus className="w-4 h-4" aria-hidden="true" />
+                                Apply for Trade Account
+                              </Link>
+                              <Link
+                                href="/login"
+                                onClick={() => setMobileOpen(false)}
+                                className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-white border border-amber-200 hover:bg-amber-50 text-amber-700 text-sm font-semibold transition-colors"
+                              >
+                                <LogIn className="w-4 h-4" aria-hidden="true" />
+                                Trade Login
+                              </Link>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
 
                       <MobileBottomBar />
@@ -698,6 +745,65 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                           >
                             View all brands <ChevronRight className="w-4 h-4" aria-hidden="true" />
                           </Link>
+                        </div>
+                      </div>
+                    </PanelMotion>
+                  )}
+
+                  {/* ── TRADE ACCOUNT SUB-PANEL ──────────────────────────── */}
+                  {mobilePanel === 'trade' && (
+                    <PanelMotion id="trade">
+                      {/* Back header */}
+                      <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-4 py-3 flex items-center gap-2">
+                        <button
+                          onClick={() => setMobilePanel('main')}
+                          className="p-1.5 -ml-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                          aria-label="Back to menu"
+                        >
+                          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                        </button>
+                        <span className="text-sm font-semibold text-slate-900">My Trade Account</span>
+                      </div>
+
+                      {/* Name badge */}
+                      {profile && profile !== 'loading' && (profile as AuthProfile).full_name && (
+                        <div className="mx-4 mt-4 mb-1 px-4 py-3 rounded-xl bg-amber-50 border border-amber-100">
+                          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em]">Logged in as</p>
+                          <p className="text-sm font-semibold text-amber-800 mt-0.5">{(profile as AuthProfile).full_name}</p>
+                        </div>
+                      )}
+
+                      <div className="px-4 py-3 space-y-0.5">
+                        {TRADE_NAV_ITEMS.map(item => {
+                          const Icon = item.icon
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={() => setMobileOpen(false)}
+                              className="flex items-center gap-3.5 px-3 py-3.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
+                            >
+                              <div className="flex-none w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 transition-colors">
+                                <Icon aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
+                              </div>
+                              <span className="text-[15px] font-medium text-slate-800 group-hover:text-slate-900 transition-colors">{item.label}</span>
+                            </Link>
+                          )
+                        })}
+
+                        <div className="pt-2 mt-1 border-t border-slate-100">
+                          <button
+                            onClick={handleLogout}
+                            disabled={loggingOut}
+                            className="flex items-center gap-3.5 w-full px-3 py-3.5 rounded-xl hover:bg-red-50 active:bg-red-100 transition-colors group disabled:opacity-50"
+                          >
+                            <div className="flex-none w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-red-50 transition-colors">
+                              <LogOut aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
+                            </div>
+                            <span className="text-[15px] font-medium text-slate-500 group-hover:text-red-600 transition-colors">
+                              {loggingOut ? 'Signing out…' : 'Logout'}
+                            </span>
+                          </button>
                         </div>
                       </div>
                     </PanelMotion>

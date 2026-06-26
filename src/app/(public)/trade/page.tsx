@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
-import { CheckCircle2, Percent, Phone, Package, Users, ArrowRight, LogIn, Tag, Zap, Headphones } from 'lucide-react'
+import { CheckCircle2, Percent, Phone, Package, Users, ArrowRight, LogIn, Tag, Zap, Headphones, Clock, AlertTriangle, XCircle, ShieldOff } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Trade Account — Exclusive Pricing for Installers',
@@ -43,11 +43,66 @@ const ELIGIBLE = [
   'Construction & development companies',
 ]
 
-export default function TradePage() {
+const STATUS_BANNERS = {
+  pending: {
+    icon: Clock,
+    bg: 'bg-amber-50 border-amber-200',
+    iconColor: 'text-amber-500',
+    textColor: 'text-amber-800',
+    title: 'Your application is under review',
+    body: 'Our team is reviewing your Trade Account application and will be in touch within 2 business days. Check your inbox for updates.',
+  },
+  rejected: {
+    icon: XCircle,
+    bg: 'bg-red-50 border-red-200',
+    iconColor: 'text-red-500',
+    textColor: 'text-red-800',
+    title: 'Your application was not approved',
+    body: 'We were unable to approve your Trade Account application at this time. Please contact us if you have questions or would like to discuss your application.',
+  },
+  suspended: {
+    icon: ShieldOff,
+    bg: 'bg-orange-50 border-orange-200',
+    iconColor: 'text-orange-500',
+    textColor: 'text-orange-800',
+    title: 'Your trade account has been suspended',
+    body: 'Access to your Trade Account has been temporarily suspended. Please contact our team to resolve this.',
+  },
+} as const
+
+type TradeStatus = keyof typeof STATUS_BANNERS
+
+export default async function TradePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
+  const { status } = await searchParams
+  const banner = STATUS_BANNERS[status as TradeStatus] ?? null
+
   return (
     <>
       <Navbar transparent />
       <main className="min-h-screen">
+
+        {/* Status banner (shown after login redirect) */}
+        {banner && (() => {
+          const Icon = banner.icon
+          return (
+            <div className={`fixed top-16 lg:top-[68px] inset-x-0 z-40 border-b ${banner.bg} px-4 py-3`}>
+              <div className="max-w-7xl mx-auto flex items-start gap-3">
+                <Icon className={`w-5 h-5 mt-0.5 shrink-0 ${banner.iconColor}`} />
+                <div className="flex-1 min-w-0">
+                  <p className={`text-sm font-semibold ${banner.textColor}`}>{banner.title}</p>
+                  <p className={`text-sm mt-0.5 ${banner.textColor} opacity-80`}>{banner.body}</p>
+                </div>
+                <Link href="/contact" className={`text-xs font-semibold ${banner.textColor} underline underline-offset-2 shrink-0 mt-0.5`}>
+                  Contact us
+                </Link>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ── Hero ── */}
         <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">

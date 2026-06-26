@@ -106,6 +106,21 @@ body {
   background-clip: text;
 }
 
+/* ─── Infinite brand marquee ───────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 30s) linear infinite;
+  will-change: transform;
+}
+.marquee-root:hover .marquee-track {
+  animation-play-state: paused;
+}
+
 /* Shimmer skeleton animation */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
