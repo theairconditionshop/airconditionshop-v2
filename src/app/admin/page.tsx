@@ -51,22 +51,22 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
         {STAT_CARDS.map(({ label, value, href, color, Icon }) => (
           <a key={label} href={href}
-            className="bg-white rounded-xl border border-slate-100 p-5 hover:border-sky-200 transition-colors">
-            <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${color}`}>
-              <Icon className="w-4 h-4" />
+            className="bg-white rounded-xl border border-slate-100 p-4 lg:p-5 hover:border-sky-200 hover:shadow-sm transition-all group">
+            <div className={`w-8 h-8 lg:w-9 lg:h-9 rounded-lg flex items-center justify-center mb-3 ${color}`}>
+              <Icon className="w-4 h-4" aria-hidden="true" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">{value}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{label}</p>
+            <p className="text-xl lg:text-2xl font-bold text-slate-900 tabular-nums">{value}</p>
+            <p className="text-xs text-slate-500 mt-0.5 leading-snug">{label}</p>
           </a>
         ))}
       </div>
 
       {/* Recent enquiries */}
-      <div className="bg-white rounded-xl border border-slate-100">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-50">
+      <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-4 border-b border-slate-50">
           <h2 className="font-semibold text-slate-900 text-sm">Recent Enquiries</h2>
           <a href="/admin/enquiries" className="text-xs text-sky-600 hover:underline">View all</a>
         </div>
@@ -75,19 +75,19 @@ export default async function AdminDashboard() {
             <p className="text-sm text-slate-400 text-center py-8">No enquiries yet.</p>
           )}
           {recentEnquiries.map((e: { id: string; name: string; email: string; message: string; created_at: string; status: string }) => (
-            <div key={e.id} className="px-5 py-3 flex items-start gap-4">
+            <div key={e.id} className="px-4 sm:px-5 py-3 flex items-start gap-3">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5">
                   <span className="font-medium text-sm text-slate-900">{e.name}</span>
-                  <span className="text-xs text-slate-400">{e.email}</span>
+                  <span className="text-xs text-slate-400 truncate max-w-[160px]">{e.email}</span>
                 </div>
                 <p className="text-xs text-slate-500 truncate mt-0.5">{e.message}</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-xs text-slate-400">{new Date(e.created_at).toLocaleDateString()}</span>
-                <span className={`text-xs px-1.5 py-0.5 rounded capitalize ${e.status === 'new' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <span className={`text-xs px-1.5 py-0.5 rounded-full capitalize ${e.status === 'new' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'}`}>
                   {e.status}
                 </span>
+                <span className="text-[10px] text-slate-400">{new Date(e.created_at).toLocaleDateString()}</span>
               </div>
             </div>
           ))}
@@ -95,16 +95,16 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Quick links */}
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
         {[
           { label: 'Edit Homepage',   href: '/admin/homepage',     desc: 'Update hero, sections, CTAs' },
           { label: 'Add Product',     href: '/admin/products/new', desc: 'Create a new product listing' },
           { label: 'Write Blog Post', href: '/admin/blog/new',     desc: 'Publish news or a guide' },
         ].map(q => (
           <a key={q.label} href={q.href}
-            className="bg-white rounded-xl border border-slate-100 p-5 hover:border-sky-200 transition-colors group">
+            className="bg-white rounded-xl border border-slate-100 p-4 sm:p-5 hover:border-sky-200 transition-colors group">
             <div className="flex items-center gap-2 mb-1">
-              <TrendingUp className="w-4 h-4 text-sky-500" />
+              <TrendingUp className="w-4 h-4 text-sky-500 shrink-0" aria-hidden="true" />
               <span className="font-semibold text-sm text-slate-900 group-hover:text-sky-600 transition-colors">{q.label}</span>
             </div>
             <p className="text-xs text-slate-500">{q.desc}</p>

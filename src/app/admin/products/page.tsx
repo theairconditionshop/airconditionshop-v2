@@ -159,9 +159,44 @@ export default async function AdminProductsPage({
         {totalPages > 1 ? ` — page ${page} of ${totalPages}` : ''}
       </p>
 
-      {/* Table */}
+      {/* Mobile card list */}
+      {rows.length > 0 && (
+        <div className="sm:hidden space-y-2">
+          {rows.map(r => (
+            <div key={r.id} className="bg-white rounded-xl border border-slate-100 px-4 py-3.5">
+              <div className="flex items-start justify-between gap-2 mb-1.5">
+                <div className="min-w-0">
+                  <span className="font-semibold text-slate-900 text-sm block truncate">{r.name}</span>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {(r.brands as { name: string } | null)?.name || ''}
+                    {(r.categories as { name: string } | null)?.name ? ` · ${(r.categories as { name: string }).name}` : ''}
+                  </p>
+                </div>
+                <span className={`text-xs px-1.5 py-0.5 rounded-full shrink-0 ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                  {r.is_active ? 'Active' : 'Hidden'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-xs font-medium">
+                  {r.sale_price != null
+                    ? <><span className="line-through text-slate-400 mr-1">€{r.original_price?.toFixed(2)}</span><span className="text-emerald-600">€{r.sale_price.toFixed(2)}</span></>
+                    : r.original_price != null
+                      ? `€${r.original_price.toFixed(2)}`
+                      : <span className="text-slate-400 italic">No price</span>}
+                </span>
+                <div className="flex items-center gap-3 text-xs">
+                  <a href={`/admin/products/${r.id}/edit`} className="text-sky-600 font-medium">Edit</a>
+                  <DeleteButton id={r.id} entity="products" label={r.name} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Table (sm and up only) */}
       {rows.length > 0 ? (
-        <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+        <div className="hidden sm:block bg-white rounded-xl border border-slate-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>

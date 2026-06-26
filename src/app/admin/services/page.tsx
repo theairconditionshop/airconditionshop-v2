@@ -59,6 +59,29 @@ export default async function AdminServicesPage() {
 
       <AdminTable<Row>
         rows={rows}
+        mobileRender={r => (
+          <div className="px-4 py-3.5">
+            <div className="flex items-start justify-between gap-2 mb-1.5">
+              <div>
+                <span className="font-semibold text-slate-900 text-sm">{r.name}</span>
+                <p className="text-xs text-slate-500 mt-0.5">{r.service_type}</p>
+              </div>
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium shrink-0 whitespace-nowrap ${STATUS_STYLES[r.status] ?? 'bg-slate-100 text-slate-500'}`}>
+                {STATUS_LABELS[r.status] ?? r.status}
+              </span>
+            </div>
+            <div className="text-xs space-y-0.5 mb-2">
+              <a href={`mailto:${r.email}`} className="text-sky-600 block">{r.email}</a>
+              <a href={`tel:${r.phone}`} className="text-slate-500 block">{r.phone}</a>
+            </div>
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>{new Date(r.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              {r.preferred_date && (
+                <span>Pref: {new Date(r.preferred_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+              )}
+            </div>
+          </div>
+        )}
         columns={[
           {
             label: 'Name',

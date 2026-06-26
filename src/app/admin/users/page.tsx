@@ -21,6 +21,32 @@ export default async function AdminUsersPage() {
       <AdminPageHeader title="Users" description="All registered accounts" />
       <AdminTable<Row>
         rows={rows}
+        mobileRender={r => (
+          <div className="px-4 py-3.5">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <span className="font-semibold text-slate-900 text-sm block truncate">{r.full_name || '—'}</span>
+                <p className="text-xs text-slate-500 mt-0.5 truncate">{r.email || '—'}</p>
+              </div>
+              <span className={`text-xs px-1.5 py-0.5 rounded-full capitalize shrink-0 ${
+                r.role === 'super_admin' ? 'bg-rose-100 text-rose-700' :
+                r.role === 'admin'       ? 'bg-purple-100 text-purple-700' :
+                r.role === 'staff'       ? 'bg-sky-100 text-sky-700' :
+                r.role === 'trade'       ? 'bg-amber-100 text-amber-700' :
+                'bg-slate-100 text-slate-500'}`}>
+                {r.role.replace('_', ' ')}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 mt-2">
+              {r.trade_status && (
+                <span className={`text-xs capitalize ${r.trade_status === 'approved' ? 'text-green-600' : r.trade_status === 'pending' ? 'text-amber-600' : 'text-red-500'}`}>
+                  Trade: {r.trade_status}
+                </span>
+              )}
+              <span className="text-xs text-slate-400 ml-auto">{new Date(r.created_at).toLocaleDateString()}</span>
+            </div>
+          </div>
+        )}
         columns={[
           { label: 'Name',   render: r => <span className="font-medium">{r.full_name || '—'}</span> },
           { label: 'Email',  render: r => <span className="text-xs text-slate-600">{r.email || '—'}</span> },
