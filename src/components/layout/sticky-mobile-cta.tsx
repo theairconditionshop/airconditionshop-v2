@@ -1,5 +1,3 @@
-'use client'
-
 export default function StickyMobileCta() {
   return (
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex border-t border-slate-200 bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">

@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
@@ -37,13 +34,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section header */}
-        <motion.div
-          className="flex items-end justify-between mb-14"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="flex items-end justify-between mb-14">
           <div>
             <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-400 uppercase mb-3">
               Handpicked Selection
@@ -59,16 +50,10 @@ export default function FeaturedProducts({ products, userRole }: Props) {
             View all products
             <ArrowRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
-        </motion.div>
+        </div>
 
         {/* Hero product — editorial large card */}
-        <motion.div
-          className="mb-6"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.55 }}
-        >
+        <div className="mb-6">
           <Link
             href={`/products/${hero.slug}`}
             className="group grid lg:grid-cols-2 rounded-3xl overflow-hidden border border-slate-100 hover:border-slate-200 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-400 ease-out cursor-pointer bg-white"
@@ -82,7 +67,6 @@ export default function FeaturedProducts({ products, userRole }: Props) {
                   fill
                   sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover group-hover:scale-[1.03] transition-transform duration-600 ease-out"
-                  priority
                 />
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
@@ -166,7 +150,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
               </div>
             </div>
           </Link>
-        </motion.div>
+        </div>
 
         {/* Remaining products grid */}
         {rest.length > 0 && (
@@ -177,13 +161,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
               const gradient     = getGradient(product.brand?.name)
 
               return (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.07, duration: 0.45 }}
-                >
+                <div key={product.id}>
                   <Link
                     href={`/products/${product.slug}`}
                     className="group flex flex-col bg-white rounded-2xl border border-slate-100/80 overflow-hidden hover:border-slate-200 hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-300 ease-out cursor-pointer"
@@ -191,7 +169,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
                     <div className={`relative aspect-[4/3] overflow-hidden bg-gradient-to-br ${gradient}`}>
                       {primaryImage ? (
                         <Image
-                          src={primaryImage.url}
+                          src={primaryImage.thumbnail_url ?? primaryImage.url}
                           alt={primaryImage.alt_text || product.name}
                           fill
                           sizes="(max-width: 640px) 50vw, 25vw"
@@ -236,7 +214,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
                       </div>
                     </div>
                   </Link>
-                </motion.div>
+                </div>
               )
             })}
           </div>

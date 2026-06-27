@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
+import { optimizeGeneralImage, isPassthrough } from '@/lib/images/optimize'
 
-// Allowlist of MIME types accepted for upload. HTML is excluded to prevent stored XSS.
-// SVG is permitted because this endpoint is admin-only (trusted uploaders). Admins uploading
-// brand logos need SVG support. Non-admin access is blocked by requireAdmin() above.
+// SVG is allowed for brand logos (admin-only, trusted uploaders).
+// PDF is allowed for product data sheets.
+// HTML is excluded to prevent stored XSS.
 const ALLOWED_MIME_TYPES = new Set([
   'image/jpeg',
   'image/png',
@@ -15,7 +16,7 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/pdf',
 ])
 
-const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024 // 10 MB
+const MAX_RAW_BYTES = 20 * 1024 * 1024  // 20 MB hard reject before processing
 
 async function requireAdmin() {
   const profile = await getProfile()
@@ -26,37 +27,65 @@ export async function POST(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const formData = await request.formData()
-  const files = formData.getAll('files') as File[]
-  const db = createAdminClient()
-  const results = []
+  const files    = formData.getAll('files') as File[]
+  const db       = createAdminClient()
+  const results  = []
 
   for (const file of files) {
-    // Validate MIME type against server-side allowlist (do not trust file.name extension).
     if (!ALLOWED_MIME_TYPES.has(file.type)) {
       results.push({ error: `File type not allowed: ${file.type}`, filename: file.name })
       continue
     }
 
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      results.push({ error: `File too large (max 10 MB): ${file.name}`, filename: file.name })
+    if (file.size > MAX_RAW_BYTES) {
+      results.push({ error: `File too large (max 20 MB): ${file.name}`, filename: file.name })
       continue
     }
 
-    const bytes  = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    // Derive extension from the validated MIME type — not from the client filename.
-    const ext    = file.type.split('/')[1].replace('jpeg', 'jpg').replace('svg+xml', 'svg')
-    const path   = `media/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const rawBuffer = Buffer.from(await file.arrayBuffer())
 
-    const { error } = await db.storage.from('media').upload(path, buffer, { contentType: file.type })
+    let uploadBuffer: Buffer
+    let contentType: string
+    let ext: string
+    let finalWidth:  number | null = null
+    let finalHeight: number | null = null
+    let finalSize:   number = file.size
+
+    if (isPassthrough(file.type)) {
+      // SVG and PDF: upload as-is — cannot be raster-converted
+      uploadBuffer = rawBuffer
+      contentType  = file.type
+      ext          = file.type === 'application/pdf' ? 'pdf' : 'svg'
+    } else {
+      try {
+        const optimized  = await optimizeGeneralImage(rawBuffer)
+        uploadBuffer     = optimized.buffer
+        contentType      = optimized.contentType
+        ext              = 'webp'
+        finalWidth       = optimized.width
+        finalHeight      = optimized.height
+        finalSize        = optimized.size
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Image processing failed'
+        results.push({ error: msg, filename: file.name })
+        continue
+      }
+    }
+
+    const token = `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    const path  = `media/${token}.${ext}`
+
+    const { error } = await db.storage.from('media').upload(path, uploadBuffer, { contentType })
     if (!error) {
       const { data: urlData } = db.storage.from('media').getPublicUrl(path)
       await db.from('media').insert({
-        filename: file.name,
+        filename:      `${token}.${ext}`,
         original_name: file.name,
-        url: urlData.publicUrl,
-        mime_type: file.type,
-        size: file.size,
+        url:           urlData.publicUrl,
+        mime_type:     contentType,
+        size:          finalSize,
+        width:         finalWidth,
+        height:        finalHeight,
       })
       results.push({ path, url: urlData.publicUrl })
     } else {
@@ -77,11 +106,8 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: 'url required' }, { status: 400 })
   }
 
-  // Extract storage path from Supabase public URL
-  // Format: https://<ref>.supabase.co/storage/v1/object/public/media/<path>
   const match = url.match(/\/storage\/v1\/object\/public\/media\/(.+)$/)
   if (!match) {
-    // Not a storage URL we manage — ignore silently
     return NextResponse.json({ deleted: false })
   }
 

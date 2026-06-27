@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 interface ProductImage {
   id: string
   url: string
+  thumbnail_url: string | null
   alt_text: string | null
   is_primary: boolean
   display_order: number
@@ -132,7 +133,7 @@ export default function ProductGallery({ images, productName }: Props) {
               aria-label={`View image ${i + 1}`}
             >
               <Image
-                src={img.url}
+                src={img.thumbnail_url ?? img.url}
                 alt={img.alt_text || `${productName} view ${i + 1}`}
                 fill
                 sizes="80px"

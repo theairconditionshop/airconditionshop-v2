@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Calculator, ArrowRight, Ruler, Thermometer, Zap } from 'lucide-react'
@@ -43,12 +40,7 @@ export default function BtuPromo({ data = {} }: { data?: BtuPromoData }) {
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
           {/* Left — copy */}
-          <motion.div
-            initial={{ opacity: 0, x: -24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, ease: 'easeOut' }}
-          >
+          <div>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
               <Calculator aria-hidden="true" className="w-3.5 h-3.5 text-blue-400" />
               <span className="text-xs font-semibold text-blue-400 uppercase tracking-widest">Free Tool</span>
@@ -94,16 +86,10 @@ export default function BtuPromo({ data = {} }: { data?: BtuPromoData }) {
             <p className="mt-5 text-sm text-slate-500">
               Takes less than 30 seconds · No account required
             </p>
-          </motion.div>
+          </div>
 
           {/* Right — CMS image or BTU process illustration */}
-          <motion.div
-            className="relative mt-8 lg:mt-0"
-            initial={{ opacity: 0, x: 24 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55, ease: 'easeOut', delay: 0.1 }}
-          >
+          <div className="relative mt-8 lg:mt-0">
             {data.image_url ? (
               <div className="relative aspect-[4/3] lg:aspect-[5/4] overflow-hidden rounded-3xl">
                 <Image
@@ -138,13 +124,9 @@ export default function BtuPromo({ data = {} }: { data?: BtuPromoData }) {
               /* BTU process illustration — dark card with 3 steps */
               <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-slate-900 to-blue-950/40 p-8 lg:p-10">
                 <div className="space-y-6">
-                  {BTU_STEPS.map(({ icon: Icon, step, title, body }, i) => (
-                    <motion.div
+                  {BTU_STEPS.map(({ icon: Icon, step, title, body }) => (
+                    <div
                       key={step}
-                      initial={{ opacity: 0, x: 16 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.15 + i * 0.1, duration: 0.45 }}
                       className="flex items-start gap-5"
                     >
                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600/10 border border-blue-500/20">
@@ -155,7 +137,7 @@ export default function BtuPromo({ data = {} }: { data?: BtuPromoData }) {
                         <h3 className="text-[15px] font-semibold text-white mb-0.5">{title}</h3>
                         <p className="text-sm text-slate-500">{body}</p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
 
@@ -182,7 +164,7 @@ export default function BtuPromo({ data = {} }: { data?: BtuPromoData }) {
                 </div>
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

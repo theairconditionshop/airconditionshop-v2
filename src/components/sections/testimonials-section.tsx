@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import { Star } from 'lucide-react'
 import type { Testimonial } from '@/types/database'
 
@@ -14,20 +11,14 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
   if (!testimonials.length) return null
 
   const avgRating = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length
-  const displayRating = Number.isInteger(avgRating) ? avgRating.toFixed(1) : avgRating.toFixed(1)
+  const displayRating = avgRating.toFixed(1)
 
   return (
     <section className="py-10 lg:py-16 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
         {/* Header */}
-        <motion.div
-          className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Customer Reviews</p>
             <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight">What Our Customers Say</h2>
@@ -42,16 +33,12 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
             <span className="text-sm font-semibold text-slate-900">{displayRating}</span>
             <span className="text-sm text-slate-400">· {testimonials.length} {testimonials.length === 1 ? 'review' : 'reviews'}</span>
           </div>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {testimonials.map((t, i) => (
-            <motion.div
+            <div
               key={t.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
               className="relative bg-white rounded-2xl p-7 border border-slate-100 hover:border-slate-200 hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.1)] hover:-translate-y-0.5 transition-all duration-300 cursor-default flex flex-col"
             >
               {/* Stars */}
@@ -78,7 +65,7 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 interface ProductImage {
   id: string
   url: string
+  thumbnail_url: string | null
   alt_text: string | null
   is_primary: boolean
   display_order: number
@@ -159,7 +160,7 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
                 dragging === img.id && 'opacity-40 scale-95'
               )}
             >
-              <Image src={img.url} alt={img.alt_text || `Product image ${idx + 1}`} fill sizes="120px" className="object-cover" />
+              <Image src={img.thumbnail_url ?? img.url} alt={img.alt_text || `Product image ${idx + 1}`} fill sizes="120px" className="object-cover" />
 
               {/* Overlay on hover */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-200 flex items-center justify-center gap-1">

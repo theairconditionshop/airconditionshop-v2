@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Thermometer, Snowflake, Wrench, Building2, ArrowRight } from 'lucide-react'
@@ -39,13 +36,7 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
 
         {/* Mobile image — shown above content when set in admin */}
         {imageUrl && (
-          <motion.div
-            className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl">
             <Image
               src={imageUrl}
               alt="Professional HVAC installation and service — certified engineers"
@@ -60,19 +51,13 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
                 F-Gas Certified Engineers
               </span>
             </div>
-          </motion.div>
+          </div>
         )}
 
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
 
           {/* Left — heading + CTA */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
-            className="lg:sticky lg:top-24"
-          >
+          <div className="lg:sticky lg:top-24">
             <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">What We Do</p>
             <h2 className="font-display text-3xl lg:text-4xl leading-tight text-slate-900 mb-6">{heading}</h2>
             <p className="text-slate-500 leading-relaxed mb-8 max-w-sm text-[15px]">
@@ -92,13 +77,7 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
 
             {/* Desktop image — shown in left column when set in admin */}
             {imageUrl && (
-              <motion.div
-                className="hidden lg:block mt-10 relative aspect-[4/3] overflow-hidden rounded-2xl"
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.15 }}
-              >
+              <div className="hidden lg:block mt-10 relative aspect-[4/3] overflow-hidden rounded-2xl">
                 <Image
                   src={imageUrl}
                   alt="Professional HVAC installation and service — certified engineers"
@@ -113,21 +92,17 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
                     F-Gas Certified Engineers
                   </span>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Right — numbered editorial list */}
           <div className="divide-y divide-slate-100">
             {items.map((item, i) => {
               const Icon = ICON_MAP[item.icon] || Wrench
               return (
-                <motion.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.45 }}
                   className="group flex items-start gap-5 py-7 first:pt-0 last:pb-0"
                 >
                   <span className="font-display text-4xl font-black text-slate-100 leading-none w-9 shrink-0 select-none group-hover:text-blue-100 transition-colors duration-300">
@@ -142,7 +117,7 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
                       <p className="text-sm text-slate-500 leading-relaxed">{item.description}</p>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>

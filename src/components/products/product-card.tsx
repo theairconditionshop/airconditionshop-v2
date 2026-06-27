@@ -55,7 +55,7 @@ export default function ProductCard({ product, userRole, className }: ProductCar
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
         {primaryImage ? (
           <Image
-            src={primaryImage.url}
+            src={primaryImage.thumbnail_url ?? primaryImage.url}
             alt={primaryImage.alt_text || product.name}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

@@ -63,9 +63,10 @@ export default function Hero({ data }: { data: HeroData }) {
             src={bgImage}
             alt="THE AIRCONDITION SHOP — HVAC Malta"
             fill
+            sizes="100vw"
             className="object-cover"
             priority
-            quality={90}
+            quality={80}
           />
           <div className="absolute inset-0 bg-slate-950" style={{ opacity: overlayOpacity }} />
         </>

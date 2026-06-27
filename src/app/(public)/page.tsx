@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
-import { getAllHomepageSections, getBrands, getCategories, getProducts, getTestimonials, getFaqs } from '@/lib/data/queries'
-import { getRole } from '@/lib/auth/session'
+import { getCachedHomepageData } from '@/lib/data/homepage-cache'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Hero from '@/components/sections/hero'
@@ -25,15 +24,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const [sections, brands, categories, featuredProducts, testimonials, faqs, userRole] = await Promise.all([
-    getAllHomepageSections(),
-    getBrands(),
-    getCategories(null),
-    getProducts({ featured: true, limit: 8 }),
-    getTestimonials(),
-    getFaqs(),
-    getRole(),
-  ])
+  const { sections, brands, categories, products, testimonials, faqs } = await getCachedHomepageData()
 
   return (
     <>
@@ -44,7 +35,7 @@ export default async function HomePage() {
         <BtuPromo data={sections.btu_promo as Record<string, string> || {}} />
         <BrandMarquee brands={brands} duration={32} />
         <ProductCategories categories={categories} />
-        <FeaturedProducts products={featuredProducts} userRole={userRole} />
+        <FeaturedProducts products={products} userRole={null} />
         <WhyChooseUs data={sections.why_choose_us || {}} />
         <TradeCta data={sections.trade_cta as Record<string, string> || {}} />
         <ServicesSection data={sections.services || {}} />

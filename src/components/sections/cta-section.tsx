@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Phone } from 'lucide-react'
@@ -23,13 +20,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
   return (
     <section className="py-8 lg:py-12 bg-[#FAFAF9]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-3xl bg-slate-950"
-        >
+        <div className="relative overflow-hidden rounded-3xl bg-slate-950">
           {/* Background image on mobile — only when image is set in admin */}
           {imageUrl && (
             <div className="absolute inset-0 lg:hidden">
@@ -113,7 +104,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
               </div>
             )}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   )

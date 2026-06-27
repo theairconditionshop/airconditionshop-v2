@@ -123,6 +123,7 @@ export interface ProductImage {
   id: string
   product_id: string
   url: string
+  thumbnail_url: string | null
   alt_text: string | null
   is_primary: boolean
   display_order: number

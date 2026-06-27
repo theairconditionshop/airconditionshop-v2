@@ -1,16 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
+import { unstable_cache } from 'next/cache'
+import { getPublicSupabase } from '@/lib/supabase/public'
 import type {
   Brand, Category, Product, BlogPost,
   Testimonial, Faq, HomepageSection, SiteSetting,
 } from '@/types/database'
 
 // ── Site Settings ────────────────────────────────────────────
-export async function getSiteSettings(): Promise<Record<string, unknown>> {
-  const supabase = await createClient()
-  const { data } = await supabase.from('site_settings').select('key, value')
-  if (!data) return {}
-  return Object.fromEntries(data.map(row => [row.key, row.value]))
-}
+// Public client + unstable_cache: pages calling this stay ISR-eligible.
+export const getSiteSettings = unstable_cache(
+  async (): Promise<Record<string, unknown>> => {
+    const db = getPublicSupabase()
+    const { data } = await db.from('site_settings').select('key, value')
+    if (!data) return {}
+    type SettingRow = { key: string; value: unknown }
+    return Object.fromEntries((data as SettingRow[]).map(row => [row.key, row.value]))
+  },
+  ['site-settings'],
+  { revalidate: 3600, tags: ['site-settings'] }
+)
 
 // ── Homepage Sections ─────────────────────────────────────────
 export async function getHomepageSection(key: string): Promise<Record<string, unknown>> {

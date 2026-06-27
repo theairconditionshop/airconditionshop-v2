@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -36,21 +33,6 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'spare-parts':              CircleDot,
 }
 
-
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07 } },
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.48, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-}
-
 export default function ProductCategories({ categories }: { categories: Category[] }) {
   const displayed = categories.slice(0, 8)
 
@@ -59,13 +41,7 @@ export default function ProductCategories({ categories }: { categories: Category
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
         {/* Header */}
-        <motion.div
-          className="mb-12 flex items-end justify-between"
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="mb-12 flex items-end justify-between">
           <div>
             <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               Browse Our Range
@@ -83,21 +59,15 @@ export default function ProductCategories({ categories }: { categories: Category
             View all
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
-        </motion.div>
+        </div>
 
         {/* Grid */}
-        <motion.div
-          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-60px' }}
-        >
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {displayed.map((category) => {
             const imageUrl = category.image_url || null
             const Icon = CATEGORY_ICONS[category.slug]
             return (
-              <motion.div key={category.id} variants={cardVariants}>
+              <div key={category.id}>
                 <Link
                   href={`/products/category/${category.slug}`}
                   className="group block cursor-pointer"
@@ -138,10 +108,10 @@ export default function ProductCategories({ categories }: { categories: Category
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             )
           })}
-        </motion.div>
+        </div>
 
         {/* Mobile "View all" */}
         <div className="mt-8 flex sm:hidden">

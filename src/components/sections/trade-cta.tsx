@@ -1,6 +1,3 @@
-'use client'
-
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Tag, Zap, Headphones, ArrowRight } from 'lucide-react'
@@ -27,20 +24,6 @@ const features = [
   },
 ]
 
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
-}
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 28 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-}
-
 export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
   const imageUrl = data.image_url || null
 
@@ -49,13 +32,7 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Mobile image — shown above content when set in admin */}
         {imageUrl && (
-          <motion.div
-            className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl"
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
+          <div className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl">
             <Image
               src={imageUrl}
               alt="Professional HVAC installer at work"
@@ -70,19 +47,14 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
                 <span className="text-[11px] text-slate-300 font-medium">F-Gas Certified · Manufacturer Approved</span>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         <div className={imageUrl ? 'lg:grid lg:grid-cols-[1fr_380px] lg:gap-14 lg:items-stretch' : ''}>
 
           {/* Left — content */}
           <div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
+            <div>
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-amber-500">
                 For Installers &amp; Contractors
               </p>
@@ -99,19 +71,13 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
                   dedicated commercial support.
                 </p>
               </div>
-            </motion.div>
+            </div>
 
             <div className="mt-14 h-px bg-white/10" />
 
-            <motion.div
-              className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-3"
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-40px' }}
-            >
+            <div className="mt-14 grid grid-cols-1 gap-8 sm:grid-cols-3">
               {features.map(({ icon: Icon, title, body }) => (
-                <motion.div key={title} variants={itemVariants} className="flex flex-col gap-5">
+                <div key={title} className="flex flex-col gap-5">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
                     <Icon className="h-5 w-5 text-amber-500" />
                   </div>
@@ -119,17 +85,11 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
                     <h3 className="mb-2 text-base font-semibold text-white">{title}</h3>
                     <p className="text-sm leading-relaxed text-slate-400">{body}</p>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
 
-            <motion.div
-              className="mt-14 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.2 }}
-            >
+            <div className="mt-14 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               <Link
                 href="/trade/register"
                 className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-7 py-3.5 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-500/20"
@@ -143,28 +103,16 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
               >
                 Trade Login
               </Link>
-            </motion.div>
+            </div>
 
-            <motion.p
-              className="mt-6 text-xs text-slate-600"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.35 }}
-            >
+            <p className="mt-6 text-xs text-slate-600">
               Applications reviewed within 2 business days &middot; Malta VAT number required
-            </motion.p>
+            </p>
           </div>
 
           {/* Right — installer image (desktop only, when set in admin) */}
           {imageUrl && (
-            <motion.div
-              className="hidden lg:flex"
-              initial={{ opacity: 0, x: 24 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
-            >
+            <div className="hidden lg:flex">
               <div className="relative h-full min-h-[440px] overflow-hidden rounded-2xl">
                 <Image
                   src={imageUrl}
@@ -184,7 +132,7 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
       </div>

@@ -50,8 +50,19 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : null
+
   return (
     <html lang="en" className={`${inter.variable} ${dmSerif.variable} h-full`}>
+      <head>
+        {supabaseHostname && (
+          <>
+            <link rel="preconnect" href={`https://${supabaseHostname}`} />
+            <link rel="dns-prefetch" href={`https://${supabaseHostname}`} />
+          </>
+        )}
+      </head>
       <body className="min-h-full flex flex-col bg-white text-slate-900 antialiased">
         <RouteProgress />
         {children}
