@@ -16,6 +16,7 @@ import {
   CheckCircle2, ArrowRight, Mail, ArrowLeft, RefreshCw,
 } from 'lucide-react'
 import { phoneZodField } from '@/lib/phone'
+import { passwordSchema } from '@/lib/auth/password'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ const schema = z.object({
     .max(20, 'Identification Number must be 20 characters or fewer'),
   address:               z.string().min(3, 'Business address required'),
   postal_code:           z.string().min(2, 'Postal code required'),
-  password:              z.string().min(8, 'Password must be at least 8 characters').max(128),
+  password:              passwordSchema,
   password_confirm:      z.string(),
   message:               z.string().optional(),
 }).refine(d => d.password === d.password_confirm, {
@@ -142,7 +143,7 @@ export default function TradeRegisterForm() {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<FormData>({ resolver: zodResolver(schema), mode: 'onChange' })
 
   const passwordValue      = useWatch({ control, name: 'password',             defaultValue: '' })
@@ -490,7 +491,7 @@ export default function TradeRegisterForm() {
         />
       </section>
 
-      <Button type="submit" variant="brand" size="lg" className="w-full" loading={isSubmitting}>
+      <Button type="submit" variant="brand" size="lg" className="w-full" loading={isSubmitting} disabled={!isValid || isSubmitting}>
         Continue to Email Verification <ArrowRight className="w-4 h-4" />
       </Button>
 

@@ -2,26 +2,13 @@
 
 import { useState, forwardRef } from 'react'
 import { Eye, EyeOff, CheckCircle2, XCircle } from 'lucide-react'
+import {
+  getPasswordRequirements,
+  type PasswordRequirements,
+} from '@/lib/auth/password'
 
-// ─── Strength logic (shared) ──────────────────────────────────────────────────
-
-export interface PasswordRequirements {
-  length:    boolean
-  uppercase: boolean
-  lowercase: boolean
-  number:    boolean
-  special:   boolean
-}
-
-export function getPasswordRequirements(value: string): PasswordRequirements {
-  return {
-    length:    value.length >= 8,
-    uppercase: /[A-Z]/.test(value),
-    lowercase: /[a-z]/.test(value),
-    number:    /[0-9]/.test(value),
-    special:   /[^A-Za-z0-9]/.test(value),
-  }
-}
+export type { PasswordRequirements }
+export { getPasswordRequirements }
 
 interface StrengthInfo { label: string; color: string; textColor: string; segments: number }
 

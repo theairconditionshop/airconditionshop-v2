@@ -5,6 +5,7 @@ import { sendTradeApplicationEmails } from '@/lib/resend/send'
 import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { phoneZodField } from '@/lib/phone'
+import { passwordSchema } from '@/lib/auth/password'
 
 const IDENTIFICATION_TYPES = ['Maltese ID Card', 'Residence Card (TRC)'] as const
 
@@ -23,13 +24,7 @@ const schema = z.object({
   address:               z.string().min(3).max(200),
   postal_code:           z.string().min(2).max(20),
   message:               z.string().max(1000).optional(),
-  password:              z.string()
-    .min(8,  'Password must be at least 8 characters')
-    .max(128, 'Password too long')
-    .regex(/[A-Z]/, 'Must include an uppercase letter')
-    .regex(/[a-z]/, 'Must include a lowercase letter')
-    .regex(/[0-9]/, 'Must include a number')
-    .regex(/[^A-Za-z0-9]/, 'Must include a special character'),
+  password:              passwordSchema,
 })
 
 export async function POST(request: Request) {

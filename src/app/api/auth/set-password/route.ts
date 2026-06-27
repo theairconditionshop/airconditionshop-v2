@@ -4,17 +4,9 @@ import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendPasswordChangedEmail } from '@/lib/resend/send'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { passwordSchema } from '@/lib/auth/password'
 
-const schema = z.object({
-  password: z
-    .string()
-    .min(8,  'Password must be at least 8 characters')
-    .max(128, 'Password too long')
-    .regex(/[A-Z]/, 'Must include an uppercase letter')
-    .regex(/[a-z]/, 'Must include a lowercase letter')
-    .regex(/[0-9]/, 'Must include a number')
-    .regex(/[^A-Za-z0-9]/, 'Must include a special character'),
-})
+const schema = z.object({ password: passwordSchema })
 
 export async function POST(request: Request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
