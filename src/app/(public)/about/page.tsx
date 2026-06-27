@@ -8,7 +8,7 @@ import { MapPin, Phone, Mail, Globe, Building2, Briefcase, Home, CheckCircle2, A
 export const metadata: Metadata = {
   title: "About Us — Malta's HVAC Specialists",
   description: "Learn about THE AIRCONDITION SHOP — Malta's specialist in HVAC, refrigeration and climate control.",
-  alternates: { canonical: 'https://theairconditionshop.com/about' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/about' },
 }
 
 const PILLARS = [

@@ -1,9 +1,9 @@
 /**
  * Single premium email template used for every transactional email.
  * Stripe/Linear/Apple quality — table-based for Gmail, Outlook, Apple Mail.
- * All CSS is inline. Dark mode supported via media query (Apple Mail, iOS,
- * Outlook desktop, Thunderbird). Gmail ignores dark media queries and
- * renders the light version, which is fully readable.
+ * All CSS is inline. No external images — brand is text-only.
+ * Dark mode supported via media query (Apple Mail, iOS, Outlook desktop,
+ * Thunderbird). Gmail ignores dark media queries and renders light.
  */
 
 // ─── Brand constants ─────────────────────────────────────────────────────────
@@ -13,7 +13,6 @@ const SITE    = 'https://theairconditionshop.com'
 const SUPPORT = 'support@theairconditionshop.com'
 const PHONE   = '+356 7966 1889'
 const ADDRESS = 'Malta, European Union'
-const LOGO    = `${SITE}/shop-logo.jpg`
 const YEAR    = new Date().getFullYear()
 
 // Primary blue — adjust here to change all emails
@@ -150,8 +149,10 @@ export function tradeEmailTemplate({
   <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:600px;" width="600"><tr><td style="line-height:0;font-size:0;mso-line-height-rule:exactly;"><![endif]-->
 
   <!-- Preheader — hidden from display, shown in inbox preview -->
+  <!-- &zwnj; (zero-width non-joiner) pads the preview to prevent body text bleeding in. -->
+  <!-- Safe for all spam filters; no invisible Unicode codepoints. -->
   <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;visibility:hidden;opacity:0;color:transparent;height:0;width:0;font-size:1px;">
-    ${preheader}&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;&nbsp;&#847;
+    ${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
   </div>
 
   <!-- Outer wrapper -->
@@ -164,28 +165,13 @@ export function tradeEmailTemplate({
         <table role="presentation" class="email-card" cellpadding="0" cellspacing="0" border="0"
                style="max-width:560px;width:100%;background:#FFFFFF;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;">
 
-          <!-- ── HEADER: LOGO + BRAND ── -->
+          <!-- ── HEADER: TEXT-ONLY BRAND ── -->
+          <!-- No image — zero HTTP requests, zero tracking risk, zero spam signals. -->
           <tr>
             <td class="email-pad email-header-bg" style="padding:32px 48px 0;background:#FFFFFF;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                  <td style="vertical-align:middle;">
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td style="vertical-align:middle;padding-right:10px;">
-                          <img src="${LOGO}" width="36" height="36" alt="${BRAND} logo"
-                               style="display:block;border:0;outline:0;border-radius:8px;-ms-interpolation-mode:bicubic;object-fit:cover;">
-                        </td>
-                        <td style="vertical-align:middle;">
-                          <p style="margin:0;font-family:${F};font-size:11px;font-weight:700;letter-spacing:0.14em;color:${BLUE};text-transform:uppercase;">
-                            ${BRAND}
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
+              <p style="margin:0;font-family:${F};font-size:11px;font-weight:800;letter-spacing:0.12em;color:${BLUE};text-transform:uppercase;">
+                ${BRAND}
+              </p>
             </td>
           </tr>
 

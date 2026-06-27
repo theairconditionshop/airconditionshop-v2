@@ -14,9 +14,17 @@ export async function PUT(request: Request) {
   const user = await getSession()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const body = await request.json()
-  const data = schema.parse(body)
-  const db   = createAdminClient()
-  await db.from('profiles').update(data).eq('id', user.id)
+  let body: unknown
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Invalid input' }, { status: 400 })
+  }
+
+  const db = createAdminClient()
+  await db.from('profiles').update(parsed.data).eq('id', user.id)
   return NextResponse.json({ ok: true })
 }

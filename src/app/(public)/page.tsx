@@ -20,7 +20,7 @@ export const revalidate = 60
 export const metadata: Metadata = {
   title: 'THE AIRCONDITION SHOP | Premium HVAC & Refrigeration Malta',
   description: 'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta. Expert installation and service across Malta.',
-  alternates: { canonical: 'https://theairconditionshop.com' },
+  alternates: { canonical: 'https://www.theairconditionshop.com' },
 }
 
 export default async function HomePage() {

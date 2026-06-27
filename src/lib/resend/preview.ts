@@ -202,8 +202,8 @@ const PREVIEWS: Record<string, () => string> = {
       ]) +
       p('If your request is urgent, please call us directly and we will prioritise your job.'),
     footNote: 'Please keep your reference number for your records.',
-    ctaText: 'Call Us Now',
-    ctaUrl:  'tel:+35679661889',
+    ctaText: 'Contact Us',
+    ctaUrl:  `${SITE}/contact`,
   }),
 
   service_booked: () => tradeEmailTemplate({

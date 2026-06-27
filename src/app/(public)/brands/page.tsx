@@ -10,7 +10,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: 'Our Brands — Premium HVAC & Refrigeration',
   description: 'Explore the full range of HVAC, refrigeration and ventilation brands available from THE AIRCONDITION SHOP Malta.',
-  alternates: { canonical: 'https://theairconditionshop.com/brands' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/brands' },
 }
 
 export default async function BrandsPage() {

@@ -8,7 +8,7 @@ import { CheckCircle2, Clock, FileText, Phone, Shield, Globe, Zap } from 'lucide
 export const metadata: Metadata = {
   title: 'Request a Free Quote',
   description: 'Get a free, no-obligation quote for air conditioning installation, refrigeration or HVAC services across Malta.',
-  alternates: { canonical: 'https://theairconditionshop.com/quote' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/quote' },
 }
 
 const INCLUDES = [

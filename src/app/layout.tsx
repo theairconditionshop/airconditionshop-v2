@@ -26,8 +26,16 @@ export const metadata: Metadata = {
   },
   description:
     'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta. Expert installation and service.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://theairconditionshop.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theairconditionshop.com'),
   manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: { url: '/apple-touch-icon.jpg', sizes: '180x180', type: 'image/jpeg' },
+    shortcut: '/icon-192.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_MT',

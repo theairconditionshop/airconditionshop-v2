@@ -5,7 +5,7 @@ import Footer from '@/components/layout/footer'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Privacy Policy for THE AIRCONDITION SHOP — how we collect, use, and protect your data.',
-  alternates: { canonical: 'https://theairconditionshop.com/legal/privacy' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/legal/privacy' },
 }
 
 export default function PrivacyPage() {

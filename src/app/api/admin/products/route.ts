@@ -44,11 +44,17 @@ async function requireAdmin() {
 
 export async function POST(request: Request) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  const body = await request.json()
-  const data = schema.parse(body)
+  let body: unknown
+  try { body = await request.json() } catch {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+  const parsed = schema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Invalid input' }, { status: 400 })
+  }
   const db = createAdminClient()
-  const slug = data.slug || slugify(data.name)
-  const { data: product, error } = await db.from('products').insert({ ...data, slug }).select('id').single()
+  const slug = parsed.data.slug || slugify(parsed.data.name)
+  const { data: product, error } = await db.from('products').insert({ ...parsed.data, slug }).select('id').single()
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
   return NextResponse.json({ id: product.id })
 }

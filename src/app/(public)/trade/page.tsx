@@ -8,7 +8,7 @@ import { CheckCircle2, Percent, Phone, Package, Users, ArrowRight, LogIn, Tag, Z
 export const metadata: Metadata = {
   title: 'Trade Account — Exclusive Pricing for Installers',
   description: 'Apply for a trade account and access exclusive pricing, priority stock and dedicated support for HVAC and refrigeration products in Malta.',
-  alternates: { canonical: 'https://theairconditionshop.com/trade' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/trade' },
 }
 
 const BENEFITS = [

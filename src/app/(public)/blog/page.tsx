@@ -12,7 +12,7 @@ export const revalidate = 600
 export const metadata: Metadata = {
   title: 'Blog — HVAC Tips & Guides',
   description: 'Expert advice on air conditioning, refrigeration, maintenance and buying guides from THE AIRCONDITION SHOP.',
-  alternates: { canonical: 'https://theairconditionshop.com/blog' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/blog' },
 }
 
 export default async function BlogPage() {

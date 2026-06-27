@@ -8,7 +8,7 @@ import { Info, Phone, Thermometer, Wind, Zap, ArrowRight } from 'lucide-react'
 export const metadata: Metadata = {
   title: 'BTU Calculator — Find the Right AC Size',
   description: 'Free BTU / kW calculator for Malta homes and businesses. Find the right air conditioner size for any room in seconds.',
-  alternates: { canonical: 'https://theairconditionshop.com/btu-calculator' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/btu-calculator' },
 }
 
 const TIPS = [

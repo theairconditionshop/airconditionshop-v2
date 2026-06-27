@@ -14,7 +14,7 @@ export const revalidate = 60
 export const metadata: Metadata = {
   title: 'Products — HVAC & Refrigeration',
   description: 'Browse our full range of air conditioners, refrigeration equipment, HVAC tools and accessories.',
-  alternates: { canonical: 'https://theairconditionshop.com/products' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/products' },
 }
 
 interface Props {

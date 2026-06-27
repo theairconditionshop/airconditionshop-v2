@@ -22,9 +22,8 @@ function getResend() {
 }
 
 // Strip HTML tags to derive a plain-text version (RFC 2822 / SpamAssassin).
-// Removes the preheader display:none block and invisible Unicode padding
-// characters (&#847; / U+034F Combining Grapheme Joiner) so they don't
-// appear as garbage in plain-text clients.
+// Removes the preheader display:none block and &zwnj; padding characters
+// so they don't appear as garbage in plain-text clients.
 function htmlToText(html: string): string {
   return html
     .replace(/<div[^>]*display\s*:\s*none[^>]*>[\s\S]*?<\/div>/gi, '')
@@ -46,19 +45,19 @@ const RETRY_BASE_MS = 600
 
 type ResendSendParams = Parameters<ReturnType<typeof getResend>['emails']['send']>[0]
 
-async function sendWithRetry(params: ResendSendParams, context: string): Promise<void> {
+async function sendWithRetry(params: ResendSendParams, context: string): Promise<string> {
   let lastErr: Error | null = null
 
   for (let attempt = 1; attempt <= MAX_RETRIES + 1; attempt++) {
     const { data, error } = await getResend().emails.send(params)
 
-    if (!error) {
-      console.log(`[resend] ${context} sent — to: ${params.to} messageId: ${data?.id}`)
-      return
+    if (!error && data?.id) {
+      console.log(`[resend] ✓ ${context} — to: ${Array.isArray(params.to) ? params.to.join(',') : params.to} messageId: ${data.id}`)
+      return data.id
     }
 
-    const msg = error.message ?? JSON.stringify(error)
-    lastErr   = new Error(`Resend API error: ${msg}`)
+    const msg = error?.message ?? JSON.stringify(error)
+    lastErr   = new Error(`Resend API error (${context}): ${msg}`)
 
     const isValidationError =
       msg.includes('validation_error') ||
@@ -68,12 +67,12 @@ async function sendWithRetry(params: ResendSendParams, context: string): Promise
       msg.includes('blocked')
 
     if (isValidationError || attempt > MAX_RETRIES) {
-      console.error(`[resend] ${context} failed (no retry) — to: ${params.to} error: ${msg}`)
+      console.error(`[resend] ✗ ${context} — no retry — to: ${Array.isArray(params.to) ? params.to.join(',') : params.to} error: ${msg}`)
       break
     }
 
     const delay = RETRY_BASE_MS * attempt
-    console.warn(`[resend] ${context} attempt ${attempt} failed — retrying in ${delay}ms: ${msg}`)
+    console.warn(`[resend] ↻ ${context} attempt ${attempt} — retrying in ${delay}ms: ${msg}`)
     await new Promise(r => setTimeout(r, delay))
   }
 
@@ -82,14 +81,15 @@ async function sendWithRetry(params: ResendSendParams, context: string): Promise
 
 // Shared helper — builds params and calls sendWithRetry.
 // Every send includes: from, replyTo, subject, html, text.
+// Returns the Resend Message ID on success; throws on delivery failure.
 async function send(
   context: string,
   to: string,
   subject: string,
   html: string,
   textOverride?: string,
-): Promise<void> {
-  await sendWithRetry(
+): Promise<string> {
+  return sendWithRetry(
     {
       from:     FROM,
       replyTo:  REPLY_TO,
@@ -104,7 +104,7 @@ async function send(
 
 // ─── Trade: Email verification OTP ───────────────────────────────────────────
 
-export async function sendTradeVerificationEmail({ email, code }: { email: string; code: string }) {
+export async function sendTradeVerificationEmail({ email, code }: { email: string; code: string }): Promise<string> {
   const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
   const html = tradeEmailTemplate({
     preheader: `Your verification code is ${code}. It expires in 10 minutes.`,
@@ -122,7 +122,7 @@ export async function sendTradeVerificationEmail({ email, code }: { email: strin
     ctaText: undefined,
     ctaUrl:  undefined,
   })
-  await send(
+  return send(
     'trade-verify-otp',
     email,
     'Verify your email address — THE AIRCONDITION SHOP',
@@ -133,7 +133,7 @@ export async function sendTradeVerificationEmail({ email, code }: { email: strin
 
 // ─── Admin OTP (2FA login) ────────────────────────────────────────────────────
 
-export async function sendOtpEmail({ email, name, code }: { email: string; name: string; code: string }) {
+export async function sendOtpEmail({ email, name, code }: { email: string; name: string; code: string }): Promise<string> {
   const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
   const firstName = name?.split(' ')[0] || 'there'
   const html = tradeEmailTemplate({
@@ -153,7 +153,7 @@ export async function sendOtpEmail({ email, name, code }: { email: string; name:
     ctaText: undefined,
     ctaUrl:  undefined,
   })
-  await send(
+  return send(
     'admin-otp',
     email,
     'Your login verification code — THE AIRCONDITION SHOP',
@@ -164,7 +164,7 @@ export async function sendOtpEmail({ email, name, code }: { email: string; name:
 
 // ─── Password reset OTP ───────────────────────────────────────────────────────
 
-export async function sendPasswordResetOtpEmail({ email, name, code }: { email: string; name: string; code: string }) {
+export async function sendPasswordResetOtpEmail({ email, name, code }: { email: string; name: string; code: string }): Promise<string> {
   const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
   const firstName = name?.split(' ')[0] || 'there'
   const html = tradeEmailTemplate({
@@ -185,7 +185,7 @@ export async function sendPasswordResetOtpEmail({ email, name, code }: { email: 
     ctaText: undefined,
     ctaUrl:  undefined,
   })
-  await send(
+  return send(
     'password-reset-otp',
     email,
     'Reset your password — THE AIRCONDITION SHOP',
@@ -196,7 +196,7 @@ export async function sendPasswordResetOtpEmail({ email, name, code }: { email: 
 
 // ─── Password changed confirmation ───────────────────────────────────────────
 
-export async function sendPasswordChangedEmail({ email, name }: { email: string; name: string }) {
+export async function sendPasswordChangedEmail({ email, name }: { email: string; name: string }): Promise<string> {
   const firstName = name?.split(' ')[0] || 'there'
   const html = tradeEmailTemplate({
     preheader: 'Your account password was successfully updated.',
@@ -210,7 +210,7 @@ export async function sendPasswordChangedEmail({ email, name }: { email: string;
     ctaText: 'Contact Support',
     ctaUrl:  `${SITE_URL}/contact`,
   })
-  await send(
+  return send(
     'password-changed-confirmation',
     email,
     'Your password has been changed — THE AIRCONDITION SHOP',
@@ -223,7 +223,7 @@ export async function sendPasswordChangedEmail({ email, name }: { email: string;
 
 export async function sendContactEnquiryEmails({
   name, email, phone, company, message,
-}: { name: string; email: string; phone?: string; company?: string; message: string }) {
+}: { name: string; email: string; phone?: string; company?: string; message: string }): Promise<[string, string]> {
   const firstName = name.split(' ')[0]
 
   const userInfoItems: Array<{ label: string; value: string }> = [
@@ -265,7 +265,7 @@ export async function sendContactEnquiryEmails({
     ctaUrl:  `${SITE_URL}/admin/enquiries`,
   })
 
-  await Promise.all([
+  return Promise.all([
     send(
       'contact-enquiry-user',
       email,
@@ -280,14 +280,14 @@ export async function sendContactEnquiryEmails({
       adminHtml,
       `New contact enquiry from ${name} (${email})\n\n${message}`,
     ),
-  ])
+  ]) as Promise<[string, string]>
 }
 
 // ─── Quote request ────────────────────────────────────────────────────────────
 
 export async function sendQuoteRequestEmails({
   name, email, company, message,
-}: { name: string; email: string; company?: string; message: string }) {
+}: { name: string; email: string; company?: string; message: string }): Promise<[string, string]> {
   const firstName = name.split(' ')[0]
 
   const userHtml = tradeEmailTemplate({
@@ -326,7 +326,7 @@ export async function sendQuoteRequestEmails({
     ctaUrl:  `${SITE_URL}/admin/quotes`,
   })
 
-  await Promise.all([
+  return Promise.all([
     send(
       'quote-request-user',
       email,
@@ -341,7 +341,7 @@ export async function sendQuoteRequestEmails({
       adminHtml,
       `New quote request from ${name} (${email})\n\n${message}`,
     ),
-  ])
+  ]) as Promise<[string, string]>
 }
 
 // ─── Trade: Application submitted ────────────────────────────────────────────
@@ -354,7 +354,7 @@ export async function sendTradeApplicationEmails({
   companyName: string
   identificationType?: string
   identificationNumber?: string
-}) {
+}): Promise<[string, string]> {
   const firstName = name.split(' ')[0]
 
   const userInfoItems: Array<{ label: string; value: string }> = [
@@ -398,7 +398,7 @@ export async function sendTradeApplicationEmails({
     ctaUrl:  `${SITE_URL}/admin/trade`,
   })
 
-  await Promise.all([
+  return Promise.all([
     send(
       'trade-application-user',
       email,
@@ -413,12 +413,12 @@ export async function sendTradeApplicationEmails({
       adminHtml,
       `New trade application from ${name} (${email}) for ${companyName}.\n\nReview at: ${SITE_URL}/admin/trade`,
     ),
-  ])
+  ]) as Promise<[string, string]>
 }
 
 // ─── Trade: Approved ──────────────────────────────────────────────────────────
 
-export async function sendTradeApprovedEmail({ name, email, companyName }: { name: string; email: string; companyName?: string }) {
+export async function sendTradeApprovedEmail({ name, email, companyName }: { name: string; email: string; companyName?: string }): Promise<string> {
   const firstName = name.split(' ')[0]
   const html = tradeEmailTemplate({
     preheader: 'Your Trade Account is now active. Sign in to access trade pricing and place orders.',
@@ -433,7 +433,7 @@ export async function sendTradeApprovedEmail({ name, email, companyName }: { nam
     ctaText: 'Sign In to Your Trade Account',
     ctaUrl:  `${SITE_URL}/trade/dashboard`,
   })
-  await send(
+  return send(
     'trade-approved',
     email,
     'Welcome! Your Trade Account has been approved — THE AIRCONDITION SHOP',
@@ -446,7 +446,7 @@ export async function sendTradeApprovedEmail({ name, email, companyName }: { nam
 
 export async function sendTradeRejectedEmail({
   name, email, companyName, reason,
-}: { name: string; email: string; companyName?: string; reason?: string }) {
+}: { name: string; email: string; companyName?: string; reason?: string }): Promise<string> {
   const firstName = name.split(' ')[0]
   const html = tradeEmailTemplate({
     preheader: 'We have reviewed your application and have an update for you.',
@@ -461,7 +461,7 @@ export async function sendTradeRejectedEmail({
     ctaText: 'Contact Support',
     ctaUrl:  `${SITE_URL}/contact`,
   })
-  await send(
+  return send(
     'trade-rejected',
     email,
     'Update regarding your Trade Account application — THE AIRCONDITION SHOP',
@@ -474,7 +474,7 @@ export async function sendTradeRejectedEmail({
 
 export async function sendTradeReactivatedEmail({
   name, email, companyName,
-}: { name: string; email: string; companyName?: string }) {
+}: { name: string; email: string; companyName?: string }): Promise<string> {
   const firstName = name.split(' ')[0]
   const html = tradeEmailTemplate({
     preheader: 'Good news — your trade account access has been fully restored.',
@@ -489,7 +489,7 @@ export async function sendTradeReactivatedEmail({
     ctaText: 'Sign In to Your Trade Account',
     ctaUrl:  `${SITE_URL}/trade/dashboard`,
   })
-  await send(
+  return send(
     'trade-reactivated',
     email,
     'Your Trade Account has been reactivated — THE AIRCONDITION SHOP',
@@ -502,7 +502,7 @@ export async function sendTradeReactivatedEmail({
 
 export async function sendTradeSuspendedEmail({
   name, email, companyName, reason,
-}: { name: string; email: string; companyName?: string; reason?: string }) {
+}: { name: string; email: string; companyName?: string; reason?: string }): Promise<string> {
   const firstName = name.split(' ')[0]
   const html = tradeEmailTemplate({
     preheader: 'Your trade account access has been temporarily suspended. Please contact us.',
@@ -519,7 +519,7 @@ export async function sendTradeSuspendedEmail({
     ctaText: 'Contact Support',
     ctaUrl:  `${SITE_URL}/contact`,
   })
-  await send(
+  return send(
     'trade-suspended',
     email,
     'Your Trade Account has been suspended — THE AIRCONDITION SHOP',
@@ -532,7 +532,7 @@ export async function sendTradeSuspendedEmail({
 
 export async function sendQuoteEmail({
   name, email, quoteNumber, total, validUntil, notes,
-}: { name: string; email: string; quoteNumber: string; total: string; validUntil: string; notes?: string }) {
+}: { name: string; email: string; quoteNumber: string; total: string; validUntil: string; notes?: string }): Promise<string> {
   const firstName = name.split(' ')[0]
   const quoteItems: Array<{ label: string; value: string }> = [
     { label: 'Quote Number', value: quoteNumber },
@@ -554,7 +554,7 @@ export async function sendQuoteEmail({
     ctaText: 'Contact Us',
     ctaUrl:  `${SITE_URL}/contact`,
   })
-  await send(
+  return send(
     'quote-sent',
     email,
     `Your quote ${quoteNumber} from THE AIRCONDITION SHOP`,
@@ -570,7 +570,7 @@ export async function sendServiceRequestEmails({
 }: {
   name: string; email: string; phone: string; address: string
   service_type: string; description: string; preferred_date: string | null; reference: string
-}) {
+}): Promise<[string, string]> {
   const firstName = name.split(' ')[0]
   const dateDisplay = preferred_date || 'Flexible'
 
@@ -589,8 +589,8 @@ export async function sendServiceRequestEmails({
       ]) +
       p('If your request is urgent, please call us directly and we will prioritise your job.'),
     footNote: 'Please keep your reference number for your records.',
-    ctaText: 'Call Us Now',
-    ctaUrl:  'tel:+35679661889',
+    ctaText: 'Contact Us',
+    ctaUrl:  `${SITE_URL}/contact`,
   })
 
   const adminHtml = tradeEmailTemplate({
@@ -613,7 +613,7 @@ export async function sendServiceRequestEmails({
     ctaUrl:  `${SITE_URL}/admin/services`,
   })
 
-  await Promise.all([
+  return Promise.all([
     send(
       'service-request-user',
       email,
@@ -628,14 +628,14 @@ export async function sendServiceRequestEmails({
       adminHtml,
       `New service request ${reference}\nName: ${name} | Email: ${email} | Phone: ${phone}\nService: ${service_type} at ${address}\nPreferred date: ${dateDisplay}\nDescription: ${description}`,
     ),
-  ])
+  ]) as Promise<[string, string]>
 }
 
 // ─── Service booked ───────────────────────────────────────────────────────────
 
 export async function sendServiceBookedEmail({
   customerName, email, jobNumber, scheduledDate, scheduledTime, technicianName,
-}: { customerName: string; email: string; jobNumber: string; scheduledDate: string; scheduledTime: string; technicianName: string }) {
+}: { customerName: string; email: string; jobNumber: string; scheduledDate: string; scheduledTime: string; technicianName: string }): Promise<string> {
   const firstName = customerName.split(' ')[0]
   const html = tradeEmailTemplate({
     preheader: `Your service appointment is confirmed for ${scheduledDate} at ${scheduledTime}.`,
@@ -655,7 +655,7 @@ export async function sendServiceBookedEmail({
     ctaText: 'Contact Us',
     ctaUrl:  `${SITE_URL}/contact`,
   })
-  await send(
+  return send(
     'service-booked-user',
     email,
     `Service appointment confirmed — ${jobNumber}`,

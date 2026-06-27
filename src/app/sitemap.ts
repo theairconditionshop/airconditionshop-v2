@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'https://theairconditionshop.com'
+const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theairconditionshop.com'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let products: { data: { slug: string; updated_at: string }[] | null } = { data: [] }

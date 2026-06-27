@@ -5,7 +5,7 @@ import Footer from '@/components/layout/footer'
 export const metadata: Metadata = {
   title: 'Terms & Conditions',
   description: 'Terms and Conditions for THE AIRCONDITION SHOP — your rights and obligations when using our website and services.',
-  alternates: { canonical: 'https://theairconditionshop.com/legal/terms' },
+  alternates: { canonical: 'https://www.theairconditionshop.com/legal/terms' },
 }
 
 export default function TermsPage() {
