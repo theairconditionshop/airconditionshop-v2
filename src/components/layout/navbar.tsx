@@ -11,8 +11,7 @@ import {
   LayoutDashboard, LogOut, User,
   Search, Calculator, Wind, Thermometer, Building2, Layers,
   Package, Refrigerator, Zap, LogIn, UserPlus, Snowflake,
-  Wrench, PlugZap, ArrowRight,
-  Tag, Bookmark, FileText, LifeBuoy, Receipt,
+  Wrench, PlugZap, ArrowRight, LifeBuoy,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -49,13 +48,9 @@ const DEFAULT_META: CategoryMeta = { icon: Package, iconBg: 'bg-slate-100', icon
 type MobilePanel = 'main' | 'products' | 'brands' | 'trade'
 
 const TRADE_NAV_ITEMS = [
-  { label: 'Dashboard',        href: '/trade/dashboard',      icon: LayoutDashboard, accent: false },
-  { label: 'Trade Pricing',    href: '/trade/pricing',        icon: Tag,             accent: false },
-  { label: 'Saved Quotes',     href: '/trade/quotes',         icon: Bookmark,        accent: false },
-  { label: 'Order History',    href: '/trade/orders',         icon: Package,         accent: false },
-  { label: 'Invoices',         href: '/trade/invoices',       icon: Receipt,         accent: false },
-  { label: 'Account Info',     href: '/trade/account',        icon: User,            accent: false },
-  { label: 'Contact Support',  href: '/contact',              icon: LifeBuoy,        accent: false },
+  { label: 'Dashboard',  href: '/trade/dashboard', icon: LayoutDashboard },
+  { label: 'My Profile', href: '/trade/profile',   icon: User             },
+  { label: 'Support',    href: '/contact',          icon: LifeBuoy         },
 ] as const
 
 // ── Module-level panel motion helpers (no outer state deps) ─────────────────
@@ -244,21 +239,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
         </button>
       </div>
     )
-    if (isApprovedTrader) return (
-      <div className="hidden lg:flex items-center gap-3">
-        <button onClick={handleLogout} disabled={loggingOut}
-          className={cn('flex items-center gap-1.5 text-sm font-medium transition-colors disabled:opacity-50',
-            isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600')}>
-          <LogOut className="w-3.5 h-3.5" />{loggingOut ? 'Signing out…' : 'Logout'}
-        </button>
-      </div>
-    )
     if (isTrade) return (
       <div className="hidden lg:flex items-center gap-3">
-        <Link href="/trade" className={cn('text-sm font-medium transition-colors',
-          isTransparent ? 'text-amber-300/80 hover:text-amber-200' : 'text-amber-600/80 hover:text-amber-700')}>
-          My Application
-        </Link>
         <button onClick={handleLogout} disabled={loggingOut}
           className={cn('flex items-center gap-1.5 text-sm font-medium transition-colors disabled:opacity-50',
             isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600')}>
@@ -312,7 +294,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
         </button>
       </div>
     )
-    if (isApprovedTrader) return (
+    if (isTrade) return (
       <div className="p-4 border-t border-slate-100">
         <button
           onClick={() => setMobilePanel('trade')}
@@ -489,7 +471,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                 pathname === '/contact' && !isTransparent && 'text-blue-600 bg-blue-50'
               )}>Contact</Link>
 
-              {isApprovedTrader ? (
+              {isTrade ? (
                 <Dropdown name="TradeAccount" label="My Trade Account" wide>
                   <div className="p-2">
                     {/* Account header */}
@@ -617,7 +599,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                         </Link>
 
                         {/* Trade section */}
-                        {!isApprovedTrader && (
+                        {!isTrade && (
                           <div className="mt-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4">
                             <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">Trade Programme</p>
                             <div className="space-y-2">

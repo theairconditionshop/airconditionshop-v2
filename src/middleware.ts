@@ -118,6 +118,29 @@ export default async function proxy(request: NextRequest) {
     return supabaseResponse
   }
 
+  // ── /trade/profile — requires any authenticated trade account ────
+  if (pathname.startsWith('/trade/profile')) {
+    if (!user) {
+      const url = new URL('/login', request.url)
+      url.searchParams.set('next', pathname)
+      return NextResponse.redirect(url)
+    }
+    const profile = await getProfileRole(user.id)
+    if (!profile || profile.role !== 'trade') {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    return supabaseResponse
+  }
+
+  // ── /trade/register — redirect already-approved traders ──────────
+  if (pathname.startsWith('/trade/register') && user) {
+    const profile = await getProfileRole(user.id)
+    if (profile?.role === 'trade' && profile.trade_status === 'approved') {
+      return NextResponse.redirect(new URL('/trade/dashboard', request.url))
+    }
+    return supabaseResponse
+  }
+
   // ── /account/* — any authenticated user ─────────────────────────
   if (pathname.startsWith('/account')) {
     if (!user) {
