@@ -12,7 +12,7 @@ import { tradeEmailTemplate, otpEmailTemplate, p, pSmall, infoBlock, noticeBox }
 
 const FROM        = 'THE AIRCONDITION SHOP <support@theairconditionshop.com>'
 const REPLY_TO    = 'support@theairconditionshop.com'
-const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'support@theairconditionshop.com'
+const ADMIN_EMAIL = process.env.RESEND_ADMIN_EMAIL || 'sales@asgroupmalta.com'
 const SITE_URL    = 'https://theairconditionshop.com'
 
 function getResend() {

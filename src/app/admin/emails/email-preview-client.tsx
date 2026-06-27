@@ -213,7 +213,7 @@ function TemplateCard({ tpl, adminEmail }: { tpl: TemplateConfig; adminEmail: st
 
 export default function EmailPreviewClient() {
   // Admin email is taken from the env fallback; in a real session you'd pass it
-  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'support@theairconditionshop.com'
+  const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'sales@asgroupmalta.com'
 
   return (
     <div className="space-y-4">
