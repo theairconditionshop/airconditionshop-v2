@@ -3,13 +3,14 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendServiceRequestEmails } from '@/lib/resend/send'
 import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { phoneZodField } from '@/lib/phone'
 
 const SERVICE_TYPE_VALUES = ['installation', 'repair', 'maintenance', 'inspection', 'commercial', 'coldroom', 'other'] as const
 
 const schema = z.object({
   name:           z.string().min(2).max(100),
   email:          z.string().email().max(254),
-  phone:          z.string().min(4).max(30),
+  phone:          phoneZodField,
   address:        z.string().min(5).max(300),
   service_type:   z.enum(SERVICE_TYPE_VALUES),
   description:    z.string().min(5).max(2000),

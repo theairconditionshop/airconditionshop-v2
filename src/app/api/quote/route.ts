@@ -3,11 +3,12 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendQuoteRequestEmails } from '@/lib/resend/send'
 import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { optionalPhoneZodField } from '@/lib/phone'
 
 const schema = z.object({
   name:         z.string().min(2).max(100),
   email:        z.string().email().max(254),
-  phone:        z.string().max(30).optional(),
+  phone:        optionalPhoneZodField,
   company:      z.string().max(100).optional(),
   address:      z.string().max(300).optional(),
   service_type: z.string().max(50).optional(),

@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getSession } from '@/lib/auth/session'
 import { z } from 'zod'
+import { optionalPhoneZodField } from '@/lib/phone'
 
 const schema = z.object({
   full_name: z.string().min(2),
-  phone:     z.string().optional(),
+  phone:     optionalPhoneZodField,
   company:   z.string().optional(),
 })
 

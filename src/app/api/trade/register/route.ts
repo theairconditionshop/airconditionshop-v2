@@ -4,11 +4,12 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { sendTradeApplicationEmails } from '@/lib/resend/send'
 import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { phoneZodField } from '@/lib/phone'
 
 const schema = z.object({
   name:                z.string().min(2).max(100),
   email:               z.string().email().max(254),
-  phone:               z.string().min(4).max(30),
+  phone:               phoneZodField,
   company:             z.string().min(2).max(100),
   vat_number:          z.string().max(30).optional(),
   registration_number: z.string().max(50).optional(),

@@ -1,14 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, Phone, Home } from 'lucide-react'
+import { phoneZodField } from '@/lib/phone'
 
 // DB constraint: service_type must be one of these exact values
 const SERVICE_TYPE_VALUES = ['installation', 'repair', 'maintenance', 'inspection', 'commercial', 'coldroom', 'other'] as const
@@ -27,7 +29,7 @@ const SERVICE_OPTIONS: { label: string; value: ServiceTypeValue }[] = [
 const schema = z.object({
   name:           z.string().min(2, 'Name required'),
   email:          z.string().email('Valid email required'),
-  phone:          z.string().min(4, 'Phone required'),
+  phone:          phoneZodField,
   address:        z.string().min(5, 'Address required'),
   service_type:   z.enum(SERVICE_TYPE_VALUES, { error: 'Please select a service type' }),
   description:    z.string().min(10, 'Please describe the issue or job (min 10 characters)'),
@@ -42,6 +44,7 @@ export default function ServiceRequestForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema) })
 
@@ -122,13 +125,19 @@ export default function ServiceRequestForm() {
           error={errors.name?.message}
           required
         />
-        <Input
-          label="Phone"
-          type="tel"
-          {...register('phone')}
-          error={errors.phone?.message}
-          required
-          placeholder="+356 ···· ····"
+        <Controller
+          name="phone"
+          control={control}
+          render={({ field }) => (
+            <PhoneInput
+              label="Phone"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={errors.phone?.message}
+              required
+            />
+          )}
         />
       </div>
 

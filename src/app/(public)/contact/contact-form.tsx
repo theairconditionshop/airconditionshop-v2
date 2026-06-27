@@ -1,18 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2 } from 'lucide-react'
+import { optionalPhoneZodField } from '@/lib/phone'
 
 const schema = z.object({
   name:    z.string().min(2, 'Name is required'),
   email:   z.string().email('Valid email required'),
-  phone:   z.string().optional(),
+  phone:   optionalPhoneZodField,
   company: z.string().optional(),
   message: z.string().min(10, 'Please provide more detail'),
 })
@@ -22,7 +24,7 @@ type FormData = z.infer<typeof schema>
 export default function ContactForm() {
   const [sent, setSent] = useState(false)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
@@ -58,7 +60,19 @@ export default function ContactForm() {
         <Input label="Email address" type="email" {...register('email')} error={errors.email?.message} required placeholder="your@email.com" />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Input label="Phone" type="tel" {...register('phone')} placeholder="+356 ···· ····" />
+        <Controller
+          name="phone"
+          control={control}
+          render={({ field }) => (
+            <PhoneInput
+              label="Phone"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={errors.phone?.message}
+            />
+          )}
+        />
         <Input label="Company" {...register('company')} placeholder="Optional" />
       </div>
       <div className="flex flex-col gap-1.5">

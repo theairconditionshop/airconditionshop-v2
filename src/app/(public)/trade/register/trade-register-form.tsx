@@ -1,26 +1,28 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm, useWatch, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { Button } from '@/components/ui/button'
 import OtpInput from '@/components/auth/OtpInput'
 import PasswordField, { StrengthMeter, RequirementsList } from '@/components/auth/PasswordField'
 import {
   CheckCircle2, ArrowRight, Mail, ArrowLeft, RefreshCw,
 } from 'lucide-react'
+import { phoneZodField } from '@/lib/phone'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
 const schema = z.object({
   name:                z.string().min(2, 'Full name required'),
   email:               z.string().email('Valid email required'),
-  phone:               z.string().min(4, 'Phone number required'),
+  phone:               phoneZodField,
   company:             z.string().min(2, 'Company name required'),
   business_type:       z.string().min(1, 'Select your business type'),
   vat_number:          z.string().optional(),
@@ -320,7 +322,20 @@ export default function TradeRegisterForm() {
             <Input label="Email address" type="email" required {...register('email')} error={errors.email?.message} />
           </div>
           <div className="sm:w-1/2 sm:pr-2">
-            <Input label="Phone number" type="tel" required placeholder="+356 ···· ····" {...register('phone')} error={errors.phone?.message} />
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  label="Phone number"
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={errors.phone?.message}
+                  required
+                />
+              )}
+            />
           </div>
         </div>
       </section>

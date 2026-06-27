@@ -1,18 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { Input } from '@/components/ui/input'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2 } from 'lucide-react'
+import { optionalPhoneZodField } from '@/lib/phone'
 
 const schema = z.object({
   name:         z.string().min(2, 'Name required'),
   email:        z.string().email('Valid email required'),
-  phone:        z.string().optional(),
+  phone:        optionalPhoneZodField,
   company:      z.string().optional(),
   address:      z.string().optional(),
   service_type: z.string().optional(),
@@ -36,7 +38,7 @@ const BUDGET_RANGES = ['Under €500', '€500–€2,000', '€2,000–€10,00
 
 export default function QuoteForm() {
   const [sent, setSent] = useState(false)
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   async function onSubmit(data: FormData) {
     const res = await fetch('/api/quote', {
@@ -67,7 +69,19 @@ export default function QuoteForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div className="grid sm:grid-cols-2 gap-4">
         <Input label="Full name" {...register('name')} error={errors.name?.message} required placeholder="Your full name" />
-        <Input label="Phone" type="tel" {...register('phone')} placeholder="+356 ···· ····" />
+        <Controller
+          name="phone"
+          control={control}
+          render={({ field }) => (
+            <PhoneInput
+              label="Phone"
+              value={field.value ?? ''}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={errors.phone?.message}
+            />
+          )}
+        />
       </div>
       <Input label="Email" type="email" {...register('email')} error={errors.email?.message} required />
       <Input label="Company" {...register('company')} placeholder="Optional — leave blank if you're a homeowner" />

@@ -17,12 +17,32 @@ interface TemplateConfig {
 }
 
 const TEMPLATES: TemplateConfig[] = [
+  // ── Auth / OTP ──────────────────────────────────────────────────────────────
   {
     key:         'verify_email',
     label:       'Email Verification (OTP)',
     description: 'Sent during trade account registration — contains a 6-digit verification code.',
     badge: 'OTP', badgeBg: '#EFF6FF', badgeFg: '#1E40AF',
   },
+  {
+    key:         'admin_otp',
+    label:       'Admin Login Code (2FA)',
+    description: 'Sent when an admin logs in — contains a 6-digit two-factor authentication code.',
+    badge: 'OTP', badgeBg: '#EFF6FF', badgeFg: '#1E40AF',
+  },
+  {
+    key:         'password_reset',
+    label:       'Password Reset (OTP)',
+    description: 'Sent when a user requests a password reset — contains a 6-digit code.',
+    badge: 'Auth', badgeBg: '#F0F9FF', badgeFg: '#0C4A6E',
+  },
+  {
+    key:         'password_changed',
+    label:       'Password Changed',
+    description: 'Sent as a security confirmation after a password is successfully updated.',
+    badge: 'Auth', badgeBg: '#F0FDF4', badgeFg: '#14532D',
+  },
+  // ── Trade ───────────────────────────────────────────────────────────────────
   {
     key:         'trade_received',
     label:       'Application Received',
@@ -33,6 +53,12 @@ const TEMPLATES: TemplateConfig[] = [
     key:         'trade_approved',
     label:       'Application Approved',
     description: 'Sent when an admin approves a trade account application.',
+    badge: 'Trade', badgeBg: '#D1FAE5', badgeFg: '#065F46',
+  },
+  {
+    key:         'trade_reactivated',
+    label:       'Account Reactivated',
+    description: 'Sent when a suspended account is restored to approved status by an admin.',
     badge: 'Trade', badgeBg: '#D1FAE5', badgeFg: '#065F46',
   },
   {
@@ -47,17 +73,36 @@ const TEMPLATES: TemplateConfig[] = [
     description: 'Sent when an admin suspends an active trade account.',
     badge: 'Trade', badgeBg: '#FEF3C7', badgeFg: '#78350F',
   },
+  // ── Customer ─────────────────────────────────────────────────────────────────
   {
-    key:         'password_reset',
-    label:       'Password Reset (OTP)',
-    description: 'Sent when a user requests a password reset — contains a 6-digit code.',
-    badge: 'Auth', badgeBg: '#F0F9FF', badgeFg: '#0C4A6E',
+    key:         'contact_enquiry',
+    label:       'Contact Enquiry (User)',
+    description: "Confirmation sent to customer after they submit the contact form.",
+    badge: 'Customer', badgeBg: '#F0F9FF', badgeFg: '#0C4A6E',
   },
   {
-    key:         'password_changed',
-    label:       'Password Changed',
-    description: 'Sent as a security confirmation after a password is successfully updated.',
-    badge: 'Auth', badgeBg: '#F0FDF4', badgeFg: '#14532D',
+    key:         'quote_request',
+    label:       'Quote Request (User)',
+    description: 'Confirmation sent to customer after they submit a quote request.',
+    badge: 'Customer', badgeBg: '#F0F9FF', badgeFg: '#0C4A6E',
+  },
+  {
+    key:         'quote_sent',
+    label:       'Quote Sent',
+    description: 'Sent to customer when admin sends a formal quote document.',
+    badge: 'Customer', badgeBg: '#F0F9FF', badgeFg: '#0C4A6E',
+  },
+  {
+    key:         'service_request',
+    label:       'Service Request (User)',
+    description: 'Confirmation sent to customer after they submit a service request.',
+    badge: 'Service', badgeBg: '#F0FDF4', badgeFg: '#14532D',
+  },
+  {
+    key:         'service_booked',
+    label:       'Service Appointment Confirmed',
+    description: 'Sent to customer when admin books and schedules a service appointment.',
+    badge: 'Service', badgeBg: '#F0FDF4', badgeFg: '#14532D',
   },
 ]
 

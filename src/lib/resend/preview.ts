@@ -11,16 +11,39 @@ const SAMPLE_CODE    = '847291'
 const SITE           = 'https://theairconditionshop.com'
 
 export const TEMPLATE_SUBJECTS: Record<string, string> = {
-  verify_email:     "Verify your email address — THE AIRCONDITION SHOP",
-  trade_received:   "We've received your Trade Account application — THE AIRCONDITION SHOP",
-  trade_approved:   "Welcome! Your Trade Account has been approved — THE AIRCONDITION SHOP",
-  trade_rejected:   "Update regarding your Trade Account application — THE AIRCONDITION SHOP",
-  trade_suspended:  "Your Trade Account has been suspended — THE AIRCONDITION SHOP",
-  password_reset:   "Reset your password — THE AIRCONDITION SHOP",
-  password_changed: "Your password has been changed — THE AIRCONDITION SHOP",
+  verify_email:       "Verify your email address — THE AIRCONDITION SHOP",
+  admin_otp:          "Your login verification code — THE AIRCONDITION SHOP",
+  trade_received:     "We've received your Trade Account application — THE AIRCONDITION SHOP",
+  trade_approved:     "Welcome! Your Trade Account has been approved — THE AIRCONDITION SHOP",
+  trade_rejected:     "Update regarding your Trade Account application — THE AIRCONDITION SHOP",
+  trade_reactivated:  "Your Trade Account has been reactivated — THE AIRCONDITION SHOP",
+  trade_suspended:    "Your Trade Account has been suspended — THE AIRCONDITION SHOP",
+  contact_enquiry:    "We received your message — THE AIRCONDITION SHOP",
+  quote_request:      "Your quote request — THE AIRCONDITION SHOP",
+  quote_sent:         "Your quote is ready — THE AIRCONDITION SHOP",
+  service_request:    "Service request received — THE AIRCONDITION SHOP",
+  service_booked:     "Service appointment confirmed — THE AIRCONDITION SHOP",
+  password_reset:     "Reset your password — THE AIRCONDITION SHOP",
+  password_changed:   "Your password has been changed — THE AIRCONDITION SHOP",
 }
 
 const PREVIEWS: Record<string, () => string> = {
+  admin_otp: () => tradeEmailTemplate({
+    preheader: `Your login verification code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
+    status: 'info',
+    headline: 'Your verification code.',
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p('Use the code below to complete your sign-in. It expires in <strong>10 minutes</strong>. Do not share this code with anyone.') +
+      `<div style="text-align:center;margin:28px 0 32px;">
+         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
+           <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Login Code</p>
+           <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${SAMPLE_CODE}</p>
+         </div>
+       </div>` +
+      pSmall('If you did not attempt to sign in, your account may be at risk — please contact us immediately.'),
+  }),
+
   verify_email: () => tradeEmailTemplate({
     preheader: `Your verification code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
     status: 'info',
@@ -82,6 +105,20 @@ const PREVIEWS: Record<string, () => string> = {
     ctaUrl:  `${SITE}/contact`,
   }),
 
+  trade_reactivated: () => tradeEmailTemplate({
+    preheader: 'Good news — your trade account access has been fully restored.',
+    status: 'reactivated',
+    headline: 'Your Trade Account is active again.',
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p(`We are pleased to let you know that your Trade Account for <strong>${SAMPLE_COMPANY}</strong> has been reviewed and your full access has been restored.`) +
+      noticeBox('Your account is active. Trade pricing, priority stock, and your full order history are all available.', 'green') +
+      p('If you have any questions or need help getting back up and running, our team is always happy to help.'),
+    footNote: 'Your login email is the same address this email was delivered to.',
+    ctaText: 'Sign In to Your Trade Account',
+    ctaUrl:  `${SITE}/trade/dashboard`,
+  }),
+
   trade_suspended: () => tradeEmailTemplate({
     preheader: 'Your trade account access has been temporarily suspended. Please contact us.',
     status: 'suspended',
@@ -93,6 +130,96 @@ const PREVIEWS: Record<string, () => string> = {
       p('If you believe this is an error or would like to discuss your account, please contact our support team.'),
     footNote: 'We hope to restore your full account access promptly.',
     ctaText: 'Contact Support',
+    ctaUrl:  `${SITE}/contact`,
+  }),
+
+  contact_enquiry: () => tradeEmailTemplate({
+    preheader: "We've received your message and will be in touch shortly.",
+    status: 'info',
+    headline: "We've received your message.",
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p("Thank you for contacting THE AIRCONDITION SHOP. We've received your message and will get back to you as soon as possible — usually within a few hours during business hours.") +
+      infoBlock([
+        { label: 'Name',    value: SAMPLE_NAME },
+        { label: 'Subject', value: 'General enquiry' },
+      ]) +
+      p('In the meantime, feel free to browse our product range or call us if your enquiry is urgent.'),
+    footNote: 'You can also reach us directly at support@theairconditionshop.com.',
+    ctaText: 'Visit Our Website',
+    ctaUrl:  SITE,
+  }),
+
+  quote_request: () => tradeEmailTemplate({
+    preheader: "We've received your quote request and will send a detailed quote within 2 business days.",
+    status: 'received',
+    headline: 'Quote request received.',
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p("Thank you for your quote request. We've received all the details and our team will prepare a detailed, itemised quote tailored to your requirements.") +
+      infoBlock([
+        { label: 'Name',     value: SAMPLE_NAME },
+        { label: 'Status',   value: 'Under Review' },
+        { label: 'Timeline', value: 'We aim to respond within 2 business days' },
+      ]),
+    footNote: 'Quote requests are reviewed Monday–Saturday during business hours.',
+    ctaText: 'Visit Our Website',
+    ctaUrl:  SITE,
+  }),
+
+  quote_sent: () => tradeEmailTemplate({
+    preheader: 'Your quote Q-2025-001 for €1,200.00 is ready. Valid until 30 Jul 2025.',
+    status: 'info',
+    headline: 'Your quote is ready.',
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p('We have prepared a detailed quote based on your requirements. Please review the summary below.') +
+      infoBlock([
+        { label: 'Quote Number', value: 'Q-2025-001' },
+        { label: 'Total',        value: '€1,200.00' },
+        { label: 'Valid Until',  value: '30 Jul 2025' },
+      ]) +
+      p('To accept this quote or discuss any changes, please reply to this email or call our team directly.'),
+    footNote: 'Prices may be subject to change after the valid-until date.',
+    ctaText: 'Contact Us',
+    ctaUrl:  `${SITE}/contact`,
+  }),
+
+  service_request: () => tradeEmailTemplate({
+    preheader: 'Service request SR-2025-001 received. We\'ll contact you within 2 business hours.',
+    status: 'received',
+    headline: 'Service request received.',
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p("Thank you for contacting THE AIRCONDITION SHOP. We've received your service request and our team will be in touch within <strong>2 business hours</strong> to confirm your appointment.") +
+      infoBlock([
+        { label: 'Reference',      value: 'SR-2025-001' },
+        { label: 'Service type',   value: 'Air Conditioning Installation' },
+        { label: 'Address',        value: '123 Example Street, Sliema' },
+        { label: 'Preferred date', value: '15 Jul 2025' },
+      ]) +
+      p('If your request is urgent, please call us directly and we will prioritise your job.'),
+    footNote: 'Please keep your reference number for your records.',
+    ctaText: 'Call Us Now',
+    ctaUrl:  'tel:+35679661889',
+  }),
+
+  service_booked: () => tradeEmailTemplate({
+    preheader: 'Your service appointment is confirmed for 15 Jul 2025 at 09:00.',
+    status: 'approved',
+    headline: 'Your service appointment is confirmed.',
+    bodyHtml:
+      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
+      p("Great news — your service appointment has been confirmed. Here are the details for your upcoming visit.") +
+      infoBlock([
+        { label: 'Job Reference', value: 'JOB-2025-001' },
+        { label: 'Date',          value: '15 Jul 2025' },
+        { label: 'Time',          value: '09:00 – 11:00' },
+        { label: 'Technician',    value: 'Mario Borg' },
+      ]) +
+      p('If you need to reschedule or have any questions about your appointment, please contact us as soon as possible.'),
+    footNote: 'Our technician will arrive within the scheduled time window.',
+    ctaText: 'Contact Us',
     ctaUrl:  `${SITE}/contact`,
   }),
 
