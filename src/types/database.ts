@@ -179,6 +179,8 @@ export interface TradeApplication {
   company_name: string
   vat_number: string | null
   registration_number: string | null
+  identification_type: string | null
+  identification_number: string | null
   business_type: string | null
   address: string | null
   postal_code: string | null

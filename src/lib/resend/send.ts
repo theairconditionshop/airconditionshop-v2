@@ -347,9 +347,23 @@ export async function sendQuoteRequestEmails({
 // ─── Trade: Application submitted ────────────────────────────────────────────
 
 export async function sendTradeApplicationEmails({
-  name, email, companyName,
-}: { name: string; email: string; companyName: string }) {
+  name, email, companyName, identificationType, identificationNumber,
+}: {
+  name: string
+  email: string
+  companyName: string
+  identificationType?: string
+  identificationNumber?: string
+}) {
   const firstName = name.split(' ')[0]
+
+  const userInfoItems: Array<{ label: string; value: string }> = [
+    { label: 'Company',  value: companyName },
+    { label: 'Status',   value: 'Under Review' },
+    { label: 'Timeline', value: 'We aim to respond within 2 business days' },
+  ]
+  if (identificationType)   userInfoItems.splice(1, 0, { label: 'Identification Type',   value: identificationType })
+  if (identificationNumber) userInfoItems.splice(2, 0, { label: 'Identification Number', value: identificationNumber })
 
   const userHtml = tradeEmailTemplate({
     preheader: 'Your application is under review. We will be in touch within 2 business days.',
@@ -358,16 +372,20 @@ export async function sendTradeApplicationEmails({
     bodyHtml:
       p(`Hi ${firstName},`) +
       p(`We have received your Trade Account application for <strong>${companyName}</strong>. Our team will review your details and verify your business information.`) +
-      infoBlock([
-        { label: 'Company',  value: companyName },
-        { label: 'Status',   value: 'Under Review' },
-        { label: 'Timeline', value: 'We aim to respond within 2 business days' },
-      ]) +
+      infoBlock(userInfoItems) +
       p('You will receive another email as soon as your application has been reviewed. In the meantime, feel free to browse our full product catalogue.'),
     footNote: 'If you have any questions, reply to this email or call us on +356 7966 1889.',
     ctaText: 'Visit Our Website',
     ctaUrl:  SITE_URL,
   })
+
+  const adminInfoItems: Array<{ label: string; value: string }> = [
+    { label: 'Applicant', value: name },
+    { label: 'Email',     value: email },
+    { label: 'Company',   value: companyName },
+  ]
+  if (identificationType)   adminInfoItems.push({ label: 'Identification Type',   value: identificationType })
+  if (identificationNumber) adminInfoItems.push({ label: 'Identification Number', value: identificationNumber })
 
   const adminHtml = tradeEmailTemplate({
     preheader: `${name} from ${companyName} has submitted a trade account application.`,
@@ -375,11 +393,7 @@ export async function sendTradeApplicationEmails({
     headline: 'New trade application received.',
     bodyHtml:
       p('A new trade account application has been submitted and is waiting for review.') +
-      infoBlock([
-        { label: 'Applicant', value: name },
-        { label: 'Email',     value: email },
-        { label: 'Company',   value: companyName },
-      ]),
+      infoBlock(adminInfoItems),
     ctaText: 'Review Application',
     ctaUrl:  `${SITE_URL}/admin/trade`,
   })

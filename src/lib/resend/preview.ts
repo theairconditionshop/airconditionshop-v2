@@ -67,9 +67,11 @@ const PREVIEWS: Record<string, () => string> = {
       p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
       p(`We have received your Trade Account application for <strong>${SAMPLE_COMPANY}</strong>. Our team will review your details and verify your business information.`) +
       infoBlock([
-        { label: 'Company',  value: SAMPLE_COMPANY },
-        { label: 'Status',   value: 'Under Review' },
-        { label: 'Timeline', value: 'We aim to respond within 2 business days' },
+        { label: 'Company',               value: SAMPLE_COMPANY },
+        { label: 'Identification Type',   value: 'Maltese ID Card' },
+        { label: 'Identification Number', value: '1234567A' },
+        { label: 'Status',                value: 'Under Review' },
+        { label: 'Timeline',              value: 'We aim to respond within 2 business days' },
       ]) +
       p('You will receive another email as soon as your application has been reviewed. In the meantime, feel free to browse our full product catalogue.'),
     footNote: 'If you have any questions, reply to this email or call us on +356 7966 1889.',

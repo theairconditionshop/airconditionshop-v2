@@ -6,18 +6,24 @@ import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 import { phoneZodField } from '@/lib/phone'
 
+const IDENTIFICATION_TYPES = ['Maltese ID Card', 'Residence Card (TRC)'] as const
+
 const schema = z.object({
-  name:                z.string().min(2).max(100),
-  email:               z.string().email().max(254),
-  phone:               phoneZodField,
-  company:             z.string().min(2).max(100),
-  vat_number:          z.string().max(30).optional(),
-  registration_number: z.string().max(50).optional(),
-  business_type:       z.string().min(1).max(100),
-  address:             z.string().min(3).max(200),
-  postal_code:         z.string().min(2).max(20),
-  message:             z.string().max(1000).optional(),
-  password:            z.string()
+  name:                  z.string().min(2).max(100),
+  email:                 z.string().email().max(254),
+  phone:                 phoneZodField,
+  company:               z.string().min(2).max(100),
+  vat_number:            z.string().max(30).optional(),
+  registration_number:   z.string().max(50).optional(),
+  identification_type:   z.enum(IDENTIFICATION_TYPES, { error: 'Please select an identification type' }),
+  identification_number: z.string().min(1).max(20)
+    .transform(v => v.trim().toUpperCase())
+    .pipe(z.string().min(5, 'Identification Number must be at least 5 characters').max(20)),
+  business_type:         z.string().min(1).max(100),
+  address:               z.string().min(3).max(200),
+  postal_code:           z.string().min(2).max(20),
+  message:               z.string().max(1000).optional(),
+  password:              z.string()
     .min(8,  'Password must be at least 8 characters')
     .max(128, 'Password too long')
     .regex(/[A-Z]/, 'Must include an uppercase letter')
@@ -55,6 +61,7 @@ export async function POST(request: Request) {
 
   const {
     name, email, phone, company, vat_number, registration_number,
+    identification_type, identification_number,
     business_type, address, postal_code, message, password,
   } = parsed.data
 
@@ -92,23 +99,31 @@ export async function POST(request: Request) {
   }).eq('id', userId)
 
   const { error: appError } = await db.from('trade_applications').insert({
-    user_id:             userId,
-    company_name:        company,
-    vat_number:          vat_number          || null,
-    registration_number: registration_number || null,
+    user_id:               userId,
+    company_name:          company,
+    vat_number:            vat_number          || null,
+    registration_number:   registration_number || null,
+    identification_type,
+    identification_number,
     business_type,
     address,
     postal_code,
     phone,
-    notes:               message             || null,
-    status:              'pending',
+    notes:                 message             || null,
+    status:                'pending',
   })
   if (appError) {
     console.error('trade_applications insert failed:', appError.message)
   }
 
   try {
-    await sendTradeApplicationEmails({ name, email, companyName: company })
+    await sendTradeApplicationEmails({
+      name,
+      email,
+      companyName: company,
+      identificationType:   identification_type,
+      identificationNumber: identification_number,
+    })
   } catch (err) {
     console.error('[trade/register] Email notification failed (application saved):', err)
   }

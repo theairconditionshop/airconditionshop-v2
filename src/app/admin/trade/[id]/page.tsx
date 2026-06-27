@@ -83,9 +83,11 @@ export default async function TradeDetailPage({ params }: Props) {
             <p className="text-xs text-slate-400 mb-4">Details about the company</p>
             <InfoRow icon={Building2} label="Company Name"        value={row.company_name} />
             <InfoRow icon={FileText}  label="Business Type"       value={row.business_type} />
-            <InfoRow icon={Hash}      label="VAT Number"          value={row.vat_number} />
-            <InfoRow icon={Hash}      label="Registration Number" value={row.registration_number} />
-            <InfoRow icon={MapPin}    label="Business Address"    value={row.address} />
+            <InfoRow icon={Hash}      label="VAT Number"           value={row.vat_number} />
+            <InfoRow icon={Hash}      label="Registration Number"  value={row.registration_number} />
+            <InfoRow icon={Hash}      label="Identification Type"  value={(row as typeof row & { identification_type?: string | null }).identification_type} />
+            <InfoRow icon={Hash}      label="Identification Number" value={(row as typeof row & { identification_number?: string | null }).identification_number} />
+            <InfoRow icon={MapPin}    label="Business Address"     value={row.address} />
             <InfoRow icon={MapPin}    label="Postal Code"         value={row.postal_code} />
           </div>
 

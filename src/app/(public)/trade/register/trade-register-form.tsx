@@ -19,19 +19,32 @@ import { phoneZodField } from '@/lib/phone'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
+const IDENTIFICATION_TYPES = ['Maltese ID Card', 'Residence Card (TRC)'] as const
+type IdentificationType = typeof IDENTIFICATION_TYPES[number]
+
+const ID_NUMBER_PLACEHOLDER: Record<IdentificationType, string> = {
+  'Maltese ID Card':       'Enter Maltese ID Card Number',
+  'Residence Card (TRC)':  'Enter Residence Card Number',
+}
+
 const schema = z.object({
-  name:                z.string().min(2, 'Full name required'),
-  email:               z.string().email('Valid email required'),
-  phone:               phoneZodField,
-  company:             z.string().min(2, 'Company name required'),
-  business_type:       z.string().min(1, 'Select your business type'),
-  vat_number:          z.string().optional(),
-  registration_number: z.string().optional(),
-  address:             z.string().min(3, 'Business address required'),
-  postal_code:         z.string().min(2, 'Postal code required'),
-  password:            z.string().min(8, 'Password must be at least 8 characters').max(128),
-  password_confirm:    z.string(),
-  message:             z.string().optional(),
+  name:                  z.string().min(2, 'Full name required'),
+  email:                 z.string().email('Valid email required'),
+  phone:                 phoneZodField,
+  company:               z.string().min(2, 'Company name required'),
+  business_type:         z.string().min(1, 'Select your business type'),
+  vat_number:            z.string().optional(),
+  registration_number:   z.string().optional(),
+  identification_type:   z.string().min(1, 'Please select an identification type'),
+  identification_number: z.string()
+    .min(1, 'Identification Number is required')
+    .min(5, 'Identification Number must be at least 5 characters')
+    .max(20, 'Identification Number must be 20 characters or fewer'),
+  address:               z.string().min(3, 'Business address required'),
+  postal_code:           z.string().min(2, 'Postal code required'),
+  password:              z.string().min(8, 'Password must be at least 8 characters').max(128),
+  password_confirm:      z.string(),
+  message:               z.string().optional(),
 }).refine(d => d.password === d.password_confirm, {
   message: 'Passwords do not match',
   path: ['password_confirm'],
@@ -132,9 +145,11 @@ export default function TradeRegisterForm() {
     formState: { errors, isSubmitting },
   } = useForm<FormData>({ resolver: zodResolver(schema), mode: 'onChange' })
 
-  const passwordValue = useWatch({ control, name: 'password',         defaultValue: '' })
-  const confirmValue  = useWatch({ control, name: 'password_confirm', defaultValue: '' })
-  const confirmMatch  = confirmValue.length > 0 && passwordValue === confirmValue
+  const passwordValue      = useWatch({ control, name: 'password',             defaultValue: '' })
+  const confirmValue       = useWatch({ control, name: 'password_confirm',     defaultValue: '' })
+  const identificationTypeValue = useWatch({ control, name: 'identification_type', defaultValue: '' })
+  const confirmMatch       = confirmValue.length > 0 && passwordValue === confirmValue
+  const idNumberPlaceholder = ID_NUMBER_PLACEHOLDER[identificationTypeValue as IdentificationType] ?? 'Enter your identification number'
 
   const toggleShowPassword = useCallback(() => {}, []) // PasswordField handles internally
 
@@ -367,6 +382,44 @@ export default function TradeRegisterForm() {
           <div className="grid sm:grid-cols-2 gap-4">
             <Input label="VAT number" placeholder="MT·········" {...register('vat_number')} error={errors.vat_number?.message} />
             <Input label="Registration number" placeholder="Optional" {...register('registration_number')} error={errors.registration_number?.message} />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Identification Type dropdown */}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="identification_type" className="text-sm font-medium text-slate-700">
+                Identification Type <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="identification_type"
+                {...register('identification_type')}
+                className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-150"
+              >
+                <option value="">Select…</option>
+                {IDENTIFICATION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+              {errors.identification_type && (
+                <p className="text-xs text-red-500" role="alert">{errors.identification_type.message}</p>
+              )}
+            </div>
+
+            {/* Identification Number — placeholder changes with type */}
+            {(() => {
+              const field = register('identification_number')
+              return (
+                <Input
+                  label="Identification Number"
+                  required
+                  placeholder={idNumberPlaceholder}
+                  {...field}
+                  onChange={e => {
+                    e.target.value = e.target.value.trimStart().toUpperCase()
+                    field.onChange(e)
+                  }}
+                  error={errors.identification_number?.message}
+                />
+              )
+            })()}
           </div>
 
           <Input
