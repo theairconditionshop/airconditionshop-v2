@@ -8,7 +8,7 @@
  */
 
 import { Resend } from 'resend'
-import { tradeEmailTemplate, p, pSmall, infoBlock, noticeBox } from './templates'
+import { tradeEmailTemplate, otpEmailTemplate, p, pSmall, infoBlock, noticeBox } from './templates'
 
 const FROM        = 'THE AIRCONDITION SHOP <support@theairconditionshop.com>'
 const REPLY_TO    = 'support@theairconditionshop.com'
@@ -102,95 +102,101 @@ async function send(
   )
 }
 
+// ─── OTP helper ───────────────────────────────────────────────────────────────
+// Dedicated path for all OTP / verification code emails.
+//
+// Uses otpEmailTemplate() which has:
+//   • Zero https:// links  — Resend click-tracker rewrites only href= links;
+//                            with none present, /CL0/ URLs cannot appear.
+//   • No <style> block     — eliminates dark-mode and responsive media queries
+//                            that some spam filters penalise.
+//   • No badge / footer    — smallest possible MIME payload.
+//   • mailto: only         — mailto: links are never rewritten by click trackers.
+//
+// NOTE — open-tracking pixel:
+//   To disable Resend's open-tracking pixel (injected server-side, not
+//   suppressible via the send API), go to:
+//     Resend dashboard → Domains → theairconditionshop.com → Settings
+//     → uncheck "Open Tracking"
+//
+// Safe greeting rule: split on space and take the first word only when a
+// non-empty name is provided.  Prevents "Hi The," when the profile name
+// is something like "The Aircondition Shop" — caller passes name directly
+// and we fallback to a neutral "Hello," when it is blank.
+function otpGreeting(name?: string | null): string {
+  const first = name?.trim().split(' ')[0]?.trim()
+  return first ? `Hi ${first},` : 'Hello,'
+}
+
+async function sendOtp(
+  context: string,
+  to: string,
+  subject: string,
+  html: string,
+  plainText: string,
+): Promise<string> {
+  return sendWithRetry({ from: FROM, replyTo: REPLY_TO, to, subject, html, text: plainText }, context)
+}
+
 // ─── Trade: Email verification OTP ───────────────────────────────────────────
 
 export async function sendTradeVerificationEmail({ email, code }: { email: string; code: string }): Promise<string> {
-  const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
-  const html = tradeEmailTemplate({
-    preheader: `Your verification code is ${code}. It expires in 10 minutes.`,
-    status: 'info',
-    headline: 'Verify your email address.',
-    bodyHtml:
-      p('You are one step away from submitting your Trade Account application. Please enter the code below to verify your email address.') +
-      `<div style="text-align:center;margin:28px 0 32px;">
-         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
-           <p style="margin:0 0 4px;font-family:${F};font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Verification Code</p>
-           <p style="margin:0;font-family:${F};font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${code}</p>
-         </div>
-       </div>` +
-      pSmall('This code expires in <strong>10 minutes</strong>. If you did not request this, you can safely ignore this email.'),
-    ctaText: undefined,
-    ctaUrl:  undefined,
+  const html = otpEmailTemplate({
+    preheader:  `Your verification code is ${code}. It expires in 10 minutes.`,
+    codeLabel:  'Verification Code',
+    code,
+    greeting:   'Hello,',
+    context:    'Enter the code below to verify your email address and complete your Trade Account application.',
+    notice:     'This code expires in 10 minutes. If you did not request this, you can safely ignore this email.',
   })
-  return send(
+  return sendOtp(
     'trade-verify-otp',
     email,
     'Verify your email address — THE AIRCONDITION SHOP',
     html,
-    `Your verification code is: ${code}\n\nThis code expires in 10 minutes.\nIf you did not request this, you can safely ignore this email.`,
+    `Your verification code is: ${code}\n\nThis code expires in 10 minutes.\nIf you did not request this, you can safely ignore this email.\n\nNeed help? Email support@theairconditionshop.com`,
   )
 }
 
 // ─── Admin OTP (2FA login) ────────────────────────────────────────────────────
 
 export async function sendOtpEmail({ email, name, code }: { email: string; name: string; code: string }): Promise<string> {
-  const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
-  const firstName = name?.split(' ')[0] || 'there'
-  const html = tradeEmailTemplate({
-    preheader: `Your login verification code is ${code}. It expires in 10 minutes.`,
-    status: 'info',
-    headline: 'Your verification code.',
-    bodyHtml:
-      p(`Hi ${firstName},`) +
-      p('Use the code below to complete your sign-in. It expires in <strong>10 minutes</strong>. Do not share this code with anyone.') +
-      `<div style="text-align:center;margin:28px 0 32px;">
-         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
-           <p style="margin:0 0 4px;font-family:${F};font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Login Code</p>
-           <p style="margin:0;font-family:${F};font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${code}</p>
-         </div>
-       </div>` +
-      pSmall('If you did not attempt to sign in, your account may be at risk — please contact us immediately.'),
-    ctaText: undefined,
-    ctaUrl:  undefined,
+  const greeting = otpGreeting(name)
+  const html = otpEmailTemplate({
+    preheader:  `Your login verification code is ${code}. It expires in 10 minutes.`,
+    codeLabel:  'Login Code',
+    code,
+    greeting,
+    context:    'Use the code below to complete your sign-in. Do not share this code with anyone.',
+    notice:     'This code expires in 10 minutes. If you did not attempt to sign in, your account may be at risk — contact us immediately.',
   })
-  return send(
+  return sendOtp(
     'admin-otp',
     email,
     'Your login verification code — THE AIRCONDITION SHOP',
     html,
-    `Hi ${firstName},\n\nYour login verification code is: ${code}\n\nThis code expires in 10 minutes. Do not share it with anyone.\nIf you did not attempt to sign in, contact us immediately at support@theairconditionshop.com.`,
+    `${greeting}\n\nYour login verification code is: ${code}\n\nThis code expires in 10 minutes. Do not share it with anyone.\nIf you did not attempt to sign in, contact us immediately at support@theairconditionshop.com`,
   )
 }
 
 // ─── Password reset OTP ───────────────────────────────────────────────────────
 
 export async function sendPasswordResetOtpEmail({ email, name, code }: { email: string; name: string; code: string }): Promise<string> {
-  const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
-  const firstName = name?.split(' ')[0] || 'there'
-  const html = tradeEmailTemplate({
-    preheader: `Your password reset code is ${code}. It expires in 10 minutes.`,
-    status: 'info',
-    headline: 'Reset your password.',
-    bodyHtml:
-      p(`Hi ${firstName},`) +
-      p('We received a request to reset the password for your account. Enter the code below to continue. If you did not make this request, you can safely ignore this email — your password will not be changed.') +
-      `<div style="text-align:center;margin:28px 0 32px;">
-         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
-           <p style="margin:0 0 4px;font-family:${F};font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Reset Code</p>
-           <p style="margin:0;font-family:${F};font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${code}</p>
-         </div>
-       </div>` +
-      pSmall('This code expires in <strong>10 minutes</strong>. For security, do not share this code with anyone.'),
-    footNote: 'If this was not you, please contact us immediately at support@theairconditionshop.com.',
-    ctaText: undefined,
-    ctaUrl:  undefined,
+  const greeting = otpGreeting(name)
+  const html = otpEmailTemplate({
+    preheader:  `Your password reset code is ${code}. It expires in 10 minutes.`,
+    codeLabel:  'Reset Code',
+    code,
+    greeting,
+    context:    'We received a request to reset the password for your account. Enter the code below to continue.',
+    notice:     'This code expires in 10 minutes. If you did not make this request, ignore this email — your password will not be changed.',
   })
-  return send(
+  return sendOtp(
     'password-reset-otp',
     email,
     'Reset your password — THE AIRCONDITION SHOP',
     html,
-    `Hi ${firstName},\n\nYour password reset code is: ${code}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your password will not be changed.\n\nIf this was not you, contact us at support@theairconditionshop.com.`,
+    `${greeting}\n\nYour password reset code is: ${code}\n\nThis code expires in 10 minutes.\nIf you did not request this, ignore this email — your password will not be changed.\nIf this was not you, contact us at support@theairconditionshop.com`,
   )
 }
 

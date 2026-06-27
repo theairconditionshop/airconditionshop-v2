@@ -337,3 +337,139 @@ export function noticeBox(text: string, colour: 'blue' | 'green' | 'amber' | 're
 export function divider() {
   return `<div style="height:1px;background-color:#F3F4F6;margin:24px 0;">&nbsp;</div>`
 }
+
+// ─── Minimal OTP template ─────────────────────────────────────────────────────
+// Used exclusively for OTP / verification codes.
+//
+// Design goals (each choice maps to a spam or deliverability win):
+//   • Zero <style> block        → no media queries for spam filters to parse
+//   • Zero Outlook XML/VML      → removes ~600 bytes of conditional comments
+//   • Zero https:// links       → Resend click-tracking rewrites only href links;
+//                                  with none present, /CL0/ URLs cannot appear
+//   • mailto: for support       → mailto: is never rewritten by click trackers
+//   • No status badge           → removes coloured inline HTML that triggers
+//                                  pattern-matching on "badge" / "pill" patterns
+//   • No "Need Help?" block     → removes phone href (tel:) and site link
+//   • No footer website/address → removes 4 extra links and 3 extra table rows
+//   • Single-column table       → fewest possible HTML elements; smaller MIME
+//   • Greeting never "Hi The,"  → safe fallback to "Hello," when name is absent
+//
+// NOTE — open-tracking pixel:
+//   Resend injects a 1×1 tracking pixel server-side when open tracking is
+//   enabled on the domain. There is no per-email SDK option to suppress it.
+//   To remove the pixel from ALL transactional emails, go to:
+//     Resend dashboard → Domains → theairconditionshop.com → Settings
+//     → uncheck "Open Tracking"
+//   This does NOT affect deliverability (pixels are not spam signals).
+//   It IS a privacy improvement and removes one external HTTP request.
+
+export interface OtpEmailOptions {
+  /** Inbox preview text */
+  preheader: string
+  /** Code label, e.g. "Verification Code" / "Login Code" / "Reset Code" */
+  codeLabel: string
+  /** The OTP code itself */
+  code: string
+  /** First line of body, e.g. "Hello," or "Hi Alinur," */
+  greeting: string
+  /** One-sentence context shown above the code box */
+  context: string
+  /** Short expiry + security note shown below the code box */
+  notice: string
+}
+
+export function otpEmailTemplate({
+  preheader,
+  codeLabel,
+  code,
+  greeting,
+  context,
+  notice,
+}: OtpEmailOptions): string {
+  const F = `-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif`
+
+  return `<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no">
+  <title>${codeLabel}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F2F4F8;">
+
+  <!-- Preheader: hidden preview text. &zwnj; pads to prevent body text bleeding in. -->
+  <div style="display:none;max-height:0;overflow:hidden;visibility:hidden;opacity:0;color:transparent;height:0;width:0;font-size:1px;">
+    ${preheader}&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;
+  </div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
+         style="background-color:#F2F4F8;padding:48px 16px;">
+    <tr>
+      <td align="center">
+
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:520px;width:100%;background:#FFFFFF;border-radius:12px;border:1px solid #E5E7EB;">
+
+          <!-- Brand -->
+          <tr>
+            <td style="padding:32px 40px 0;">
+              <p style="margin:0;font-family:${F};font-size:11px;font-weight:800;letter-spacing:0.12em;color:#0F6FFF;text-transform:uppercase;">
+                THE AIRCONDITION SHOP
+              </p>
+            </td>
+          </tr>
+
+          <!-- Greeting + context -->
+          <tr>
+            <td style="padding:24px 40px 0;">
+              <p style="margin:0 0 12px;font-family:${F};font-size:16px;color:#374151;line-height:1.6;">
+                ${greeting}
+              </p>
+              <p style="margin:0;font-family:${F};font-size:16px;color:#374151;line-height:1.6;">
+                ${context}
+              </p>
+            </td>
+          </tr>
+
+          <!-- Code box -->
+          <tr>
+            <td style="padding:28px 40px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+                <tr>
+                  <td align="center" style="background:#F8FAFC;border:2px solid #E5E7EB;border-radius:12px;padding:24px 32px;">
+                    <p style="margin:0 0 6px;font-family:${F};font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">
+                      ${codeLabel}
+                    </p>
+                    <p style="margin:0;font-family:${F};font-size:40px;font-weight:700;letter-spacing:0.2em;color:#0D1117;">
+                      ${code}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Notice + support -->
+          <tr>
+            <td style="padding:0 40px 32px;">
+              <p style="margin:0 0 16px;font-family:${F};font-size:14px;color:#6B7280;line-height:1.65;">
+                ${notice}
+              </p>
+              <p style="margin:0;font-family:${F};font-size:13px;color:#9CA3AF;line-height:1.6;">
+                Need help? Email us at
+                <a href="mailto:support@theairconditionshop.com"
+                   style="color:#0F6FFF;text-decoration:none;">support@theairconditionshop.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`
+}

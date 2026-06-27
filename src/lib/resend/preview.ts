@@ -2,7 +2,7 @@
  * Builds sample HTML for every email template key.
  * Used by the admin email preview page.
  */
-import { tradeEmailTemplate, p, pSmall, infoBlock, noticeBox } from './templates'
+import { tradeEmailTemplate, otpEmailTemplate, p, pSmall, infoBlock, noticeBox } from './templates'
 
 const SAMPLE_NAME    = 'John Smith'
 const SAMPLE_COMPANY = 'Malta HVAC Ltd'
@@ -28,35 +28,22 @@ export const TEMPLATE_SUBJECTS: Record<string, string> = {
 }
 
 const PREVIEWS: Record<string, () => string> = {
-  admin_otp: () => tradeEmailTemplate({
-    preheader: `Your login verification code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
-    status: 'info',
-    headline: 'Your verification code.',
-    bodyHtml:
-      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
-      p('Use the code below to complete your sign-in. It expires in <strong>10 minutes</strong>. Do not share this code with anyone.') +
-      `<div style="text-align:center;margin:28px 0 32px;">
-         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
-           <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Login Code</p>
-           <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${SAMPLE_CODE}</p>
-         </div>
-       </div>` +
-      pSmall('If you did not attempt to sign in, your account may be at risk — please contact us immediately.'),
+  admin_otp: () => otpEmailTemplate({
+    preheader:  `Your login verification code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
+    codeLabel:  'Login Code',
+    code:       SAMPLE_CODE,
+    greeting:   `Hi ${SAMPLE_NAME.split(' ')[0]},`,
+    context:    'Use the code below to complete your sign-in. Do not share this code with anyone.',
+    notice:     'This code expires in 10 minutes. If you did not attempt to sign in, your account may be at risk — contact us immediately.',
   }),
 
-  verify_email: () => tradeEmailTemplate({
-    preheader: `Your verification code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
-    status: 'info',
-    headline: 'Verify your email address.',
-    bodyHtml:
-      p('You are one step away from submitting your Trade Account application. Please enter the code below to verify your email address.') +
-      `<div style="text-align:center;margin:28px 0 32px;">
-         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
-           <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Verification Code</p>
-           <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${SAMPLE_CODE}</p>
-         </div>
-       </div>` +
-      pSmall('This code expires in <strong>10 minutes</strong>. If you did not request this, you can safely ignore this email.'),
+  verify_email: () => otpEmailTemplate({
+    preheader:  `Your verification code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
+    codeLabel:  'Verification Code',
+    code:       SAMPLE_CODE,
+    greeting:   'Hello,',
+    context:    'Enter the code below to verify your email address and complete your Trade Account application.',
+    notice:     'This code expires in 10 minutes. If you did not request this, you can safely ignore this email.',
   }),
 
   trade_received: () => tradeEmailTemplate({
@@ -225,21 +212,13 @@ const PREVIEWS: Record<string, () => string> = {
     ctaUrl:  `${SITE}/contact`,
   }),
 
-  password_reset: () => tradeEmailTemplate({
-    preheader: `Your password reset code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
-    status: 'info',
-    headline: 'Reset your password.',
-    bodyHtml:
-      p(`Hi ${SAMPLE_NAME.split(' ')[0]},`) +
-      p('We received a request to reset the password for your account. Enter the code below to continue.') +
-      `<div style="text-align:center;margin:28px 0 32px;">
-         <div style="display:inline-block;background:#F8FAFC;border:2px solid #E5E7EB;border-radius:16px;padding:24px 48px;">
-           <p style="margin:0 0 4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.12em;color:#9CA3AF;text-transform:uppercase;">Reset Code</p>
-           <p style="margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;font-size:42px;font-weight:700;letter-spacing:0.18em;color:#0D1117;">${SAMPLE_CODE}</p>
-         </div>
-       </div>` +
-      pSmall('This code expires in <strong>10 minutes</strong>. For security, do not share this code with anyone.'),
-    footNote: 'If this was not you, please contact us immediately at support@theairconditionshop.com.',
+  password_reset: () => otpEmailTemplate({
+    preheader:  `Your password reset code is ${SAMPLE_CODE}. It expires in 10 minutes.`,
+    codeLabel:  'Reset Code',
+    code:       SAMPLE_CODE,
+    greeting:   `Hi ${SAMPLE_NAME.split(' ')[0]},`,
+    context:    'We received a request to reset the password for your account. Enter the code below to continue.',
+    notice:     'This code expires in 10 minutes. If you did not request this, ignore this email — your password will not be changed.',
   }),
 
   password_changed: () => tradeEmailTemplate({
