@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import OtpInput from '@/components/auth/OtpInput'
+import OtpHelpNotice from '@/components/auth/OtpHelpNotice'
 import PasswordField, { StrengthMeter, RequirementsList, getPasswordRequirements } from '@/components/auth/PasswordField'
 import { CheckCircle2, Mail, KeyRound, RefreshCw, ArrowLeft } from 'lucide-react'
 
@@ -233,6 +234,8 @@ function OtpStep({
             <ArrowLeft className="w-3.5 h-3.5" /> Use a different email
           </button>
         </div>
+
+        <OtpHelpNotice />
       </div>
     </>
   )

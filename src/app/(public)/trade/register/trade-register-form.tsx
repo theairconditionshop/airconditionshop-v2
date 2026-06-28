@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { phoneZodField } from '@/lib/phone'
 import { passwordSchema } from '@/lib/auth/password'
+import OtpHelpNotice from '@/components/auth/OtpHelpNotice'
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -320,6 +321,8 @@ export default function TradeRegisterForm() {
             <ArrowLeft className="w-3.5 h-3.5" /> Change email
           </button>
         </div>
+
+        <OtpHelpNotice />
       </div>
     )
   }

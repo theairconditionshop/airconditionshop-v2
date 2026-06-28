@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import OtpInput from '@/components/auth/OtpInput'
+import OtpHelpNotice from '@/components/auth/OtpHelpNotice'
 import { toast } from 'sonner'
 import { ShieldCheck, RefreshCw } from 'lucide-react'
 
@@ -160,6 +161,8 @@ export default function VerifyOtpPage() {
               ← Back to sign in
             </Link>
           </div>
+
+          <OtpHelpNotice />
 
         </div>
       </div>
