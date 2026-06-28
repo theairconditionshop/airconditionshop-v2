@@ -12,6 +12,8 @@ import {
   Search, Calculator, Wind, Thermometer, Building2, Layers,
   Package, Refrigerator, Zap, LogIn, UserPlus, Snowflake,
   Wrench, PlugZap, ArrowRight, LifeBuoy,
+  CheckCircle2, Clock, XCircle, ShieldOff,
+  FileText, Bookmark, ShoppingBag,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
@@ -45,13 +47,7 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
 const DEFAULT_META: CategoryMeta = { icon: Package, iconBg: 'bg-slate-100', iconColor: 'text-slate-500', description: 'Browse our full range' }
 
 // Mobile panel state
-type MobilePanel = 'main' | 'products' | 'brands' | 'trade'
-
-const TRADE_NAV_ITEMS = [
-  { label: 'Dashboard',  href: '/trade/dashboard', icon: LayoutDashboard },
-  { label: 'My Profile', href: '/trade/profile',   icon: User             },
-  { label: 'Support',    href: '/contact',          icon: LifeBuoy         },
-] as const
+type MobilePanel = 'main' | 'products' | 'brands'
 
 // ── Module-level panel motion helpers (no outer state deps) ─────────────────
 const SLIDE_IN  = { opacity: 1 as const, x: 0 as const }
@@ -127,7 +123,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     return () => { document.body.style.overflow = '' }
   }, [mobileOpen])
 
-  // Auth
+  // Auth — re-runs on every auth state change (login/logout/approval)
   useEffect(() => {
     const supabase = createClient()
     async function loadProfile() {
@@ -168,7 +164,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
   const tradeStatus      = profile?.trade_status ?? null
   const isAdmin          = role === 'super_admin' || role === 'admin' || role === 'staff'
   const isTrade          = role === 'trade'
-  const isApprovedTrader = isTrade && tradeStatus === 'approved'
+  const firstName        = profile?.full_name?.split(' ')[0] ?? 'there'
 
   // ── Desktop dropdown wrapper ─────────────────────────────────────────────
   function Dropdown({ name, label, href, children, wide }: {
@@ -224,6 +220,113 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     )
   }
 
+  // ── Desktop trade dropdown content — status-aware ────────────────────────
+  function TradeDropdownContent() {
+    const statusBadge = {
+      approved:  { label: 'Approved',  dot: 'bg-green-500',  text: 'text-green-700',  bg: 'bg-green-50',  Icon: CheckCircle2 },
+      pending:   { label: 'Pending',   dot: 'bg-amber-500',  text: 'text-amber-700',  bg: 'bg-amber-50',  Icon: Clock        },
+      rejected:  { label: 'Rejected',  dot: 'bg-red-500',    text: 'text-red-700',    bg: 'bg-red-50',    Icon: XCircle      },
+      suspended: { label: 'Suspended', dot: 'bg-orange-500', text: 'text-orange-700', bg: 'bg-orange-50', Icon: ShieldOff    },
+    }[tradeStatus ?? ''] ?? {
+      label: 'Unknown', dot: 'bg-slate-400', text: 'text-slate-600', bg: 'bg-slate-50', Icon: User
+    }
+
+    return (
+      <div className="p-2">
+        {/* Account header */}
+        <div className="px-3 py-2.5 mb-1">
+          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em]">Trade Account</p>
+          {profile?.full_name && (
+            <p className="text-sm font-semibold text-slate-800 mt-0.5 truncate">{profile.full_name}</p>
+          )}
+          <div className={cn('mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold', statusBadge.bg, statusBadge.text)}>
+            <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', statusBadge.dot)} />
+            {statusBadge.label}
+          </div>
+        </div>
+        <div className="mx-2 mb-2 border-t border-slate-100" />
+
+        {tradeStatus === 'approved' && (
+          <>
+            {[
+              { label: 'Trade Dashboard',       href: '/trade/dashboard', icon: LayoutDashboard },
+              { label: 'View Products',          href: '/products',        icon: Package          },
+              { label: 'Request Quote',          href: '/quote',           icon: FileText         },
+              { label: 'Account Information',    href: '/trade/profile',   icon: User             },
+              { label: 'Contact Trade Support',  href: '/contact',         icon: LifeBuoy         },
+            ].map(({ label, href, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => setActive(null)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group"
+              >
+                <Icon aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors flex-none" />
+                <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">{label}</span>
+              </Link>
+            ))}
+          </>
+        )}
+
+        {tradeStatus === 'pending' && (
+          <>
+            <div className="mx-3 mb-2 p-3 rounded-xl bg-amber-50 border border-amber-100">
+              <p className="text-xs text-amber-700 leading-relaxed">Your application is under review. We&apos;ll notify you by email once approved.</p>
+            </div>
+            <Link href="/trade/dashboard" onClick={() => setActive(null)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group">
+              <LayoutDashboard aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors flex-none" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">View Application Status</span>
+            </Link>
+          </>
+        )}
+
+        {tradeStatus === 'rejected' && (
+          <>
+            <div className="mx-3 mb-2 p-3 rounded-xl bg-red-50 border border-red-100">
+              <p className="text-xs text-red-700 leading-relaxed">Your application was not approved. Contact us for more information.</p>
+            </div>
+            <Link href="/trade/register" onClick={() => setActive(null)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group">
+              <UserPlus aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors flex-none" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">Edit Application</span>
+            </Link>
+            <Link href="/contact" onClick={() => setActive(null)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group">
+              <LifeBuoy aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors flex-none" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">Contact Support</span>
+            </Link>
+          </>
+        )}
+
+        {tradeStatus === 'suspended' && (
+          <>
+            <div className="mx-3 mb-2 p-3 rounded-xl bg-orange-50 border border-orange-100">
+              <p className="text-xs text-orange-700 leading-relaxed">Your account has been suspended. Contact our team for assistance.</p>
+            </div>
+            <Link href="/contact" onClick={() => setActive(null)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group">
+              <LifeBuoy aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-orange-500 transition-colors flex-none" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900">Contact Our Team</span>
+            </Link>
+          </>
+        )}
+
+        <div className="mx-2 mt-2 border-t border-slate-100" />
+        <button
+          onClick={() => { setActive(null); handleLogout() }}
+          disabled={loggingOut}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors duration-150 group disabled:opacity-50 mt-1"
+        >
+          <LogOut aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors flex-none" />
+          <span className="text-sm font-medium text-slate-500 group-hover:text-red-600 transition-colors">
+            {loggingOut ? 'Signing out…' : 'Sign Out'}
+          </span>
+        </button>
+      </div>
+    )
+  }
+
   // ── Desktop CTA ──────────────────────────────────────────────────────────
   function DesktopCta() {
     if (isAdmin) return (
@@ -241,11 +344,10 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     )
     if (isTrade) return (
       <div className="hidden lg:flex items-center gap-3">
-        <button onClick={handleLogout} disabled={loggingOut}
-          className={cn('flex items-center gap-1.5 text-sm font-medium transition-colors disabled:opacity-50',
-            isTransparent ? 'text-white/70 hover:text-white' : 'text-slate-500 hover:text-red-600')}>
-          <LogOut className="w-3.5 h-3.5" />{loggingOut ? 'Signing out…' : 'Logout'}
-        </button>
+        <span className={cn('text-sm font-medium',
+          isTransparent ? 'text-white/70' : 'text-slate-500')}>
+          Hi, {firstName}
+        </span>
       </div>
     )
     return (
@@ -280,7 +382,7 @@ export default function Navbar({ transparent = false }: NavbarProps) {
     )
   }
 
-  // ── Mobile menu bottom CTA bar ───────────────────────────────────────────
+  // ── Mobile menu bottom bar ───────────────────────────────────────────────
   function MobileBottomBar() {
     if (isAdmin) return (
       <div className="p-4 border-t border-slate-100 space-y-2">
@@ -294,20 +396,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
         </button>
       </div>
     )
-    if (isTrade) return (
-      <div className="p-4 border-t border-slate-100">
-        <button
-          onClick={() => setMobilePanel('trade')}
-          className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors group"
-        >
-          <div className="flex items-center gap-2.5">
-            <LayoutDashboard className="w-4 h-4 text-amber-600" />
-            <span className="text-sm font-semibold text-amber-700">My Trade Account</span>
-          </div>
-          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:text-amber-600 transition-colors" />
-        </button>
-      </div>
-    )
+    // Trade users: Sign Out is embedded in the inline trade card — no bottom bar needed
+    if (isTrade) return null
     return (
       <div className="p-4 border-t border-slate-100 space-y-2">
         <div className="grid grid-cols-2 gap-2">
@@ -330,6 +420,203 @@ export default function Navbar({ transparent = false }: NavbarProps) {
         </Link>
       </div>
     )
+  }
+
+  // ── Mobile trade section — status-aware inline card ──────────────────────
+  function MobileTradeSection() {
+    if (!isTrade) {
+      // Guest: Apply + Login
+      return (
+        <div className="mt-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4">
+          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">Trade Programme</p>
+          <div className="space-y-2">
+            <Link
+              href="/trade/register"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors"
+            >
+              <UserPlus className="w-4 h-4" aria-hidden="true" />
+              Apply for Trade Account
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-white border border-amber-200 hover:bg-amber-50 text-amber-700 text-sm font-semibold transition-colors"
+            >
+              <LogIn className="w-4 h-4" aria-hidden="true" />
+              Trade Login
+            </Link>
+          </div>
+        </div>
+      )
+    }
+
+    if (tradeStatus === 'approved') {
+      // Approved: full premium account card, all actions inline
+      return (
+        <div className="mt-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 overflow-hidden">
+          {/* Identity header */}
+          <div className="px-4 pt-4 pb-3 border-b border-amber-100/80">
+            <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest">Trade Account</p>
+            <p className="text-base font-bold text-slate-900 mt-0.5">
+              Welcome back, {firstName}
+            </p>
+            <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 border border-green-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+              <span className="text-[11px] font-semibold text-green-700">Approved</span>
+              <CheckCircle2 className="w-3 h-3 text-green-600" aria-hidden="true" />
+            </div>
+          </div>
+
+          {/* Menu items */}
+          <div className="px-3 py-2 space-y-0.5">
+            <Link href="/trade/dashboard" onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/50 active:bg-white/70 transition-colors group">
+              <LayoutDashboard className="w-4 h-4 text-amber-600 flex-none" aria-hidden="true" />
+              <span className="text-[14px] font-medium text-slate-800 group-hover:text-slate-900">Trade Dashboard</span>
+            </Link>
+            <Link href="/products" onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/50 active:bg-white/70 transition-colors group">
+              <Package className="w-4 h-4 text-amber-600 flex-none" aria-hidden="true" />
+              <span className="text-[14px] font-medium text-slate-800 group-hover:text-slate-900">View Products</span>
+            </Link>
+            <Link href="/quote" onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/50 active:bg-white/70 transition-colors group">
+              <FileText className="w-4 h-4 text-amber-600 flex-none" aria-hidden="true" />
+              <span className="text-[14px] font-medium text-slate-800 group-hover:text-slate-900">Request Quote</span>
+            </Link>
+            {/* Coming soon */}
+            <div className="flex items-center gap-3 px-3 py-3 rounded-xl opacity-40 select-none" aria-hidden="true">
+              <Bookmark className="w-4 h-4 text-slate-400 flex-none" />
+              <span className="text-[14px] font-medium text-slate-500">Saved Products</span>
+              <span className="ml-auto text-[10px] font-semibold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">Soon</span>
+            </div>
+            <div className="flex items-center gap-3 px-3 py-3 rounded-xl opacity-40 select-none" aria-hidden="true">
+              <ShoppingBag className="w-4 h-4 text-slate-400 flex-none" />
+              <span className="text-[14px] font-medium text-slate-500">Orders</span>
+              <span className="ml-auto text-[10px] font-semibold text-slate-400 bg-slate-200 px-1.5 py-0.5 rounded">Soon</span>
+            </div>
+            <Link href="/trade/profile" onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/50 active:bg-white/70 transition-colors group">
+              <User className="w-4 h-4 text-amber-600 flex-none" aria-hidden="true" />
+              <span className="text-[14px] font-medium text-slate-800 group-hover:text-slate-900">Account Information</span>
+            </Link>
+            <Link href="/contact" onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-white/50 active:bg-white/70 transition-colors group">
+              <LifeBuoy className="w-4 h-4 text-amber-600 flex-none" aria-hidden="true" />
+              <span className="text-[14px] font-medium text-slate-800 group-hover:text-slate-900">Contact Trade Support</span>
+            </Link>
+
+            {/* Sign Out — always visible at bottom */}
+            <div className="pt-1 mt-1 border-t border-amber-100">
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="flex items-center gap-3 w-full px-3 py-3 rounded-xl hover:bg-red-50 active:bg-red-100 transition-colors group disabled:opacity-50"
+              >
+                <LogOut className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors flex-none" aria-hidden="true" />
+                <span className="text-[14px] font-medium text-slate-500 group-hover:text-red-600 transition-colors">
+                  {loggingOut ? 'Signing out…' : 'Sign Out'}
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (tradeStatus === 'pending') {
+      return (
+        <div className="mt-3 rounded-2xl bg-amber-50 border border-amber-200 p-4">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4 text-amber-600" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-amber-800">Trade Application Submitted</p>
+              <p className="text-xs text-amber-600 mt-0.5 leading-relaxed">
+                Your application is currently under review. We&apos;ll notify you by email once approved.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Link href="/trade/dashboard" onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors">
+              View Application Status
+            </Link>
+            <button onClick={handleLogout} disabled={loggingOut}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white border border-amber-200 hover:bg-amber-50 text-amber-700 text-sm font-medium transition-colors disabled:opacity-50">
+              <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
+              {loggingOut ? 'Signing out…' : 'Sign Out'}
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    if (tradeStatus === 'rejected') {
+      return (
+        <div className="mt-3 rounded-2xl bg-red-50 border border-red-200 p-4">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+              <XCircle className="w-4 h-4 text-red-600" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-red-800">Trade Application Rejected</p>
+              <p className="text-xs text-red-600 mt-0.5 leading-relaxed">
+                Your application was not approved. Contact us for more information.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Link href="/trade/register" onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors">
+              <UserPlus className="w-3.5 h-3.5" aria-hidden="true" /> Edit Application
+            </Link>
+            <Link href="/contact" onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white border border-red-200 hover:bg-red-50 text-red-700 text-sm font-medium transition-colors">
+              <LifeBuoy className="w-3.5 h-3.5" aria-hidden="true" /> Contact Support
+            </Link>
+            <button onClick={handleLogout} disabled={loggingOut}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white border border-red-100 hover:bg-red-50 text-red-600 text-sm font-medium transition-colors disabled:opacity-50">
+              <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
+              {loggingOut ? 'Signing out…' : 'Sign Out'}
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    if (tradeStatus === 'suspended') {
+      return (
+        <div className="mt-3 rounded-2xl bg-orange-50 border border-orange-200 p-4">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+              <ShieldOff className="w-4 h-4 text-orange-600" aria-hidden="true" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-orange-800">Account Suspended</p>
+              <p className="text-xs text-orange-600 mt-0.5 leading-relaxed">
+                Your trade account has been suspended. Please contact our team.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Link href="/contact" onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold transition-colors">
+              <LifeBuoy className="w-3.5 h-3.5" aria-hidden="true" /> Contact Our Team
+            </Link>
+            <button onClick={handleLogout} disabled={loggingOut}
+              className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-white border border-orange-100 hover:bg-orange-50 text-orange-700 text-sm font-medium transition-colors disabled:opacity-50">
+              <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
+              {loggingOut ? 'Signing out…' : 'Sign Out'}
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return null
   }
 
   return (
@@ -471,43 +758,10 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                 pathname === '/contact' && !isTransparent && 'text-blue-600 bg-blue-50'
               )}>Contact</Link>
 
+              {/* Trade — status-aware desktop dropdown */}
               {isTrade ? (
-                <Dropdown name="TradeAccount" label="My Trade Account" wide>
-                  <div className="p-2">
-                    {/* Account header */}
-                    <div className="px-3 py-2.5 mb-1">
-                      <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em]">Trade Account</p>
-                      {profile?.full_name && (
-                        <p className="text-sm font-semibold text-slate-800 mt-0.5 truncate">{profile.full_name}</p>
-                      )}
-                    </div>
-                    <div className="mx-2 mb-2 border-t border-slate-100" />
-                    {TRADE_NAV_ITEMS.map(item => {
-                      const Icon = item.icon
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setActive(null)}
-                          className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors duration-150 group"
-                        >
-                          <Icon aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors flex-none" />
-                          <span className="text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors">{item.label}</span>
-                        </Link>
-                      )
-                    })}
-                    <div className="mx-2 mt-2 border-t border-slate-100" />
-                    <button
-                      onClick={() => { setActive(null); handleLogout() }}
-                      disabled={loggingOut}
-                      className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-red-50 transition-colors duration-150 group disabled:opacity-50 mt-1"
-                    >
-                      <LogOut aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors flex-none" />
-                      <span className="text-sm font-medium text-slate-500 group-hover:text-red-600 transition-colors">
-                        {loggingOut ? 'Signing out…' : 'Logout'}
-                      </span>
-                    </button>
-                  </div>
+                <Dropdown name="TradeAccount" label={`Hi, ${firstName}`} wide>
+                  <TradeDropdownContent />
                 </Dropdown>
               ) : (
                 <Link href="/trade" className={cn(
@@ -535,8 +789,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             </div>
           </div>
         </div>
-
-        {/* ── placeholder so header height is preserved ─────────────────── */}
       </header>
 
       {/* ── Mobile menu (outside header to escape stacking context) ─────── */}
@@ -598,30 +850,8 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                           Contact
                         </Link>
 
-                        {/* Trade section */}
-                        {!isTrade && (
-                          <div className="mt-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-100 p-4">
-                            <p className="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">Trade Programme</p>
-                            <div className="space-y-2">
-                              <Link
-                                href="/trade/register"
-                                onClick={() => setMobileOpen(false)}
-                                className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors"
-                              >
-                                <UserPlus className="w-4 h-4" aria-hidden="true" />
-                                Apply for Trade Account
-                              </Link>
-                              <Link
-                                href="/login"
-                                onClick={() => setMobileOpen(false)}
-                                className="flex items-center gap-2.5 w-full px-4 py-3 rounded-xl bg-white border border-amber-200 hover:bg-amber-50 text-amber-700 text-sm font-semibold transition-colors"
-                              >
-                                <LogIn className="w-4 h-4" aria-hidden="true" />
-                                Trade Login
-                              </Link>
-                            </div>
-                          </div>
-                        )}
+                        {/* Trade section — status-aware */}
+                        <MobileTradeSection />
                       </div>
 
                       <MobileBottomBar />
@@ -719,65 +949,6 @@ export default function Navbar({ transparent = false }: NavbarProps) {
                           >
                             View all brands <ChevronRight className="w-4 h-4" aria-hidden="true" />
                           </Link>
-                        </div>
-                      </div>
-                    </PanelMotion>
-                  )}
-
-                  {/* ── TRADE ACCOUNT SUB-PANEL ──────────────────────────── */}
-                  {mobilePanel === 'trade' && (
-                    <PanelMotion id="trade">
-                      {/* Back header */}
-                      <div className="sticky top-0 bg-white/95 backdrop-blur-sm border-b border-slate-100 px-4 py-3 flex items-center gap-2">
-                        <button
-                          onClick={() => setMobilePanel('main')}
-                          className="p-1.5 -ml-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                          aria-label="Back to menu"
-                        >
-                          <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-                        </button>
-                        <span className="text-sm font-semibold text-slate-900">My Trade Account</span>
-                      </div>
-
-                      {/* Name badge */}
-                      {profile?.full_name && (
-                        <div className="mx-4 mt-4 mb-1 px-4 py-3 rounded-xl bg-amber-50 border border-amber-100">
-                          <p className="text-[10px] font-bold text-amber-500 uppercase tracking-[0.2em]">Logged in as</p>
-                          <p className="text-sm font-semibold text-amber-800 mt-0.5">{profile.full_name}</p>
-                        </div>
-                      )}
-
-                      <div className="px-4 py-3 space-y-0.5">
-                        {TRADE_NAV_ITEMS.map(item => {
-                          const Icon = item.icon
-                          return (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              onClick={() => setMobileOpen(false)}
-                              className="flex items-center gap-3.5 px-3 py-3.5 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
-                            >
-                              <div className="flex-none w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 transition-colors">
-                                <Icon aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
-                              </div>
-                              <span className="text-[15px] font-medium text-slate-800 group-hover:text-slate-900 transition-colors">{item.label}</span>
-                            </Link>
-                          )
-                        })}
-
-                        <div className="pt-2 mt-1 border-t border-slate-100">
-                          <button
-                            onClick={handleLogout}
-                            disabled={loggingOut}
-                            className="flex items-center gap-3.5 w-full px-3 py-3.5 rounded-xl hover:bg-red-50 active:bg-red-100 transition-colors group disabled:opacity-50"
-                          >
-                            <div className="flex-none w-9 h-9 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-red-50 transition-colors">
-                              <LogOut aria-hidden="true" className="w-4 h-4 text-slate-400 group-hover:text-red-500 transition-colors" />
-                            </div>
-                            <span className="text-[15px] font-medium text-slate-500 group-hover:text-red-600 transition-colors">
-                              {loggingOut ? 'Signing out…' : 'Logout'}
-                            </span>
-                          </button>
                         </div>
                       </div>
                     </PanelMotion>
