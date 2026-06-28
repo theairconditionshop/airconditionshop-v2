@@ -38,7 +38,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
           <div className={imageUrl ? 'grid lg:grid-cols-[1fr_420px]' : ''}>
 
             {/* Left — text content */}
-            <div className="relative z-10 px-8 py-16 sm:px-14 sm:py-20">
+            <div className="relative z-10 px-5 py-14 sm:px-14 sm:py-20">
               {/* Ambient glow */}
               <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 blur-[80px] rounded-full" />
 

@@ -15,7 +15,7 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
 
   return (
     <section className="py-10 lg:py-16 bg-[#FAFAF9]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">

@@ -56,7 +56,7 @@ export default function OtpInput({ value, onChange, error, disabled, autoFocus =
   }
 
   const base = [
-    'w-12 h-14 rounded-xl border-2 text-center text-2xl font-bold',
+    'w-10 h-12 sm:w-12 sm:h-14 rounded-xl border-2 text-center text-xl sm:text-2xl font-bold',
     'transition-all duration-150 outline-none',
     'text-slate-900 bg-white',
     'focus:scale-105 focus:shadow-lg',

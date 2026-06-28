@@ -29,7 +29,7 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
 
   return (
     <section className="bg-slate-950 py-10 lg:py-16 text-white overflow-hidden">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Mobile image — shown above content when set in admin */}
         {imageUrl && (
           <div className="lg:hidden mb-8 relative aspect-[16/9] overflow-hidden rounded-2xl">

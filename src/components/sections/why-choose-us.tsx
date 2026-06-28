@@ -59,7 +59,7 @@ export default function WhyChooseUs({ data }: { data: WhyData }) {
 
   return (
     <section className="bg-white py-10 lg:py-16">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="mb-10 max-w-2xl">

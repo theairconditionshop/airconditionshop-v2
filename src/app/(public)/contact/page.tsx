@@ -34,7 +34,7 @@ export default async function ContactPage() {
             <div className="absolute bottom-1/3 right-1/3 w-64 h-64 rounded-full bg-blue-500/8 blur-[100px]" />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-40 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">
               Get in Touch
             </p>
@@ -51,7 +51,7 @@ export default async function ContactPage() {
 
         {/* ── Quick contact strip ── */}
         <section className="bg-white border-b border-slate-100">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
 
               <a href="tel:+35679661889"
@@ -108,7 +108,7 @@ export default async function ContactPage() {
 
         {/* ── Main: info + form ── */}
         <section className="py-20 lg:py-24 bg-[#FAFAF9]">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-14 items-start">
 
               {/* ── Left column ── */}
@@ -204,7 +204,7 @@ export default async function ContactPage() {
 
         {/* ── Google Maps embed ── */}
         <section className="bg-white">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
             <div className="rounded-2xl overflow-hidden border border-slate-100 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.06)]" style={{ height: 420 }}>
               <iframe
                 src="https://maps.google.com/maps?q=220+Vjal+L-Indipendenza,+Mosta,+Malta&output=embed&hl=en&z=16"

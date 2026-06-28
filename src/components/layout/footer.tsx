@@ -32,7 +32,7 @@ export default async function Footer() {
   return (
     <footer className="bg-slate-950 text-slate-300 border-t border-white/[0.04]">
       {/* Main footer */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12 md:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 md:gap-12">
 
           {/* Brand column */}
@@ -121,7 +121,7 @@ export default async function Footer() {
 
       {/* Trust certification strip */}
       <div className="border-t border-white/[0.04]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
           {[
             'F-Gas Certified',
             'Certified Engineers',
@@ -138,7 +138,7 @@ export default async function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-white/[0.04]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-slate-600">
             &copy; {year} {copyrightText}
           </p>

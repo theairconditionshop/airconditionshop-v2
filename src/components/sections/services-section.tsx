@@ -32,7 +32,7 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
 
   return (
     <section className="py-10 lg:py-16 bg-white border-t border-slate-100">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Mobile image — shown above content when set in admin */}
         {imageUrl && (

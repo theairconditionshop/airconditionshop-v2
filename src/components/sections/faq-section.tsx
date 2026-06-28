@@ -11,7 +11,7 @@ export default function FaqSection({ faqs }: { faqs: Faq[] }) {
 
   return (
     <section className="py-12 lg:py-16 bg-slate-50">
-      <div className="max-w-3xl mx-auto px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-2">FAQ</p>
           <h2 className="font-display text-3xl lg:text-4xl text-slate-900">Frequently Asked Questions</h2>

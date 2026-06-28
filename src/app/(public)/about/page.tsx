@@ -39,7 +39,7 @@ export default function AboutPage() {
             <div className="absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full bg-blue-500/8 blur-[100px]" />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pb-16 pt-40 w-full">
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 pt-40 w-full">
             <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.28em] mb-4">About Us</p>
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl text-white leading-tight max-w-2xl mb-5">
               Malta&apos;s HVAC
@@ -55,7 +55,7 @@ export default function AboutPage() {
 
         {/* ── Pillars strip — real descriptors, no fake numbers ── */}
         <section className="bg-white border-b border-slate-100">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-slate-100">
               {PILLARS.map(({ icon: Icon, value, label }) => (
                 <div key={value} className="flex flex-col items-center justify-center gap-2 py-10 px-6 text-center">
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
         {/* ── Story ── */}
         <section className="py-20 lg:py-24 bg-[#FAFAF9]">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-14 items-start">
 
               <div>
@@ -130,7 +130,7 @@ export default function AboutPage() {
 
         {/* ── Google Review CTA ── */}
         <section className="py-12 bg-white border-t border-slate-100">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-xl mx-auto text-center">
               <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-amber-50 mb-4">
                 <svg className="w-6 h-6 text-amber-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -155,7 +155,7 @@ export default function AboutPage() {
 
         {/* ── Contact info ── */}
         <section className="py-16 bg-slate-950">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="font-display text-3xl text-white">Visit Our Showroom</h2>
               <p className="text-slate-400 mt-2 text-sm">Come and see our full range in person — Mosta, Malta</p>
