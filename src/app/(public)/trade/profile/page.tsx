@@ -103,7 +103,7 @@ export default async function TradeProfilePage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-16 lg:pt-[68px] bg-slate-50">
+      <main id="main-content" className="min-h-screen pt-16 lg:pt-[68px] bg-slate-50">
 
         {/* ── Page header ──────────────────────────────────────────────── */}
         <div className="bg-white border-b border-slate-100">

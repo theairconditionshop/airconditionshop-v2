@@ -20,14 +20,14 @@ interface ServicesData {
 }
 
 export default function ServicesSection({ data }: { data: ServicesData }) {
-  const heading = data.heading || 'Our Services'
-  const description = data.description || 'From single-room air conditioning to full commercial HVAC installations, our certified engineers deliver premium solutions across Malta.'
+  const heading = data.heading || 'Air Conditioning Installation, Repairs & Servicing in Malta'
+  const description = data.description || 'From a single split unit in your home to a full commercial HVAC or refrigeration fit-out, our certified team handles supply, installation and ongoing servicing across all Malta.'
   const imageUrl = data.image_url || null
   const items: ServiceItem[] = data.items || [
-    { icon: 'thermometer', title: 'Air Conditioning Installation', description: 'Professional installation of split, multi-split and VRF systems for homes and businesses.' },
-    { icon: 'snowflake',   title: 'Commercial Refrigeration',      description: 'Cold rooms, commercial fridges and freezers for hotels, restaurants and retail.' },
-    { icon: 'wrench',      title: 'Maintenance & Repair',          description: 'Scheduled maintenance, emergency repairs and servicing to keep systems running.' },
-    { icon: 'building',    title: 'Commercial HVAC Projects',      description: 'Large-scale VRF and HVAC design and installation for commercial properties.' },
+    { icon: 'thermometer', title: 'Air Conditioning Installation', description: 'We install split, multi-split and VRF systems in homes, apartments and offices across Malta. All installations are carried out by F-Gas certified engineers.' },
+    { icon: 'snowflake',   title: 'Commercial Refrigeration',      description: 'Supply and installation of cold rooms, display cases, commercial fridges and freezers for hotels, restaurants, supermarkets and retail outlets.' },
+    { icon: 'wrench',      title: 'Maintenance & Repairs',         description: 'Scheduled servicing, fault diagnosis and emergency repairs for all major air conditioning and refrigeration brands. Fast response across Malta.' },
+    { icon: 'building',    title: 'Commercial HVAC Projects',      description: 'Design and installation of large-scale VRF, central air conditioning and ventilation systems for commercial buildings, offices and hospitality venues.' },
   ]
 
   return (
@@ -59,7 +59,7 @@ export default function ServicesSection({ data }: { data: ServicesData }) {
           {/* Left — heading + CTA */}
           <div className="lg:sticky lg:top-24">
             <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">What We Do</p>
-            <h2 className="font-display text-3xl lg:text-4xl leading-tight text-slate-900 mb-6">{heading}</h2>
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-[1.9rem] xl:text-4xl leading-[1.2] text-slate-900 mb-5">{heading}</h2>
             <p className="text-slate-500 leading-relaxed mb-8 max-w-sm text-[15px]">
               {description}
             </p>

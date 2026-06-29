@@ -18,10 +18,10 @@ interface HeroData {
 }
 
 const TRUST_METRICS = [
-  { label: 'Malta Based' },
-  { label: 'Residential & Commercial' },
-  { label: 'Fast Response' },
-  { label: 'Professional Support' },
+  { label: 'Malta-Based Team' },
+  { label: 'F-Gas Certified Engineers' },
+  { label: 'Homes & Businesses' },
+  { label: 'After-Sales Support' },
 ]
 
 const container: Variants = {
@@ -40,11 +40,11 @@ const fadeIn: Variants = {
 }
 
 export default function Hero({ data }: { data: HeroData }) {
-  const headline     = data.headline     ?? "Malta's Premier HVAC & Refrigeration Specialists"
-  const description  = data.description  ?? 'Premium air conditioning, refrigeration and climate control solutions for homes, hotels and commercial spaces across Malta.'
-  const badge        = data.badge        ?? 'HVAC · Refrigeration · Ventilation · Installation Materials'
-  const ctaPrimary   = data.cta_primary  ?? { label: 'Explore Products', href: '/products' }
-  const ctaSecondary = data.cta_secondary ?? { label: 'Get a Quote', href: '/quote' }
+  const headline     = data.headline     ?? 'Air Conditioners, Heat Pumps & HVAC Solutions in Malta'
+  const description  = data.description  ?? 'We supply and install Daikin, Gree, Fujitsu and other leading air conditioning systems for homes, apartments, offices and commercial buildings throughout Malta.'
+  const badge        = data.badge        ?? 'Air Conditioners · Heat Pumps · Ventilation · Refrigeration · Malta'
+  const ctaPrimary   = data.cta_primary  ?? { label: 'Shop Air Conditioners', href: '/products' }
+  const ctaSecondary = data.cta_secondary ?? { label: 'Get a Free Quote', href: '/quote' }
   const overlayOpacity = data.overlay_opacity ?? 0.62
   const bgImage = data.media_url || null
 
@@ -109,7 +109,7 @@ export default function Hero({ data }: { data: HeroData }) {
           {/* Headline — display font */}
           <motion.h1
             variants={fadeUp}
-            className="font-display text-4xl sm:text-5xl lg:text-7xl xl:text-[5.5rem] text-white leading-[1.05] tracking-tight max-w-5xl"
+            className="font-display text-[2.1rem] sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-[1.06] tracking-tight max-w-4xl"
           >
             {headlineAfter ? (
               <>
@@ -123,7 +123,7 @@ export default function Hero({ data }: { data: HeroData }) {
           {/* Description */}
           <motion.p
             variants={fadeUp}
-            className="mt-4 sm:mt-7 text-base sm:text-lg lg:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed"
+            className="mt-5 sm:mt-7 text-base sm:text-lg lg:text-[1.15rem] text-slate-400 max-w-2xl mx-auto leading-relaxed"
           >
             {description}
           </motion.p>

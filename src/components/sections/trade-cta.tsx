@@ -9,18 +9,18 @@ interface TradeCtaData {
 const features = [
   {
     icon: Tag,
-    title: 'Installer Pricing',
-    body: 'Trade-only rates across our full catalogue of HVAC, refrigeration and installation materials.',
+    title: 'Trade Pricing',
+    body: 'Competitive trade rates on air conditioners, heat pumps, refrigeration equipment and installation materials — available to approved account holders.',
   },
   {
     icon: Zap,
-    title: 'Priority Quotations',
-    body: 'Fast-track quotes and dedicated account management for project work.',
+    title: 'Fast Project Quotes',
+    body: 'Submit a project spec and receive a quote quickly. We support jobs of all sizes, from a single domestic unit to full commercial fit-outs.',
   },
   {
     icon: Headphones,
-    title: 'Dedicated Support',
-    body: 'Direct line to our technical team for spec queries, warranty and service support.',
+    title: 'Technical Support',
+    body: 'Direct access to our team for product selection, spec queries, warranty claims and after-sales assistance on all brands we supply.',
   },
 ]
 
@@ -56,19 +56,18 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
           <div>
             <div>
               <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-amber-500">
-                For Installers &amp; Contractors
+                For HVAC Installers &amp; Contractors
               </p>
               <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-white">
-                    The Trade
-                    <br />
-                    Programme
+                  <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] leading-tight text-white">
+                    Trade Accounts for<br />
+                    HVAC Installers &amp;<br className="sm:hidden" />{' '}
+                    <span className="sm:inline hidden"><br /></span>Contractors
                   </h2>
                 </div>
-                <p className="max-w-md text-base leading-relaxed text-slate-400 lg:text-right">
-                  Join Malta&apos;s trusted HVAC trade network. Access exclusive pricing, priority stock and
-                  dedicated commercial support.
+                <p className="max-w-sm text-base leading-relaxed text-slate-400 lg:text-right">
+                  If you install air conditioning, refrigeration or ventilation systems in Malta, we&apos;d like to work with you. Trade account holders get competitive pricing, fast quotes and direct technical support.
                 </p>
               </div>
             </div>
@@ -94,7 +93,7 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
                 href="/trade/register"
                 className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-amber-500 px-7 py-3.5 text-sm font-semibold text-slate-950 transition-all duration-200 hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-500/20"
               >
-                Apply for Trade Account
+                Apply for a Trade Account
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
@@ -105,7 +104,7 @@ export default function TradeCta({ data = {} }: { data?: TradeCtaData }) {
               </Link>
             </div>
 
-            <p className="mt-6 text-xs text-slate-600">
+            <p className="mt-5 text-xs text-slate-600">
               Applications reviewed within 2 business days &middot; Malta VAT number required
             </p>
           </div>

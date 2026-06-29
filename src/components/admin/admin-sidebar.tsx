@@ -7,7 +7,7 @@ import type { UserRole } from '@/types/database'
 import {
   LayoutDashboard, Package, BookOpen, Wrench, FileText, Users,
   MessageSquare, Globe, Settings, Building2, ChevronDown, Megaphone,
-  Tag, Layers, Image, Upload, Mail, X, ExternalLink,
+  Tag, Layers, Image, Upload, Mail, X, ExternalLink, Star, HelpCircle,
 } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -29,9 +29,11 @@ const NAV_GROUPS: NavGroup[] = [
   {
     group: 'Content',
     items: [
-      { label: 'Homepage',  href: '/admin/homepage',            icon: Globe },
-      { label: 'Campaigns', href: '/admin/marketing/campaigns', icon: Megaphone },
-      { label: 'Blog',      href: '/admin/blog',                icon: BookOpen },
+      { label: 'Homepage',     href: '/admin/homepage',            icon: Globe },
+      { label: 'Campaigns',    href: '/admin/marketing/campaigns', icon: Megaphone },
+      { label: 'Blog',         href: '/admin/blog',                icon: BookOpen },
+      { label: 'Testimonials', href: '/admin/testimonials',        icon: Star },
+      { label: 'FAQs',         href: '/admin/faqs',               icon: HelpCircle },
     ],
   },
   {

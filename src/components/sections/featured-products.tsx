@@ -37,17 +37,17 @@ export default function FeaturedProducts({ products, userRole }: Props) {
         <div className="flex items-end justify-between mb-14">
           <div>
             <p className="text-[11px] font-semibold tracking-[0.22em] text-slate-400 uppercase mb-3">
-              Handpicked Selection
+              Popular in Malta
             </p>
-            <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl leading-tight text-slate-900">
-              Featured Products
+            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight text-slate-900">
+              Air Conditioners &amp; HVAC Products
             </h2>
           </div>
           <Link
             href="/products"
             className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors cursor-pointer group"
           >
-            View all products
+            Browse All Products
             <ArrowRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>

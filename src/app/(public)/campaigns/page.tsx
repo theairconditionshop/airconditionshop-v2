@@ -12,6 +12,7 @@ export const revalidate = 60
 export const metadata: Metadata = {
   title: 'Campaigns & Competitions — The AirCondition Shop Malta',
   description: 'Enter our latest competitions and promotions. Win premium air conditioners and HVAC equipment.',
+  alternates: { canonical: 'https://www.theairconditionshop.com/campaigns' },
 }
 
 const TYPE_LABELS: Record<CampaignType, string> = {
@@ -55,7 +56,7 @@ export default async function CampaignsPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-16">
+      <main id="main-content" className="min-h-screen pt-16">
         {/* Hero */}
         <section className="relative bg-gradient-to-br from-slate-950 via-blue-950 to-slate-950 py-24 px-4">
           <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />

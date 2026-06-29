@@ -20,8 +20,8 @@ export default function TestimonialsSection({ testimonials }: { testimonials: Te
         {/* Header */}
         <div className="mb-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Customer Reviews</p>
-            <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight">What Our Customers Say</h2>
+            <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Verified Customer Reviews</p>
+            <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight">What Customers in Malta Say About Us</h2>
           </div>
           {/* Aggregate rating badge — calculated from actual ratings */}
           <div className="flex items-center gap-3 shrink-0">

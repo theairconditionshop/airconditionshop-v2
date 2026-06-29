@@ -33,7 +33,7 @@ export default async function BlogPostPage({ params }: Props) {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20">
+      <main id="main-content" className="min-h-screen pt-20">
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]} />
 
@@ -61,14 +61,14 @@ export default async function BlogPostPage({ params }: Props) {
           <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight mb-6">{post.title}</h1>
 
           {post.excerpt && (
-            <p className="text-lg text-slate-500 leading-relaxed mb-8 border-l-2 border-sky-200 pl-4">{post.excerpt}</p>
+            <p className="text-lg text-slate-500 leading-relaxed mb-8 border-l-2 border-blue-200 pl-4">{post.excerpt}</p>
           )}
 
           {post.content && (
             <div
               className="prose prose-slate prose-sm lg:prose-base max-w-none
                 prose-headings:font-bold prose-headings:text-slate-900
-                prose-a:text-sky-600 prose-a:no-underline hover:prose-a:underline
+                prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
                 prose-img:rounded-xl"
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
             />

@@ -12,9 +12,11 @@ export default function FaqSection({ faqs }: { faqs: Faq[] }) {
   return (
     <section className="py-12 lg:py-16 bg-slate-50">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-2">FAQ</p>
-          <h2 className="font-display text-3xl lg:text-4xl text-slate-900">Frequently Asked Questions</h2>
+        <div className="text-center mb-12">
+          <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Common Questions</p>
+          <h2 className="font-display text-2xl sm:text-3xl lg:text-[2rem] text-slate-900 leading-snug max-w-xl mx-auto">
+            Frequently Asked Questions About Air Conditioning in Malta
+          </h2>
         </div>
 
         <div className="space-y-2">

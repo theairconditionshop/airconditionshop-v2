@@ -48,7 +48,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20">
+      <main id="main-content" className="min-h-screen pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={crumbs} />
           <PageHeader
@@ -61,7 +61,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <div className="mt-6 flex flex-wrap gap-2">
               {subcategories.map(sub => (
                 <Link key={sub.id} href={`/products/category/${sub.slug}`}
-                  className="px-4 py-2 bg-slate-50 hover:bg-sky-50 border border-slate-200 hover:border-sky-200 rounded-full text-sm text-slate-600 hover:text-sky-700 transition-colors">
+                  className="px-4 py-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-full text-sm text-slate-600 hover:text-blue-700 transition-colors">
                   {sub.name}
                 </Link>
               ))}
@@ -79,7 +79,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             ) : (
               <div className="py-20 text-center">
                 <p className="text-slate-400">No products in this category yet.</p>
-                <Link href="/products" className="mt-3 inline-block text-sky-600 text-sm hover:underline">Browse all products</Link>
+                <Link href="/products" className="mt-3 inline-block text-blue-600 text-sm hover:underline">Browse all products</Link>
               </div>
             )}
           </div>

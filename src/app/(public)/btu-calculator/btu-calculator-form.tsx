@@ -116,8 +116,8 @@ export default function BtuCalculatorForm() {
 
   const dimLabel = isMetric ? 'm' : 'ft'
 
-  const selectClass = 'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors'
-  const inputClass  = 'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors'
+  const selectClass = 'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150 cursor-pointer'
+  const inputClass  = 'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150'
 
   return (
     <div>
@@ -188,21 +188,21 @@ export default function BtuCalculatorForm() {
       {result && (
         <div className="mt-10 space-y-8">
           {/* Result cards */}
-          <div className="rounded-2xl bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-100 p-4 sm:p-6 overflow-hidden">
+          <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50 border border-blue-100 p-4 sm:p-6 overflow-hidden">
             <h2 className="font-bold text-slate-900 text-xl mb-1">Your Result</h2>
             <p className="text-sm text-slate-500 mb-5">Based on your room measurements and conditions</p>
 
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-sky-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
-                <p className="text-lg sm:text-2xl font-bold text-sky-600 tabular-nums truncate">{result.btu.toLocaleString()}</p>
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-blue-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+                <p className="text-lg sm:text-2xl font-bold text-blue-600 tabular-nums truncate">{result.btu.toLocaleString()}</p>
                 <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">BTU/hr</p>
               </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-sky-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
-                <p className="text-lg sm:text-2xl font-bold text-sky-600">{result.kw.toFixed(1)}</p>
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-blue-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+                <p className="text-lg sm:text-2xl font-bold text-blue-600">{result.kw.toFixed(1)}</p>
                 <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">kW output</p>
               </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-sky-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
-                <p className="text-[11px] sm:text-sm lg:text-base font-bold text-sky-600 leading-tight tabular-nums">
+              <div className="bg-white rounded-xl sm:rounded-2xl border border-blue-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+                <p className="text-[11px] sm:text-sm lg:text-base font-bold text-blue-600 leading-tight tabular-nums">
                   {result.recommendedBtuRange.min.toLocaleString()}<span className="block sm:inline">–</span>{result.recommendedBtuRange.max.toLocaleString()}
                 </p>
                 <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">Rec. BTU</p>
@@ -233,7 +233,7 @@ export default function BtuCalculatorForm() {
                 {loadingRecs ? 'Finding matched units…' : recommendations.length > 0 ? 'Recommended for your room' : 'Browse Our Range'}
               </h3>
               {recommendations.length > 0 && (
-                <Link href="/products" className="text-sm text-sky-600 hover:text-sky-700 font-medium">
+                <Link href="/products" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
                   View all →
                 </Link>
               )}
@@ -241,7 +241,7 @@ export default function BtuCalculatorForm() {
 
             {loadingRecs && (
               <div className="flex items-center justify-center py-12 gap-3">
-                <Loader2 aria-hidden="true" className="w-5 h-5 text-sky-500 animate-spin" />
+                <Loader2 aria-hidden="true" className="w-5 h-5 text-blue-600 animate-spin" />
                 <span className="text-sm text-slate-500">Matching systems to your room…</span>
               </div>
             )}
@@ -252,7 +252,7 @@ export default function BtuCalculatorForm() {
                   const img = product.images?.find(i => i.is_primary) || product.images?.[0]
                   return (
                     <div key={product.id}
-                      className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:border-sky-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                      className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                       {/* Image */}
                       <div className="h-40 bg-slate-50 flex items-center justify-center border-b border-slate-100 relative">
                         {img ? (
@@ -272,7 +272,7 @@ export default function BtuCalculatorForm() {
 
                       <div className="p-4">
                         {product.brand && (
-                          <p className="text-xs font-semibold text-sky-600 mb-1">{product.brand.name}</p>
+                          <p className="text-xs font-semibold text-blue-600 mb-1">{product.brand.name}</p>
                         )}
                         <p className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 mb-3">
                           {product.name}
@@ -282,13 +282,13 @@ export default function BtuCalculatorForm() {
                         <div className="flex gap-3 mb-4">
                           {product.cooling_btu && (
                             <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                              <Zap aria-hidden="true" className="w-3 h-3 text-sky-500" />
+                              <Zap aria-hidden="true" className="w-3 h-3 text-blue-600" />
                               {product.cooling_btu.toLocaleString()} BTU
                             </div>
                           )}
                           {(product.room_size_min || product.room_size_max) && (
                             <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                              <Thermometer aria-hidden="true" className="w-3 h-3 text-sky-500" />
+                              <Thermometer aria-hidden="true" className="w-3 h-3 text-blue-600" />
                               {product.room_size_min && product.room_size_max
                                 ? `${product.room_size_min}–${product.room_size_max}m²`
                                 : product.room_size_max ? `Up to ${product.room_size_max}m²` : ''}

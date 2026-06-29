@@ -76,7 +76,7 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Excerpt</label>
           <textarea {...register('excerpt')} rows={2}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             placeholder="Short summary shown on blog listing" />
         </div>
 
@@ -91,13 +91,13 @@ export default function BlogPostForm({ post }: { post?: Record<string, unknown> 
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Content <span className="text-red-500">*</span></label>
           <textarea {...register('content')} rows={16}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-sky-500 resize-y"
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
             placeholder="Supports HTML markup…" />
           {errors.content && <p className="text-xs text-red-500">{errors.content.message}</p>}
         </div>
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" {...register('publish_now')}
-            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-blue-500" />
           <span className="text-sm text-slate-700">Publish immediately</span>
         </label>
       </div>

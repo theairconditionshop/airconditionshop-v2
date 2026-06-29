@@ -24,18 +24,16 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
 
-    console.log('[login] Attempting sign-in for:', email)
     const supabase = createClient()
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      console.error('[login] Supabase signInWithPassword error:', JSON.stringify(error), 'status:', error.status, 'message:', error.message)
       toast.error('Invalid email or password')
       setLoading(false)
       return
     }
 
-    console.log('[login] Supabase sign-in succeeded — userId:', data.user.id, 'email:', data.user.email, 'email_confirmed_at:', data.user.email_confirmed_at)
+    void data
 
     // Check role — API route will set OTP cookie + redirect if admin/staff
     const res = await fetch('/api/auth/post-login', {
@@ -45,7 +43,6 @@ function LoginForm() {
     })
 
     const result = await res.json().catch(() => ({}))
-    console.log('[login] post-login response — status:', res.status, 'body:', JSON.stringify(result))
     setLoading(false)
 
     if (!res.ok) {
@@ -127,13 +124,13 @@ function LoginForm() {
                     placeholder="••••••••"
                     required
                     autoComplete="current-password"
-                    className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 pr-10 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                    className="flex h-12 w-full rounded-lg border border-slate-200 bg-white px-3 pr-10 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 rounded transition-colors duration-150 cursor-pointer"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded transition-colors duration-150 cursor-pointer"
                     tabIndex={0}
                   >
                     {showPassword
@@ -143,7 +140,7 @@ function LoginForm() {
                 </div>
               </div>
               <div className="mt-1.5 text-right">
-                <Link href="/reset-password" className="text-xs text-sky-600 hover:underline">
+                <Link href="/reset-password" className="text-xs text-blue-600 hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -156,7 +153,7 @@ function LoginForm() {
 
           <p className="mt-6 text-center text-sm text-slate-500">
             Installer or contractor?{' '}
-            <Link href="/trade/register" className="text-sky-600 font-medium hover:underline">
+            <Link href="/trade/register" className="text-blue-600 font-medium hover:underline">
               Apply for a trade account
             </Link>
           </p>

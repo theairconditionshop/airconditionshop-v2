@@ -63,7 +63,7 @@ const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
         <div className={cn(
           'flex h-12 w-full rounded-lg border border-slate-200 bg-white overflow-hidden',
           'transition-colors duration-150',
-          'focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500',
+          'focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500',
           disabled && 'cursor-not-allowed bg-slate-50 opacity-60',
           error && 'border-red-400 focus-within:ring-red-400 focus-within:border-red-400',
           className,

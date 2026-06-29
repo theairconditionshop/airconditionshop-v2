@@ -84,7 +84,7 @@ export default async function TradeDashboardPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-16 lg:pt-[68px] bg-slate-50">
+      <main id="main-content" className="min-h-screen pt-16 lg:pt-[68px] bg-slate-50">
 
         {/* ── Welcome Banner ─────────────────────────────────────────── */}
         <div className="bg-white border-b border-slate-100">

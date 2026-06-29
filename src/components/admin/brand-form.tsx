@@ -127,7 +127,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
           <input
             type="checkbox"
             {...register('is_active')}
-            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500"
+            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-blue-500"
           />
           <span className="text-sm text-slate-700">
             Active{' '}
@@ -157,7 +157,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
                 {...register('description')}
                 rows={3}
                 placeholder="Short description of the brand shown on its page. Leave blank to omit."
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
             </div>
             <ImageUploadField
@@ -215,7 +215,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
               <label className="text-xs font-semibold text-slate-700">Logo Display Mode</label>
               <select
                 {...register('logo_display_mode')}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="invert">Invert (white on dark background)</option>
                 <option value="grayscale">Grayscale → colour on hover</option>
@@ -250,7 +250,7 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
                       ? `Explore ${nameValue} products available from THE AIRCONDITION SHOP Malta.`
                       : 'Auto-generated from brand name'
                   }
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none"
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
               <p className="text-[11px] text-slate-400">Leave blank to auto-generate from brand name.</p>

@@ -31,8 +31,8 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   )
 }
 
-const inputCls = 'h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors'
-const textareaCls = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none transition-colors'
+const inputCls = 'h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors'
+const textareaCls = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors'
 
 // ── Section editors ──────────────────────────────────────────────────────────
 
@@ -385,7 +385,7 @@ export default function HomepageSectionEditor({ section }: { section: Section })
   return (
     <div className={cn(
       'bg-white rounded-2xl border transition-colors overflow-hidden',
-      open ? 'border-sky-200 shadow-sm' : 'border-slate-100 hover:border-slate-200'
+      open ? 'border-blue-200 shadow-sm' : 'border-slate-100 hover:border-slate-200'
     )}>
       {/* Header row — click to expand */}
       <button

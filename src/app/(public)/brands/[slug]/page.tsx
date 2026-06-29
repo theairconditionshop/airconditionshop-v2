@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { getBrandBySlug, getProducts } from '@/lib/data/queries'
+import { PremiumImage } from '@/components/shared/premium-image'
 import { safeJsonLd } from '@/lib/sanitize'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
@@ -68,17 +69,28 @@ export default async function BrandPage({ params }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
       <Navbar />
-      <main className="min-h-screen pt-20">
-        {brand.hero_url && (
-          <div className="relative h-48 lg:h-64 bg-slate-900">
-            <Image src={brand.hero_url} alt={brand.name} fill className="object-cover opacity-60" />
-            <div className="absolute inset-0 flex items-center justify-center">
+      <main id="main-content" className="min-h-screen pt-20">
+        {/* Brand hero — shows when hero_url is set in admin */}
+        <div className="relative h-48 lg:h-64">
+          <PremiumImage
+            src={brand.hero_url ?? null}
+            alt={`${brand.name} HVAC products`}
+            fill
+            sizes="100vw"
+            priority
+            rounded="none"
+            placeholderLabel={brand.name}
+            objectPosition="center"
+          />
+          {/* Dark overlay + logo centred */}
+          {brand.hero_url && (
+            <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
               {brand.logo_url && (
                 <Image src={brand.logo_url} alt={brand.name} width={180} height={80} className="object-contain filter brightness-0 invert" />
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={[{ label: 'Home', href: '/' }, { label: 'Brands', href: '/brands' }, { label: brand.name }]} />

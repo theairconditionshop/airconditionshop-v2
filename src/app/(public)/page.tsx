@@ -13,14 +13,22 @@ import TestimonialsSection from '@/components/sections/testimonials-section'
 import FaqSection from '@/components/sections/faq-section'
 import CtaSection from '@/components/sections/cta-section'
 import BtuPromo from '@/components/sections/btu-promo'
-import { LocalBusinessJsonLd } from '@/components/shared/json-ld'
+import { LocalBusinessJsonLd, FaqJsonLd } from '@/components/shared/json-ld'
 
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'THE AIRCONDITION SHOP | Premium HVAC & Refrigeration Malta',
-  description: 'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta. Expert installation and service across Malta.',
+  title: 'Air Conditioners, Heat Pumps & HVAC Solutions in Malta',
+  description: 'THE AIRCONDITION SHOP — Malta\'s trusted supplier and installer of air conditioners, heat pumps, ventilation and commercial refrigeration. F-Gas certified. All Malta.',
   alternates: { canonical: 'https://www.theairconditionshop.com' },
+  openGraph: {
+    title: 'Air Conditioners, Heat Pumps & HVAC Solutions in Malta',
+    description: 'Supply and installation of Daikin, Gree, Fujitsu and other leading air conditioning and HVAC systems for homes, offices and commercial buildings across Malta.',
+  },
+  twitter: {
+    title: 'Air Conditioners & HVAC Malta — THE AIRCONDITION SHOP',
+    description: 'Malta\'s trusted HVAC supplier and installer. Air conditioners, heat pumps, ventilation, refrigeration. F-Gas certified engineers. All Malta.',
+  },
 }
 
 export default async function HomePage() {
@@ -29,8 +37,9 @@ export default async function HomePage() {
   return (
     <>
       <LocalBusinessJsonLd />
+      <FaqJsonLd faqs={faqs} />
       <Navbar transparent />
-      <main>
+      <main id="main-content">
         <Hero data={sections.hero || {}} />
         <BtuPromo data={sections.btu_promo as Record<string, string> || {}} />
         <BrandMarquee brands={brands} duration={32} />

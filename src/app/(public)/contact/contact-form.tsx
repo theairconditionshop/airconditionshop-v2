@@ -48,7 +48,7 @@ export default function ContactForm() {
           <CheckCircle2 className="w-7 h-7 text-green-500" />
         </div>
         <h3 className="text-lg font-semibold text-slate-900 mb-2">Message sent!</h3>
-        <p className="text-sm text-slate-500">We&apos;ll be in touch within 1 business day. For urgent enquiries call <a href="tel:+35679661889" className="text-sky-600 hover:underline">+356 7966 1889</a>.</p>
+        <p className="text-sm text-slate-500">We&apos;ll be in touch within 1 business day. For urgent enquiries call <a href="tel:+35679661889" className="text-blue-600 hover:underline font-medium">+356 7966 1889</a>.</p>
       </div>
     )
   }
@@ -84,7 +84,7 @@ export default function ContactForm() {
           {...register('message')}
           rows={5}
           placeholder="Tell us what you need..."
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition-colors resize-none"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150 resize-none"
         />
         {errors.message && <p className="text-xs text-red-500">{errors.message.message}</p>}
       </div>

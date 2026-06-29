@@ -18,7 +18,7 @@ export default async function AccountPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20 bg-slate-50">
+      <main id="main-content" className="min-h-screen pt-20 bg-slate-50">
         <div className="max-w-xl mx-auto px-4 sm:px-6 py-14">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">My Account</h1>
           <p className="text-slate-500 text-sm mb-8">{user.email}</p>

@@ -43,7 +43,7 @@ export default async function ApplicationSubmittedPage({
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-[#F8FAFC] pt-16">
+      <main id="main-content" className="min-h-screen bg-[#F8FAFC] pt-16">
 
         {/* ── Centred card layout ── */}
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-4 sm:px-6 py-16">

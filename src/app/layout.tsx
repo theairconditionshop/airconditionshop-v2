@@ -3,6 +3,8 @@ import { Inter, DM_Serif_Display } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import RouteProgress from '@/components/layout/route-progress'
+import PromoBanner from '@/components/layout/promo-banner'
+import { getSiteSettings } from '@/lib/data/queries'
 import './globals.css'
 
 const inter = Inter({
@@ -21,11 +23,11 @@ const dmSerif = DM_Serif_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
-    template: '%s | THE AIRCONDITION SHOP',
+    default: 'Air Conditioners, Heat Pumps & HVAC Solutions in Malta',
+    template: '%s | THE AIRCONDITION SHOP Malta',
   },
   description:
-    'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta. Expert installation and service.',
+    "THE AIRCONDITION SHOP — Malta's trusted supplier and installer of air conditioners, heat pumps, ventilation and commercial refrigeration. F-Gas certified engineers. All Malta.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.theairconditionshop.com'),
   manifest: '/site.webmanifest',
   icons: {
@@ -40,14 +42,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_MT',
     siteName: 'THE AIRCONDITION SHOP',
-    title: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
-    description: 'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta.',
-    images: [{ url: '/shop-logo.jpg', width: 1200, height: 1200, alt: 'THE AIRCONDITION SHOP' }],
+    title: 'Air Conditioners, Heat Pumps & HVAC Solutions in Malta',
+    description: 'Supply and installation of Daikin, Gree, Fujitsu and other leading air conditioning and HVAC systems for homes, offices and commercial buildings across Malta.',
+    images: [{ url: '/shop-logo.jpg', width: 1200, height: 1200, alt: 'THE AIRCONDITION SHOP — Air Conditioning & HVAC Malta' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'THE AIRCONDITION SHOP | HVAC & Refrigeration Malta',
-    description: 'Premium HVAC, refrigeration, ventilation and installation materials supplier in Malta.',
+    title: 'Air Conditioners & HVAC Malta — THE AIRCONDITION SHOP',
+    description: "Malta's trusted HVAC supplier and installer. Air conditioners, heat pumps, ventilation, refrigeration. F-Gas certified engineers. All Malta.",
     images: ['/shop-logo.jpg'],
   },
   robots: {
@@ -55,9 +57,14 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
+  other: {
+    'theme-color': '#2563EB',
+  },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings()
+  const promoBanner = (settings.promo_banner as Record<string, unknown>) ?? {}
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseHostname = supabaseUrl ? new URL(supabaseUrl).hostname : null
 
@@ -72,7 +79,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
       </head>
       <body className="min-h-full flex flex-col bg-white text-slate-900 antialiased">
+        {/* Skip to main content — WCAG 2.4.1 */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:text-sm focus:font-semibold focus:rounded-lg focus:shadow-lg"
+        >
+          Skip to main content
+        </a>
         <RouteProgress />
+        <PromoBanner data={promoBanner as Parameters<typeof PromoBanner>[0]['data']} />
         {children}
         <Toaster richColors position="top-right" />
         <SpeedInsights />

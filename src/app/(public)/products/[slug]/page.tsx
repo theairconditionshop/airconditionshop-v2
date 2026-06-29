@@ -15,6 +15,10 @@ import Breadcrumb from '@/components/shared/breadcrumb'
 import ProductCard from '@/components/products/product-card'
 import ProductGallery from '@/components/products/product-gallery'
 import InstallationOffer from '@/components/products/installation-offer'
+import DeliveryInfo from '@/components/products/delivery-info'
+import ViewTracker from '@/components/products/view-tracker'
+import RecentlyViewed from '@/components/products/recently-viewed'
+import QuoteReminder from '@/components/products/quote-reminder'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/shared/json-ld'
@@ -44,10 +48,10 @@ interface SpecCard {
   accent?: string
 }
 
-function HvacSpecCard({ icon: Icon, label, value, unit, accent = 'sky' }: SpecCard) {
+function HvacSpecCard({ icon: Icon, label, value, unit, accent = 'blue' }: SpecCard) {
   if (value == null || value === '') return null
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-4 hover:border-sky-200 hover:shadow-sm transition-all duration-200">
+    <div className="bg-white rounded-2xl border border-slate-100 p-4 hover:border-blue-200 hover:shadow-sm transition-all duration-200">
       <div className={`w-9 h-9 rounded-xl bg-${accent}-50 flex items-center justify-center mb-3`}>
         <Icon aria-hidden="true" className={`w-4.5 h-4.5 text-${accent}-600`} />
       </div>
@@ -91,7 +95,7 @@ export default async function ProductPage({ params }: Props) {
 
   // Build HVAC spec card array
   const hvacSpecs: SpecCard[] = [
-    { icon: Zap,        label: 'Cooling Capacity', value: product.cooling_btu, unit: 'BTU/hr', accent: 'sky' },
+    { icon: Zap,        label: 'Cooling Capacity', value: product.cooling_btu, unit: 'BTU/hr', accent: 'blue' },
     { icon: Thermometer,label: 'Heating Capacity', value: product.heating_btu, unit: 'BTU/hr', accent: 'orange' },
     { icon: Ruler,      label: 'Room Size',
       value: (product.room_size_min && product.room_size_max)
@@ -129,7 +133,7 @@ export default async function ProductPage({ params }: Props) {
       />
       <BreadcrumbJsonLd items={crumbs.map(c => ({ name: c.label, url: `${BASE}${c.href || '/'}` }))} />
       <Navbar />
-      <main className="min-h-screen pt-20">
+      <main id="main-content" className="min-h-screen pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={crumbs} />
 
@@ -269,6 +273,9 @@ export default async function ProductPage({ params }: Props) {
                 </a>
               </div>
 
+              {/* Delivery & stock info */}
+              <DeliveryInfo availability={product.availability} />
+
               {/* Installation offer block */}
               <InstallationOffer acType={product.ac_type ?? null} coolingBtu={product.cooling_btu ?? null} />
 
@@ -287,7 +294,7 @@ export default async function ProductPage({ params }: Props) {
                   <ul className="space-y-2">
                     {(product.features as string[]).map((f, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm text-slate-600">
-                        <CheckCircle2 aria-hidden="true" className="w-4 h-4 text-sky-500 shrink-0 mt-0.5" />
+                        <CheckCircle2 aria-hidden="true" className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                         {f}
                       </li>
                     ))}
@@ -336,7 +343,7 @@ export default async function ProductPage({ params }: Props) {
               <div className="flex flex-wrap gap-3">
                 {product.documents.map(doc => (
                   <a key={doc.id} href={doc.url} target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-sky-300 hover:text-sky-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+                    className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-blue-300 hover:text-blue-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                     <Download aria-hidden="true" className="w-4 h-4" />
                     {doc.name}
                     {doc.file_size && <span className="text-xs text-slate-400">({Math.round(doc.file_size / 1024)}KB)</span>}
@@ -345,6 +352,9 @@ export default async function ProductPage({ params }: Props) {
               </div>
             </div>
           )}
+
+          {/* Recently viewed */}
+          <RecentlyViewed currentId={product.id} />
 
           {/* Related / BTU-matched products */}
           {relatedFiltered.length > 0 && (
@@ -360,7 +370,7 @@ export default async function ProductPage({ params }: Props) {
                     </p>
                   )}
                 </div>
-                <Link href="/products" className="text-sm text-sky-600 hover:text-sky-700 font-medium shrink-0">
+                <Link href="/products" className="text-sm text-blue-600 hover:text-blue-700 font-medium shrink-0">
                   View all →
                 </Link>
               </div>
@@ -374,6 +384,16 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </main>
       <Footer />
+
+      {/* Client-only: track view in localStorage + quote nudge after 3min */}
+      <ViewTracker item={{
+        id:    product.id,
+        slug:  product.slug,
+        name:  product.name,
+        image: primaryImage?.url ?? null,
+        price: priceResult.price != null ? formatPrice(priceResult.price, product.currency) : null,
+      }} />
+      <QuoteReminder productId={product.id} productName={product.name} />
     </>
   )
 }

@@ -26,14 +26,15 @@ export async function LocalBusinessJsonLd() {
   const opens8s  = saturday.split('–')[0]?.trim() || '08:00'
   const closes14 = saturday.split('–')[1]?.trim() || '14:00'
 
-  const data: Record<string, unknown> = {
+  const localBusiness: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'HVACBusiness',
     name: 'THE AIRCONDITION SHOP',
     legalName: str(settings.legal_name) || 'AS GROUP',
-    url: 'https://theairconditionshop.com',
+    url: 'https://www.theairconditionshop.com',
     telephone: phone,
     email: email,
+    description: "Malta's trusted supplier and installer of air conditioners, heat pumps, ventilation systems and commercial refrigeration equipment.",
     address: {
       '@type': 'PostalAddress',
       streetAddress: '220 Vjal L-Indipendenza',
@@ -46,23 +47,50 @@ export async function LocalBusinessJsonLd() {
       latitude: 35.9075,
       longitude: 14.4257,
     },
+    areaServed: { '@type': 'Country', name: 'Malta' },
     openingHoursSpecification: [
       { '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday'], opens: opens8, closes: closes18 },
       { '@type': 'OpeningHoursSpecification', dayOfWeek: 'Saturday', opens: opens8s, closes: closes14 },
     ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Air Conditioning & HVAC Products',
+      itemListElement: [
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Air Conditioning Installation Malta' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Heat Pump Installation Malta' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial Refrigeration Malta' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'HVAC Maintenance & Repair Malta' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Ventilation Systems Malta' } },
+      ],
+    },
   }
 
-  if (vatNumber) data.taxID = vatNumber
-  if (sameAs.length) data.sameAs = sameAs
+  if (vatNumber) localBusiness.taxID = vatNumber
+  if (sameAs.length) localBusiness.sameAs = sameAs
+
+  const organization: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'THE AIRCONDITION SHOP',
+    url: 'https://www.theairconditionshop.com',
+    contactPoint: {
+      '@type': 'ContactPoint',
+      telephone: phone,
+      contactType: 'customer service',
+      areaServed: 'MT',
+      availableLanguage: 'English',
+    },
+  }
+  if (sameAs.length) organization.sameAs = sameAs
 
   // suppress unused variable warning
   void address
 
   return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }}
-    />
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(localBusiness) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(organization) }} />
+    </>
   )
 }
 
@@ -112,6 +140,23 @@ export function ProductJsonLd({ name, description, image, price, currency = 'EUR
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }}
     />
+  )
+}
+
+// FAQPage JSON-LD
+export function FaqJsonLd({ faqs }: { faqs: { question: string; answer: string }[] }) {
+  if (!faqs.length) return null
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(f => ({
+      '@type': 'Question',
+      name: f.question,
+      acceptedAnswer: { '@type': 'Answer', text: f.answer },
+    })),
+  }
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(data) }} />
   )
 }
 

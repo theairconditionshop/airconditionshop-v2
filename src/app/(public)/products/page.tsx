@@ -12,8 +12,8 @@ import { ProductGridSkeleton } from '@/components/ui/skeleton'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Products — HVAC & Refrigeration',
-  description: 'Browse our full range of air conditioners, refrigeration equipment, HVAC tools and accessories.',
+  title: 'Air Conditioners, Heat Pumps & HVAC Products in Malta',
+  description: 'Browse our full range of air conditioners, heat pumps, refrigeration equipment, VRF systems and HVAC accessories in Malta. All major brands. Trade and residential.',
   alternates: { canonical: 'https://www.theairconditionshop.com/products' },
 }
 
@@ -42,7 +42,7 @@ export default async function ProductsPage({ searchParams }: Props) {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20 bg-slate-50/40">
+      <main id="main-content" className="min-h-screen pt-20 bg-slate-50/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
 
           {/* Page title */}

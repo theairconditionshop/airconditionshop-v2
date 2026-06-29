@@ -11,10 +11,10 @@ interface CtaData {
 }
 
 export default function CtaSection({ data }: { data: CtaData }) {
-  const heading      = data.heading      || 'Ready to get started?'
-  const description  = data.description  || 'Request a free site survey or speak to our team about your HVAC requirements.'
-  const ctaPrimary   = data.cta_primary   || { label: 'Request a Quote', href: '/quote' }
-  const ctaSecondary = data.cta_secondary || { label: 'Contact Us',      href: '/contact' }
+  const heading      = data.heading      || 'Need Air Conditioning or HVAC in Malta?'
+  const description  = data.description  || 'Whether you need a single unit for your home, a full commercial installation or an HVAC service call, our team is ready to help. We cover all Malta, respond quickly and give honest advice.'
+  const ctaPrimary   = data.cta_primary   || { label: 'Request a Free Quote', href: '/quote' }
+  const ctaSecondary = data.cta_secondary || { label: 'Contact Our Team',     href: '/contact' }
   const imageUrl     = data.image_url || null
 
   return (
@@ -44,12 +44,12 @@ export default function CtaSection({ data }: { data: CtaData }) {
 
               <div className="relative">
                 <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.2em] mb-5">
-                  Get in Touch
+                  Get a Quote Today
                 </p>
-                <h2 className="font-display text-3xl lg:text-5xl xl:text-6xl text-white mb-5 leading-tight">
+                <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] text-white mb-5 leading-[1.1]">
                   {heading}
                 </h2>
-                <p className="text-slate-400 text-lg leading-relaxed mb-10 max-w-lg">
+                <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-10 max-w-lg">
                   {description}
                 </p>
 
@@ -79,7 +79,7 @@ export default function CtaSection({ data }: { data: CtaData }) {
 
                 {/* Trust signals */}
                 <div className="mt-10 pt-8 border-t border-white/[0.06] flex flex-wrap gap-x-6 gap-y-2">
-                  {['Malta-wide coverage', 'Same-day emergency response', 'Certified technicians'].map(t => (
+                  {['All Malta Covered', 'Same-Day Emergency Response', 'F-Gas Certified Engineers'].map(t => (
                     <span key={t} className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
                       <span className="w-1 h-1 rounded-full bg-blue-600/60 shrink-0" />
                       {t}

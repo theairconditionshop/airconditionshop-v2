@@ -154,7 +154,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Description</label>
           <textarea {...register('description')} rows={5}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none" />
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
         </div>
       </div>
 
@@ -164,7 +164,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-slate-700">Category</label>
             <select {...register('category_id')}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">— None —</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
@@ -172,7 +172,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-slate-700">Brand</label>
             <select {...register('brand_id')}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
               <option value="">— None —</option>
               {brands.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
@@ -181,7 +181,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">AC Type</label>
           <select {...register('ac_type')}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">— Not an AC unit —</option>
             {AC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -190,7 +190,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Product Type</label>
           <select {...register('product_type')}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">— Select type —</option>
             {PRODUCT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -199,7 +199,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Availability</label>
           <select {...register('availability')}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="in_stock">In Stock</option>
             <option value="out_of_stock">Out of Stock</option>
             <option value="on_order">On Order</option>
@@ -217,7 +217,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-slate-700">Trade pricing mode</label>
           <select {...register('trade_price_mode')}
-            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+            className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="">— No trade price —</option>
             <option value="fixed">Fixed trade price</option>
             <option value="discount">Discount percentage</option>
@@ -250,7 +250,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
         </div>
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" {...register('wifi_enabled')}
-            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-blue-500" />
           <span className="text-sm text-slate-700">Wi-Fi enabled</span>
         </label>
       </div>
@@ -259,12 +259,12 @@ export default function ProductForm({ product, categories, brands }: Props) {
         <h3 className="font-semibold text-slate-900 text-sm">Visibility</h3>
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" {...register('is_active')}
-            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-blue-500" />
           <span className="text-sm text-slate-700">Active (visible on website)</span>
         </label>
         <label className="flex items-center gap-3 cursor-pointer">
           <input type="checkbox" {...register('is_featured')}
-            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+            className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-blue-500" />
           <span className="text-sm text-slate-700">Featured on homepage</span>
         </label>
       </div>

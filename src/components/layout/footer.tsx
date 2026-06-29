@@ -43,8 +43,9 @@ export default async function Footer() {
               </span>
             </Link>
             <p className="text-sm text-slate-500 leading-relaxed mb-8">
-              Malta&apos;s premier HVAC and refrigeration specialists. Premium AC, refrigeration,
-              ventilation and installation materials.
+              THE AIRCONDITION SHOP supplies air conditioners, heat pumps, ventilation systems,
+              refrigeration equipment and HVAC installation materials across Malta. We provide
+              professional installation, servicing and expert advice for residential and commercial customers.
             </p>
 
             {/* Contact info */}
@@ -123,9 +124,9 @@ export default async function Footer() {
       <div className="border-t border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
           {[
-            'F-Gas Certified',
-            'Certified Engineers',
-            vatNumber ? `VAT ${vatNumber}` : 'Malta VAT Registered',
+            'F-Gas Certified Engineers',
+            'Manufacturer-Authorised Installer',
+            vatNumber ? `Malta VAT · ${vatNumber}` : 'Malta VAT Registered',
             'Fully Insured',
           ].map(cert => (
             <span key={cert} className="inline-flex items-center gap-1.5 text-[11px] text-slate-600 tracking-wide">

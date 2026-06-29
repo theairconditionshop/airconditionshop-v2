@@ -3,6 +3,7 @@ export default function StickyMobileCta() {
     <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 flex border-t border-slate-200 bg-white/95 backdrop-blur-sm shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
       <a
         href="tel:+35679661889"
+        aria-label="Call us on +356 7966 1889"
         className="flex flex-1 items-center justify-center gap-2 py-3.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors border-r border-slate-100"
       >
         <svg className="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -14,6 +15,7 @@ export default function StickyMobileCta() {
         href="https://wa.me/35679661889"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="Contact us on WhatsApp"
         className="flex flex-1 items-center justify-center gap-2 py-3.5 text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition-colors"
       >
         <svg className="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">

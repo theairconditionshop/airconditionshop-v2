@@ -75,7 +75,7 @@ export default async function CampaignDetailPage({ params }: Props) {
       <Navbar />
       <CampaignViewTracker campaignId={c.id} />
 
-      <main className="min-h-screen">
+      <main id="main-content" className="min-h-screen">
         {/* ── HERO ─────────────────────────────────────────────────────── */}
         <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden pt-16">
           {c.hero_image ? (
@@ -87,7 +87,7 @@ export default async function CampaignDetailPage({ params }: Props) {
           <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
 
           <div className="relative z-10 max-w-4xl mx-auto text-center px-4 py-20">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 text-sky-400 text-xs font-bold tracking-widest uppercase mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-blue-500/40 bg-blue-500/10 text-blue-400 text-xs font-bold tracking-widest uppercase mb-6">
               {TYPE_LABELS[c.campaign_type]}
             </div>
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-white leading-[0.95] tracking-tight mb-6">

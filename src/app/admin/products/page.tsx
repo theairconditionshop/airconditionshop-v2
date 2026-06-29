@@ -97,7 +97,7 @@ export default async function AdminProductsPage({
               name="q"
               defaultValue={q}
               placeholder="Search products…"
-              className="w-full h-9 pl-3 pr-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+              className="w-full h-9 pl-3 pr-3 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -105,7 +105,7 @@ export default async function AdminProductsPage({
           <select
             name="brand"
             defaultValue={brand}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
           >
             <option value="">All Brands</option>
             {(allBrands ?? []).map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -115,7 +115,7 @@ export default async function AdminProductsPage({
           <select
             name="category"
             defaultValue={category}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
           >
             <option value="">All Categories</option>
             {(allCategories ?? []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -125,7 +125,7 @@ export default async function AdminProductsPage({
           <select
             name="sort"
             defaultValue={sort}
-            className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+            className="h-9 rounded-lg border border-slate-200 bg-white px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
           >
             <option value="newest">Newest first</option>
             <option value="az">Name A→Z</option>

@@ -9,7 +9,7 @@ export default function PageHeader({ eyebrow, title, description, center = false
   return (
     <div className={center ? 'text-center' : ''}>
       {eyebrow && (
-        <p className="text-[11px] font-semibold text-sky-600 uppercase tracking-[0.22em] mb-3">{eyebrow}</p>
+        <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">{eyebrow}</p>
       )}
       <h1 className="font-display text-3xl lg:text-4xl xl:text-5xl text-slate-900 leading-tight">{title}</h1>
       {description && (

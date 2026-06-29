@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import { Button } from '@/components/ui/button'
+import { PremiumImage } from '@/components/shared/premium-image'
 import { MapPin, Phone, Mail, Globe, Building2, Briefcase, Home, CheckCircle2, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -29,7 +30,7 @@ export default function AboutPage() {
   return (
     <>
       <Navbar transparent />
-      <main className="min-h-screen">
+      <main id="main-content" className="min-h-screen">
 
         {/* ── Hero — no stock photo ── */}
         <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-slate-950">
@@ -113,6 +114,18 @@ export default function AboutPage() {
               </div>
 
               <div className="space-y-3">
+                {/* Showroom image — set via Admin → Media */}
+                <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-5">
+                  <PremiumImage
+                    src={null}
+                    alt="THE AIRCONDITION SHOP — Mosta showroom, Malta"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    rounded="2xl"
+                    placeholderLabel="Showroom Photo"
+                    hoverZoom
+                  />
+                </div>
                 {VALUES.map(v => (
                   <div key={v.title}
                     className="flex gap-4 p-5 bg-white rounded-2xl border border-slate-100 hover:border-blue-100 hover:shadow-[0_8px_30px_-8px_rgba(14,165,233,0.1)] transition-all duration-300">

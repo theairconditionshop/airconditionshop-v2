@@ -65,7 +65,7 @@ export default function CategoryForm({ category }: { category?: Record<string, u
       <div className="flex flex-col gap-1.5">
         <label className="text-sm font-medium text-slate-700">Description</label>
         <textarea {...register('description')} rows={3}
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none" />
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
       </div>
       <Input label="Display order" type="number" {...register('display_order')} />
 
@@ -79,7 +79,7 @@ export default function CategoryForm({ category }: { category?: Record<string, u
 
       <label className="flex items-center gap-3 cursor-pointer">
         <input type="checkbox" {...register('is_active')}
-          className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-sky-500" />
+          className="w-4 h-4 rounded border-slate-300 text-sky-600 focus:ring-blue-500" />
         <span className="text-sm text-slate-700">Active</span>
       </label>
       <div className="flex gap-3">

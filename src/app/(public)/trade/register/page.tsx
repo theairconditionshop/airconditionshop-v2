@@ -188,7 +188,7 @@ export default async function TradeRegisterPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-20 bg-slate-50">
+      <main id="main-content" className="min-h-screen pt-20 bg-slate-50">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-14">
 
           {gate ? (

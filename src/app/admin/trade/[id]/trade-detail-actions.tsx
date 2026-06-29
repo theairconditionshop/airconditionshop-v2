@@ -89,7 +89,7 @@ function ConfirmModal({
             placeholder={isSuspend
               ? 'e.g. Account under review, outstanding invoice…'
               : 'e.g. Unable to verify business details…'}
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none transition-colors"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors"
           />
         </div>
 
@@ -322,7 +322,7 @@ export default function TradeDetailActions({
             onChange={e => setNotes(e.target.value)}
             rows={5}
             placeholder="Credit limit, special terms, referral source…"
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none transition-colors"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-colors"
           />
           <button
             onClick={saveNotes}

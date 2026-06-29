@@ -87,11 +87,11 @@ export default function ServiceRequestForm() {
           A confirmation email has been sent to you.
         </p>
 
-        <div className="mb-6 px-6 py-4 bg-sky-50 border border-sky-100 rounded-2xl w-full max-w-xs">
-          <p className="text-xs font-semibold text-sky-500 uppercase tracking-widest mb-1">
+        <div className="mb-6 px-6 py-4 bg-blue-50 border border-blue-100 rounded-2xl w-full max-w-xs">
+          <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-1">
             Your reference number
           </p>
-          <p className="text-xl font-bold text-sky-700 tracking-wide font-mono">
+          <p className="text-xl font-bold text-blue-700 tracking-wide font-mono">
             {reference}
           </p>
           <p className="text-xs text-slate-400 mt-1">
@@ -164,7 +164,7 @@ export default function ServiceRequestForm() {
         <select
           id="service_type"
           {...register('service_type')}
-          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 transition-colors"
+          className="h-12 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150 cursor-pointer"
           aria-required="true"
           aria-invalid={!!errors.service_type}
         >
@@ -194,7 +194,7 @@ export default function ServiceRequestForm() {
           {...register('description')}
           rows={4}
           placeholder="Describe the issue or what you need done…"
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 resize-none transition-colors"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none transition-colors duration-150"
           aria-invalid={!!errors.description}
         />
         {errors.description && (

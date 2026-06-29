@@ -30,7 +30,7 @@ export default function QuotePage() {
   return (
     <>
       <Navbar transparent />
-      <main className="min-h-screen">
+      <main id="main-content" className="min-h-screen">
 
         {/* ── Hero ── */}
         <section className="relative min-h-[46vh] flex items-end overflow-hidden bg-slate-950">

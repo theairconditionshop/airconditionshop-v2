@@ -105,11 +105,11 @@ export default function FooterAccordions({ googleReviewUrl }: { googleReviewUrl?
         )}
 
         <div className="mt-6 bg-amber-500/[0.07] border border-amber-500/20 rounded-xl p-5">
-          <p className="text-sm font-semibold text-amber-400 mb-1">Trade Programme</p>
-          <p className="text-xs text-slate-500 mb-4 leading-relaxed">Exclusive pricing for installers &amp; contractors</p>
+          <p className="text-sm font-semibold text-amber-400 mb-1">HVAC Trade Accounts — Malta</p>
+          <p className="text-xs text-slate-500 mb-4 leading-relaxed">Competitive pricing for installers, contractors and commercial buyers</p>
           <div className="flex flex-col gap-2">
             <Link href="/trade/register" className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors duration-200 cursor-pointer">
-              Apply for Trade Account →
+              Apply for a Trade Account →
             </Link>
             <Link href="/login" className="text-xs text-slate-500 hover:text-slate-300 transition-colors duration-200 cursor-pointer">
               Trade Login →
