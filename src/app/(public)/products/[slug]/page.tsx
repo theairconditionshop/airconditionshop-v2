@@ -73,6 +73,8 @@ export default async function ProductPage({ params }: Props) {
   const priceResult  = resolvePrice(product, userRole)
   const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
   const hidePricing  = shouldHidePrice(product, userRole)
+  // True AC units have an ac_type or a product_type that isn't an accessory
+  const isAcUnit     = !!product.ac_type || (product.product_type != null && product.product_type !== 'installation_material')
 
   // Related: prefer BTU-matched, fall back to category
   const hasBtu = product.cooling_btu != null
@@ -115,10 +117,18 @@ export default async function ProductPage({ params }: Props) {
   ].filter(s => s.value != null && s.value !== '')
 
   const hasHvacSpecs = hvacSpecs.length > 0
-  const hasLegacySpecs = product.specifications &&
-    typeof product.specifications === 'object' &&
-    !Array.isArray(product.specifications) &&
-    Object.keys(product.specifications).length > 0
+
+  // Split specifications into primitive key-value pairs and variants array
+  const rawSpecs = (product.specifications && typeof product.specifications === 'object' && !Array.isArray(product.specifications))
+    ? product.specifications as Record<string, unknown>
+    : null
+  const specVariants: Array<Record<string, unknown>> = Array.isArray(rawSpecs?.variants) ? rawSpecs!.variants as Array<Record<string, unknown>> : []
+  const specPrimitives: [string, string][] = rawSpecs
+    ? Object.entries(rawSpecs)
+        .filter(([k, v]) => k !== 'variants' && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') && v !== '')
+        .map(([k, v]) => [k, String(v)])
+    : []
+  const hasLegacySpecs = specPrimitives.length > 0 || specVariants.length > 0
 
   return (
     <>
@@ -219,11 +229,13 @@ export default async function ProductPage({ params }: Props) {
                 </Badge>
               </div>
 
-              {/* Installation available strip */}
-              <div className="mt-4 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-100 w-fit">
-                <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
-                <span className="text-sm font-medium text-blue-800">Professional installation available across Malta</span>
-              </div>
+              {/* Installation available strip — AC units only */}
+              {isAcUnit && (
+                <div className="mt-4 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-50 border border-blue-100 w-fit">
+                  <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="text-sm font-medium text-blue-800">Professional installation available across Malta</span>
+                </div>
+              )}
 
               {/* Price / Trade CTA */}
               {hidePricing ? (
@@ -323,22 +335,61 @@ export default async function ProductPage({ params }: Props) {
             </div>
           )}
 
-          {/* Legacy specs table fallback */}
+          {/* Specifications — for accessories and products without HVAC spec cards */}
           {!hasHvacSpecs && hasLegacySpecs && (
             <div className="mt-14">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">Technical Specifications</h2>
-              <div className="overflow-x-auto">
-                <table aria-label="Technical specifications" className="w-full border border-slate-100 rounded-xl overflow-hidden text-sm">
-                  <tbody>
-                    {Object.entries(product.specifications as Record<string, string>).map(([key, val], i) => (
-                      <tr key={i} className={i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
-                        <td className="px-5 py-3 font-medium text-slate-700 w-1/3">{key}</td>
-                        <td className="px-5 py-3 text-slate-500">{val}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <h2 className="text-xl font-bold text-slate-900 mb-4">Specifications</h2>
+
+              {/* Primitive key-value pairs */}
+              {specPrimitives.length > 0 && (
+                <div className="overflow-x-auto mb-8">
+                  <table aria-label="Technical specifications" className="w-full border border-slate-100 rounded-xl overflow-hidden text-sm">
+                    <tbody>
+                      {specPrimitives.map(([key, val], i) => (
+                        <tr key={i} className={i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
+                          <td className="px-5 py-3 font-medium text-slate-700 w-1/3 capitalize">{key.replace(/_/g, ' ')}</td>
+                          <td className="px-5 py-3 text-slate-500">{val}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Variants table */}
+              {specVariants.length > 0 && (
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900 mb-3">Available Options</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full border border-slate-100 rounded-xl overflow-hidden text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          {Object.keys(specVariants[0])
+                            .filter(k => k !== 'sku' || specVariants.some(v => v.sku))
+                            .map(k => (
+                              <th key={k} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide capitalize">
+                                {k.replace(/_/g, ' ')}
+                              </th>
+                            ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {specVariants.map((variant, i) => (
+                          <tr key={i} className="hover:bg-slate-50/40">
+                            {Object.keys(specVariants[0]).map(k => (
+                              <td key={k} className="px-4 py-2.5 text-sm text-slate-600">
+                                {k === 'price' && typeof variant[k] === 'number'
+                                  ? `€${Number(variant[k]).toFixed(2)}`
+                                  : String(variant[k] ?? '—')}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
