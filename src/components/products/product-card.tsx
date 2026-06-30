@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
-import { resolvePrice, formatPrice } from '@/lib/pricing/resolver'
+import { resolvePrice, formatPrice, shouldHidePrice } from '@/lib/pricing/resolver'
 import type { Product, UserRole } from '@/types/database'
 import { cn } from '@/lib/utils'
+import TradePricingCta from '@/components/products/trade-pricing-cta'
 
 interface ProductCardProps {
   product: Product
@@ -35,10 +36,11 @@ const AVAILABILITY_LABELS: Record<string, string> = {
 }
 
 export default function ProductCard({ product, userRole, className }: ProductCardProps) {
-  const priceResult  = resolvePrice(product, userRole ?? null)
-  const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
+  const priceResult   = resolvePrice(product, userRole ?? null)
+  const primaryImage  = product.images?.find(img => img.is_primary) || product.images?.[0]
   const gradientClass = getBrandGradient(product.brand?.name)
   const unavailable   = product.availability !== 'in_stock'
+  const hidePricing   = shouldHidePrice(product, userRole ?? null)
 
   return (
     <Link
@@ -109,7 +111,9 @@ export default function ProductCard({ product, userRole, className }: ProductCar
 
         <div className="mt-4 flex items-end justify-between">
           <div>
-            {priceResult.price != null ? (
+            {hidePricing ? (
+              <TradePricingCta variant="card" />
+            ) : priceResult.price != null ? (
               <div>
                 {priceResult.originalPrice != null && (
                   <p className="text-xs text-slate-400 line-through leading-none mb-0.5">

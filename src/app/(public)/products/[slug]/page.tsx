@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { getProductBySlug, getProducts, getProductsByBtuRange } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
-import { resolvePrice, formatPrice } from '@/lib/pricing/resolver'
+import { resolvePrice, formatPrice, shouldHidePrice } from '@/lib/pricing/resolver'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
@@ -16,6 +16,7 @@ import ProductCard from '@/components/products/product-card'
 import ProductGallery from '@/components/products/product-gallery'
 import InstallationOffer from '@/components/products/installation-offer'
 import DeliveryInfo from '@/components/products/delivery-info'
+import TradePricingCta from '@/components/products/trade-pricing-cta'
 import ViewTracker from '@/components/products/view-tracker'
 import RecentlyViewed from '@/components/products/recently-viewed'
 import QuoteReminder from '@/components/products/quote-reminder'
@@ -71,6 +72,7 @@ export default async function ProductPage({ params }: Props) {
 
   const priceResult  = resolvePrice(product, userRole)
   const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]
+  const hidePricing  = shouldHidePrice(product, userRole)
 
   // Related: prefer BTU-matched, fall back to category
   const hasBtu = product.cooling_btu != null
@@ -124,7 +126,7 @@ export default async function ProductPage({ params }: Props) {
         name={product.name}
         description={product.description ?? undefined}
         image={primaryImage?.url}
-        price={priceResult.price ?? undefined}
+        price={hidePricing ? undefined : (priceResult.price ?? undefined)}
         sku={product.sku ?? undefined}
         brand={product.brand?.name}
         availability={product.availability === 'out_of_stock' ? 'OutOfStock' : 'InStock'}
@@ -168,7 +170,7 @@ export default async function ProductPage({ params }: Props) {
               )}
 
               {/* Quick spec row */}
-              {(product.brand || product.ac_type || product.cooling_btu || priceResult.price != null || product.availability) && (
+              {(product.brand || product.ac_type || product.cooling_btu || (!hidePricing && priceResult.price != null) || product.availability) && (
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
                   {product.brand && (
                     <div className="flex flex-col gap-0.5">
@@ -188,7 +190,7 @@ export default async function ProductPage({ params }: Props) {
                       <span className="text-slate-700 font-medium">{product.cooling_btu.toLocaleString()} BTU</span>
                     </div>
                   )}
-                  {priceResult.price != null && (
+                  {!hidePricing && priceResult.price != null && (
                     <div className="flex flex-col gap-0.5">
                       <span className="text-slate-400 uppercase tracking-wide font-semibold">Price</span>
                       <span className="text-slate-700 font-medium">{formatPrice(priceResult.price, product.currency)}</span>
@@ -223,43 +225,47 @@ export default async function ProductPage({ params }: Props) {
                 <span className="text-sm font-medium text-blue-800">Professional installation available across Malta</span>
               </div>
 
-              {/* Price */}
-              <div className="mt-6 p-5 bg-slate-50 rounded-2xl">
-                {priceResult.price != null ? (
-                  <div>
-                    {priceResult.originalPrice != null && (
-                      <p className="text-base text-slate-400 line-through leading-none mb-1">
-                        {formatPrice(priceResult.originalPrice, product.currency)}
+              {/* Price / Trade CTA */}
+              {hidePricing ? (
+                <TradePricingCta variant="panel" />
+              ) : (
+                <div className="mt-6 p-5 bg-slate-50 rounded-2xl">
+                  {priceResult.price != null ? (
+                    <div>
+                      {priceResult.originalPrice != null && (
+                        <p className="text-base text-slate-400 line-through leading-none mb-1">
+                          {formatPrice(priceResult.originalPrice, product.currency)}
+                        </p>
+                      )}
+                      <p className={`text-3xl font-bold ${priceResult.originalPrice != null ? 'text-emerald-600' : 'text-slate-900'}`}>
+                        {formatPrice(priceResult.price, product.currency)}
                       </p>
-                    )}
-                    <p className={`text-3xl font-bold ${priceResult.originalPrice != null ? 'text-emerald-600' : 'text-slate-900'}`}>
-                      {formatPrice(priceResult.price, product.currency)}
-                    </p>
-                    {priceResult.savingsAmount != null && priceResult.savingsAmount > 0 && (
-                      <p className="mt-1 text-sm font-medium text-emerald-600">
-                        Save {formatPrice(priceResult.savingsAmount, product.currency)} · {priceResult.saleDiscountPct}% off
-                      </p>
-                    )}
-                    {priceResult.isTrade ? (
-                      <div className="mt-1 flex items-center gap-2">
-                        <Badge variant="trade">{priceResult.label}</Badge>
-                        {priceResult.discountPct && (
-                          <span className="text-xs text-slate-500">{priceResult.discountPct}% off retail</span>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="mt-1 text-xs text-slate-400">Price excl. installation. Contact for trade pricing.</p>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    <p className="text-lg font-semibold text-slate-700">Contact for pricing</p>
-                    <p className="text-sm text-slate-400 mt-0.5">Call or email us for a quote</p>
-                  </div>
-                )}
-              </div>
+                      {priceResult.savingsAmount != null && priceResult.savingsAmount > 0 && (
+                        <p className="mt-1 text-sm font-medium text-emerald-600">
+                          Save {formatPrice(priceResult.savingsAmount, product.currency)} · {priceResult.saleDiscountPct}% off
+                        </p>
+                      )}
+                      {priceResult.isTrade ? (
+                        <div className="mt-1 flex items-center gap-2">
+                          <Badge variant="trade">{priceResult.label}</Badge>
+                          {priceResult.discountPct && (
+                            <span className="text-xs text-slate-500">{priceResult.discountPct}% off retail</span>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="mt-1 text-xs text-slate-400">Price excl. installation. Contact for trade pricing.</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-lg font-semibold text-slate-700">Contact for pricing</p>
+                      <p className="text-sm text-slate-400 mt-0.5">Call or email us for a quote</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              {/* CTAs */}
+              {/* CTAs — always visible */}
               <div className="mt-5 flex flex-col sm:flex-row gap-3">
                 <Link href={`/quote?product=${product.id}`} className="flex-1">
                   <Button variant="brand" size="lg" className="w-full gap-2">
@@ -379,6 +385,12 @@ export default async function ProductPage({ params }: Props) {
                   <ProductCard key={p.id} product={p} userRole={userRole} />
                 ))}
               </div>
+            </div>
+          )}
+          {/* Premium Trade CTA — shown on all installation material pages for non-trade users */}
+          {hidePricing && (
+            <div className="mt-16">
+              <TradePricingCta variant="premium" />
             </div>
           )}
         </div>

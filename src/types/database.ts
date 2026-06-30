@@ -3,6 +3,7 @@ export type TradeStatus = 'pending' | 'approved' | 'rejected' | 'suspended'
 export type TradeApplicationStatus = 'pending' | 'approved' | 'rejected' | 'suspended'
 export type ProductAvailability = 'in_stock' | 'out_of_stock' | 'on_order' | 'discontinued'
 export type TradePriceMode = 'fixed' | 'discount'
+export type PriceVisibility = 'public' | 'trade_only'
 export type BlogStatus = 'draft' | 'published' | 'scheduled' | 'archived'
 export type EnquiryStatus = 'new' | 'read' | 'replied' | 'archived'
 export type ServiceType = 'installation' | 'repair' | 'maintenance' | 'inspection' | 'commercial' | 'coldroom' | 'other'
@@ -99,6 +100,7 @@ export interface Product {
   effective_price: number | null
   cost_price: number | null
   product_type: string | null
+  price_visibility: PriceVisibility
   trade_price: number | null
   trade_discount_pct: number | null
   trade_price_mode: TradePriceMode

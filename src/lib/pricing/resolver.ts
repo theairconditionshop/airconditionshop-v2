@@ -10,6 +10,25 @@ export interface PriceResult {
   saleDiscountPct: number | null
 }
 
+/**
+ * Returns true when pricing must be hidden from this user.
+ *
+ * Priority:
+ *  1. price_visibility field (explicit, future-proof)
+ *  2. product_type === 'installation_material' legacy fallback
+ */
+export function shouldHidePrice(product: Product, role: UserRole | null): boolean {
+  const isTradeUser = role === 'trade' || role === 'admin' || role === 'super_admin'
+  if (isTradeUser) return false
+
+  // Explicit field takes priority over product_type heuristic
+  if (product.price_visibility === 'trade_only') return true
+  if (product.price_visibility === 'public') return false
+
+  // Legacy fallback for products created before price_visibility existed
+  return product.product_type === 'installation_material'
+}
+
 export function resolvePrice(product: Product, role: UserRole | null): PriceResult {
   const isTradeUser = role === 'trade' || role === 'admin' || role === 'super_admin'
 
@@ -33,7 +52,7 @@ export function resolvePrice(product: Product, role: UserRole | null): PriceResu
       const discounted = product.original_price * (1 - product.trade_discount_pct / 100)
       return {
         price: Math.round(discounted * 100) / 100,
-        label: `Trade Price`,
+        label: 'Trade Price',
         isTrade: true,
         discountPct: product.trade_discount_pct,
         originalPrice: null,
@@ -41,13 +60,25 @@ export function resolvePrice(product: Product, role: UserRole | null): PriceResu
         saleDiscountPct: null,
       }
     }
+
+    // Fallback: retail_price for accessories imported without original_price
+    if (product.retail_price != null) {
+      return {
+        price: product.retail_price,
+        label: 'Trade Price',
+        isTrade: true,
+        originalPrice: null,
+        savingsAmount: null,
+        saleDiscountPct: null,
+      }
+    }
   }
 
-  // Sale pricing: sale_price is the discounted price, original_price is RRP
+  // Sale pricing
   if (product.sale_price != null) {
-    const rrp = product.original_price
+    const rrp     = product.original_price
     const savings = rrp != null ? Math.round((rrp - product.sale_price) * 100) / 100 : null
-    const pct = rrp != null && rrp > 0
+    const pct     = rrp != null && rrp > 0
       ? Math.round(((rrp - product.sale_price) / rrp) * 100)
       : null
     return {

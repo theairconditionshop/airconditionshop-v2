@@ -36,7 +36,8 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     .order('row_index')
 
   let created = 0, updated = 0, failed = 0
-  const pdfType = imp.type as 'catalogue' | 'price_list'
+  const pdfType          = imp.type as 'catalogue' | 'price_list'
+  const defaultPriceVis  = (imp.default_price_visibility ?? 'trade_only') as 'public' | 'trade_only'
 
   // Process in parallel batches of 10 (Phase 12 performance)
   const allRows = rows ?? []
@@ -45,15 +46,16 @@ export async function POST(_: Request, { params }: { params: Promise<{ id: strin
     const results = await Promise.allSettled(
       batch.map(row =>
         executeImportRow({
-          importId:           id,
-          rowId:              row.id,
-          parsed:             row.raw_data as ParsedProduct,
-          action:             row.action as 'create' | 'update',
-          matchedProductId:   row.matched_product_id,
-          replaceExisting:    imp.replace_existing ?? false,
+          importId:            id,
+          rowId:               row.id,
+          parsed:              row.raw_data as ParsedProduct,
+          action:              row.action as 'create' | 'update',
+          matchedProductId:    row.matched_product_id,
+          replaceExisting:     imp.replace_existing ?? false,
           pdfType,
-          normalisedBrand:    row.normalised_brand,
-          normalisedCategory: row.normalised_category,
+          normalisedBrand:     row.normalised_brand,
+          normalisedCategory:  row.normalised_category,
+          defaultPriceVisibility: defaultPriceVis,
         })
       )
     )

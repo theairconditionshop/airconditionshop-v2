@@ -5,15 +5,16 @@ import { normaliseBrand } from './brand-normaliser'
 import { normaliseCategory } from './category-normaliser'
 
 interface ExecuteRowOpts {
-  importId:           string
-  rowId:              string
-  parsed:             ParsedProduct
-  action:             'create' | 'update'
-  matchedProductId:   string | null
-  replaceExisting:    boolean
-  pdfType:            'catalogue' | 'price_list'
-  normalisedBrand?:   string | null
-  normalisedCategory?: string | null
+  importId:                string
+  rowId:                   string
+  parsed:                  ParsedProduct
+  action:                  'create' | 'update'
+  matchedProductId:        string | null
+  replaceExisting:         boolean
+  pdfType:                 'catalogue' | 'price_list'
+  normalisedBrand?:        string | null
+  normalisedCategory?:     string | null
+  defaultPriceVisibility?: 'public' | 'trade_only'
 }
 
 export async function executeImportRow(opts: ExecuteRowOpts): Promise<void> {
@@ -135,6 +136,7 @@ async function performCreate(
     category_id,
     ac_type:            p.ac_type  ?? null,
     product_type:       p.product_type ?? null,
+    price_visibility:   opts.defaultPriceVisibility ?? 'trade_only',
     cooling_btu:        p.btu      ?? null,
     is_active:          true,
     availability:       'in_stock',

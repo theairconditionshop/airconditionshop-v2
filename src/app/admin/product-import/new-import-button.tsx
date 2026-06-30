@@ -6,10 +6,11 @@ import { Upload, X, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function NewImportButton() {
-  const [open,    setOpen]    = useState(false)
-  const [file,    setFile]    = useState<File | null>(null)
-  const [type,    setType]    = useState<'auto' | 'catalogue' | 'price_list'>('auto')
-  const [loading, setLoading] = useState(false)
+  const [open,            setOpen]           = useState(false)
+  const [file,            setFile]           = useState<File | null>(null)
+  const [type,            setType]           = useState<'auto' | 'catalogue' | 'price_list'>('auto')
+  const [priceVisibility, setPriceVisibility] = useState<'public' | 'trade_only'>('trade_only')
+  const [loading,         setLoading]        = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router   = useRouter()
 
@@ -20,6 +21,7 @@ export default function NewImportButton() {
       const fd = new FormData()
       fd.append('file', file)
       if (type !== 'auto') fd.append('type', type)
+      fd.append('price_visibility', priceVisibility)
 
       const res  = await fetch('/api/admin/product-import', { method: 'POST', body: fd })
       const data = await res.json()
@@ -98,6 +100,22 @@ export default function NewImportButton() {
               </select>
               <p className="text-[11px] text-slate-400 mt-1">
                 Catalogues update existing products only. Price lists can also create new products.
+              </p>
+            </div>
+
+            {/* Price visibility default */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Price Visibility</label>
+              <select
+                value={priceVisibility}
+                onChange={e => setPriceVisibility(e.target.value as 'public' | 'trade_only')}
+                className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="trade_only">Trade Only — prices hidden from public</option>
+                <option value="public">Public — prices visible to everyone</option>
+              </select>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Applied to all new products created from this import. Can be changed per-product afterwards.
               </p>
             </div>
 

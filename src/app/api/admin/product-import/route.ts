@@ -39,8 +39,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid form data' }, { status: 400 })
   }
 
-  const file = formData.get('file') as File | null
-  const typeOverride = formData.get('type') as string | null
+  const file            = formData.get('file') as File | null
+  const typeOverride    = formData.get('type') as string | null
+  const rawVisibility   = formData.get('price_visibility') as string | null
+  const priceVisibility = rawVisibility === 'public' ? 'public' : 'trade_only'
 
   if (!file || file.type !== 'application/pdf') {
     return NextResponse.json({ error: 'A PDF file is required' }, { status: 400 })
@@ -82,12 +84,13 @@ export async function POST(req: NextRequest) {
   const { data: imp, error: dbError } = await db
     .from('product_imports')
     .insert({
-      id:         importId,
-      type:       pdfType,
-      status:     'pending',
-      filename:   file.name,
-      file_path:  filePath,
-      created_by: profile.id,
+      id:                       importId,
+      type:                     pdfType,
+      status:                   'pending',
+      filename:                 file.name,
+      file_path:                filePath,
+      created_by:               profile.id,
+      default_price_visibility: priceVisibility,
     })
     .select()
     .single()
