@@ -116,16 +116,20 @@ export default async function ProductPage({ params }: Props) {
     { icon: ShieldCheck,label: 'Warranty',         value: product.warranty_years,  unit: product.warranty_years === 1 ? 'year' : 'years', accent: 'green' },
   ].filter(s => s.value != null && s.value !== '')
 
-  const hasHvacSpecs = hvacSpecs.length > 0
+  // Only show HVAC spec cards on actual AC units — accessories share the same DB
+  // columns (wifi_enabled, voltage) as defaults, so we must gate by product type
+  const hasHvacSpecs = isAcUnit && hvacSpecs.length > 0
 
   // Split specifications into primitive key-value pairs and variants array
   const rawSpecs = (product.specifications && typeof product.specifications === 'object' && !Array.isArray(product.specifications))
     ? product.specifications as Record<string, unknown>
     : null
   const specVariants: Array<Record<string, unknown>> = Array.isArray(rawSpecs?.variants) ? rawSpecs!.variants as Array<Record<string, unknown>> : []
+  // Keys that are internal notes or duplicated elsewhere on the page
+  const SPEC_EXCLUDE = new Set(['variants', 'prices_exclude_vat', 'brand'])
   const specPrimitives: [string, string][] = rawSpecs
     ? Object.entries(rawSpecs)
-        .filter(([k, v]) => k !== 'variants' && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') && v !== '')
+        .filter(([k, v]) => !SPEC_EXCLUDE.has(k) && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') && v !== '')
         .map(([k, v]) => [k, String(v)])
     : []
   const hasLegacySpecs = specPrimitives.length > 0 || specVariants.length > 0
@@ -219,7 +223,7 @@ export default async function ProductPage({ params }: Props) {
                 {product.cooling_btu && <Badge variant="secondary">{product.cooling_btu.toLocaleString()} BTU</Badge>}
                 {product.coverage_m2 && <Badge variant="secondary">Up to {product.coverage_m2}m²</Badge>}
                 {product.wifi_enabled && <Badge variant="secondary">Wi-Fi</Badge>}
-                {product.warranty_years && product.warranty_years > 0 && (
+                {isAcUnit && product.warranty_years && product.warranty_years > 0 && (
                   <Badge variant="secondary">
                     {product.warranty_years}-Year Warranty
                   </Badge>
@@ -292,7 +296,7 @@ export default async function ProductPage({ params }: Props) {
               </div>
 
               {/* Delivery & stock info */}
-              <DeliveryInfo availability={product.availability} />
+              <DeliveryInfo availability={product.availability} showWarranty={isAcUnit} />
 
               {/* Installation offer block */}
               <InstallationOffer acType={product.ac_type ?? null} coolingBtu={product.cooling_btu ?? null} />
@@ -347,7 +351,9 @@ export default async function ProductPage({ params }: Props) {
                     <tbody>
                       {specPrimitives.map(([key, val], i) => (
                         <tr key={i} className={i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
-                          <td className="px-5 py-3 font-medium text-slate-700 w-1/3 capitalize">{key.replace(/_/g, ' ')}</td>
+                          <td className="px-5 py-3 font-medium text-slate-700 w-1/3">
+                            {key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+                          </td>
                           <td className="px-5 py-3 text-slate-500">{val}</td>
                         </tr>
                       ))}
@@ -360,26 +366,28 @@ export default async function ProductPage({ params }: Props) {
               {specVariants.length > 0 && (
                 <div>
                   <h3 className="text-base font-semibold text-slate-900 mb-3">Available Options</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full border border-slate-100 rounded-xl overflow-hidden text-sm">
+                  <div className="overflow-x-auto rounded-xl border border-slate-100">
+                    <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-100">
                           {Object.keys(specVariants[0])
                             .filter(k => k !== 'sku' || specVariants.some(v => v.sku))
                             .map(k => (
-                              <th key={k} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide capitalize">
-                                {k.replace(/_/g, ' ')}
+                              <th key={k} className="px-4 py-2.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                                {k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
                               </th>
                             ))}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-50">
                         {specVariants.map((variant, i) => (
-                          <tr key={i} className="hover:bg-slate-50/40">
+                          <tr key={i} className="hover:bg-blue-50/30 transition-colors">
                             {Object.keys(specVariants[0]).map(k => (
-                              <td key={k} className="px-4 py-2.5 text-sm text-slate-600">
+                              <td key={k} className="px-4 py-2.5 text-sm text-slate-700">
                                 {k === 'price' && typeof variant[k] === 'number'
-                                  ? `€${Number(variant[k]).toFixed(2)}`
+                                  ? (hidePricing
+                                      ? <span className="text-slate-400 text-xs font-medium">Trade price</span>
+                                      : <span className="font-semibold text-slate-900">€{Number(variant[k]).toFixed(2)}</span>)
                                   : String(variant[k] ?? '—')}
                               </td>
                             ))}
@@ -388,6 +396,9 @@ export default async function ProductPage({ params }: Props) {
                       </tbody>
                     </table>
                   </div>
+                  {!hidePricing && (
+                    <p className="mt-2 text-xs text-slate-400">All prices exclude 18% VAT.</p>
+                  )}
                 </div>
               )}
             </div>

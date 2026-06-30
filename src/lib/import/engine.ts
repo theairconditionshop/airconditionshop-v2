@@ -121,6 +121,8 @@ async function performCreate(
   const baseSlug = slugify(p.name)
   const slug     = `${baseSlug}-${Date.now().toString(36)}`
 
+  const basePrice = p.original_price ?? p.price ?? null
+
   await db.from('products').insert({
     name:               p.name,
     slug,
@@ -129,9 +131,11 @@ async function performCreate(
     description:        p.description ?? null,
     specifications:     p.specifications ?? {},
     features:           p.features ?? [],
-    original_price:     p.original_price ?? p.price ?? null,
-    sale_price:         p.sale_price     ?? null,
-    cost_price:         p.cost_price     ?? null,
+    // Set both price fields so trade resolver always has a value to display
+    retail_price:       basePrice,
+    original_price:     basePrice,
+    sale_price:         p.sale_price ?? null,
+    cost_price:         p.cost_price ?? null,
     brand_id,
     category_id,
     ac_type:            p.ac_type  ?? null,

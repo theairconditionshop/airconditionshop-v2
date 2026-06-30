@@ -12,9 +12,12 @@ interface TradePricingCtaProps {
 export default function TradePricingCta({ variant = 'panel' }: TradePricingCtaProps) {
   if (variant === 'card') {
     return (
-      <div className="flex items-center gap-1.5 mt-0.5">
-        <Lock aria-hidden="true" className="w-3 h-3 text-slate-400 shrink-0" />
-        <span className="text-xs text-slate-400 font-medium">Trade pricing</span>
+      <div className="mt-0.5">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-100">
+          <Lock aria-hidden="true" className="w-3 h-3 text-blue-500 shrink-0" />
+          <span className="text-xs font-semibold text-blue-700 leading-none">Trade Price</span>
+        </div>
+        <p className="text-[10px] text-slate-400 mt-1 leading-snug">Login to see pricing</p>
       </div>
     )
   }

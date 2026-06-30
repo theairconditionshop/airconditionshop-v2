@@ -63,8 +63,20 @@ export default function ProductCard({ product, userRole, className }: ProductCar
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover group-hover:scale-[1.03] transition-transform duration-500 ease-out"
           />
+        ) : product.product_type === 'installation_material' ? (
+          // Accessory placeholder — clean light style, no dark gradient
+          <div className="w-full h-full bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center gap-1.5 p-4">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+              <span className="text-slate-400 text-[10px] font-bold tracking-wide uppercase">
+                {product.brand?.name?.slice(0, 3) ?? 'AC'}
+              </span>
+            </div>
+            <span className="text-[9px] tracking-[0.15em] text-slate-400 uppercase text-center line-clamp-2">
+              {product.category?.name ?? 'Material'}
+            </span>
+          </div>
         ) : (
-          // Premium gradient placeholder — shows brand identity without an image
+          // AC unit placeholder — brand-coloured gradient
           <div className={cn('w-full h-full bg-gradient-to-br', gradientClass, 'flex flex-col items-center justify-center gap-2 p-6')}>
             {product.brand && (
               <span className="text-[10px] font-bold tracking-[0.25em] text-white/30 uppercase">
@@ -99,9 +111,13 @@ export default function ProductCard({ product, userRole, className }: ProductCar
 
       {/* Info */}
       <div className="flex flex-col flex-1 p-4 lg:p-5">
+        {/* Brand line — show brand for AC units, category for accessories */}
         {product.brand && (
           <p className="text-[11px] font-semibold tracking-[0.12em] text-slate-400 uppercase mb-1.5">
             {product.brand.name}
+            {product.category && !product.ac_type && (
+              <span className="font-normal normal-case tracking-normal ml-1.5 text-slate-300">· {product.category.name}</span>
+            )}
           </p>
         )}
 

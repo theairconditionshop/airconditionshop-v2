@@ -2,6 +2,7 @@ import { Truck, Clock, MapPin, ShieldCheck } from 'lucide-react'
 
 interface Props {
   availability: string
+  showWarranty?: boolean
 }
 
 const ITEMS = [
@@ -35,8 +36,9 @@ const ITEMS = [
   },
 ]
 
-export default function DeliveryInfo({ availability }: Props) {
+export default function DeliveryInfo({ availability, showWarranty = true }: Props) {
   const inStock = availability !== 'out_of_stock'
+  const items = showWarranty ? ITEMS : ITEMS.filter(i => i.label !== 'Full warranty included')
 
   return (
     <div className="mt-5 rounded-2xl border border-slate-100 overflow-hidden">
@@ -50,7 +52,7 @@ export default function DeliveryInfo({ availability }: Props) {
 
       {/* Delivery details */}
       <div className="divide-y divide-slate-50">
-        {ITEMS.map(({ icon: Icon, label, sub, color, bg }) => (
+        {items.map(({ icon: Icon, label, sub, color, bg }) => (
           <div key={label} className="flex items-center gap-3 px-4 py-3 bg-white">
             <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center shrink-0`}>
               <Icon className={`w-4 h-4 ${color}`} aria-hidden="true" />

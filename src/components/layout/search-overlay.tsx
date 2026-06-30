@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Search, X, ArrowRight, Loader2 } from 'lucide-react'
+import { Search, X, ArrowRight, Loader2, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SearchProduct {
@@ -13,10 +13,15 @@ interface SearchProduct {
   slug: string
   sku: string | null
   retail_price: number | null
+  original_price: number | null
+  price_visibility: string | null
+  price_hidden: boolean
   currency: string
   cooling_btu: number | null
+  product_type: string | null
   energy_rating: string | null
   brand: { name: string; slug: string } | null
+  category: { name: string; slug: string } | null
   images: { url: string; is_primary: boolean }[]
 }
 
@@ -152,36 +157,57 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                                 onClick={onClose}
                                 className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
                               >
-                                <div className="flex-none w-12 h-12 rounded-lg bg-slate-100 overflow-hidden border border-slate-100">
+                                {/* Thumbnail */}
+                                <div className="flex-none w-12 h-12 rounded-xl bg-slate-100 overflow-hidden border border-slate-100 shrink-0">
                                   {img ? (
                                     <Image src={img.url} alt={product.name} width={48} height={48}
                                       className="w-full h-full object-contain p-1" />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-300 text-xs">AC</div>
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-200 to-slate-100">
+                                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider text-center leading-tight px-1">
+                                        {product.brand?.name?.slice(0, 4) ?? 'AC'}
+                                      </span>
+                                    </div>
                                   )}
                                 </div>
+
+                                {/* Name + meta */}
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-semibold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
                                     {product.name}
                                   </p>
                                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                                    {product.brand && <span className="text-xs text-slate-400">{product.brand.name}</span>}
+                                    {product.brand && (
+                                      <span className="text-xs text-slate-400">{product.brand.name}</span>
+                                    )}
+                                    {product.category && !product.cooling_btu && (
+                                      <span className="text-xs text-slate-400">· {product.category.name}</span>
+                                    )}
                                     {product.cooling_btu && (
                                       <span className="text-xs text-slate-400">· {product.cooling_btu.toLocaleString()} BTU</span>
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex-none flex items-center gap-2">
+
+                                {/* Price / badge */}
+                                <div className="flex-none flex items-center gap-2 shrink-0">
                                   {product.energy_rating && (
                                     <span className="hidden sm:inline text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
                                       {product.energy_rating}
                                     </span>
                                   )}
-                                  {product.retail_price != null && (
-                                    <span className="text-sm font-semibold text-slate-900 whitespace-nowrap">
-                                      {new Intl.NumberFormat('en-MT', { style: 'currency', currency: product.currency || 'EUR', maximumFractionDigits: 0 }).format(product.retail_price)}
+                                  {product.price_hidden ? (
+                                    <span className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-slate-400 whitespace-nowrap">
+                                      <Lock aria-hidden="true" className="w-3 h-3" /> Trade
                                     </span>
-                                  )}
+                                  ) : (() => {
+                                    const displayPrice = product.retail_price ?? product.original_price
+                                    return displayPrice != null ? (
+                                      <span className="text-sm font-semibold text-slate-900 whitespace-nowrap">
+                                        {new Intl.NumberFormat('en-MT', { style: 'currency', currency: product.currency || 'EUR', maximumFractionDigits: 2 }).format(displayPrice)}
+                                      </span>
+                                    ) : null
+                                  })()}
                                   <ArrowRight aria-hidden="true" className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors shrink-0" />
                                 </div>
                               </Link>
@@ -226,7 +252,7 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                   <div className="py-6">
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Popular searches</p>
                     <div className="flex flex-wrap gap-2 mb-8">
-                      {['9000 BTU', '12000 BTU', '18000 BTU', 'Heat Pump', 'Inverter', 'Split System', 'VRF'].map(term => (
+                      {['9000 BTU', '12000 BTU', '18000 BTU', 'Heat Pump', 'Copper Pipe', 'Cable Trunking', 'Isolator Switch', 'Wall Bracket'].map(term => (
                         <button
                           key={term}
                           onClick={() => { setQuery(term); doSearch(term) }}
