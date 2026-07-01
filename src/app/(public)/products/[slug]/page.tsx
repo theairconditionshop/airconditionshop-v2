@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
@@ -68,7 +69,13 @@ function HvacSpecCard({ icon: Icon, label, value, unit, accent = 'blue' }: SpecC
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params
   const [product, userRole] = await Promise.all([getProductBySlug(slug), getRole()])
-  if (!product) notFound()
+  if (!product) {
+    // Old per-BTU AC unit URLs 301 → the new series page (SEO preservation)
+    const db = await createClient()
+    const { data: r } = await db.from('product_redirects').select('new_path').eq('old_slug', slug).single()
+    if (r?.new_path) permanentRedirect(r.new_path)
+    notFound()
+  }
 
   const priceResult  = resolvePrice(product, userRole)
   const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]

@@ -117,7 +117,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
 // DELETE /api/admin/products/[id]/images?imageId=xxx — remove one image
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!await requireAdmin(request)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const { id: productId } = await params
   const imageId = new URL(request.url).searchParams.get('imageId')
   if (!imageId) return NextResponse.json({ error: 'imageId required' }, { status: 400 })
@@ -160,7 +160,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
 // PATCH /api/admin/products/[id]/images — set primary or reorder
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!await requireAdmin(request)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const { id: productId } = await params
   const body = await request.json()
   const db = createAdminClient()

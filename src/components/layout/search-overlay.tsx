@@ -11,6 +11,7 @@ interface SearchProduct {
   id: string
   name: string
   slug: string
+  href?: string | null
   sku: string | null
   retail_price: number | null
   original_price: number | null
@@ -153,7 +154,7 @@ export default function SearchOverlay({ isOpen, onClose }: Props) {
                             return (
                               <Link
                                 key={product.id}
-                                href={`/products/${product.slug}`}
+                                href={product.href ?? `/products/${product.slug}`}
                                 onClick={onClose}
                                 className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-slate-50 active:bg-slate-100 transition-colors group"
                               >

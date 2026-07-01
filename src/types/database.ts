@@ -132,6 +132,103 @@ export interface ProductImage {
   created_at: string
 }
 
+// ── AC Series / Variant architecture ─────────────────────────
+export interface ProductSeries {
+  id: string
+  brand_id: string | null
+  category_id: string | null
+  name: string
+  slug: string
+  tagline: string | null
+  description: string | null
+  features: string[]
+  ac_type: string | null
+  shared_specs: Record<string, string>
+  warranty_years: number | null
+  has_colours: boolean
+  price_visibility: PriceVisibility
+  seo_title: string | null
+  seo_desc: string | null
+  seo_keywords: string | null
+  is_active: boolean
+  is_featured: boolean
+  display_order: number
+  view_count: number
+  created_at: string
+  updated_at: string
+  // joined
+  brand?: Brand
+  category?: Category
+  colours?: SeriesColour[]
+  variants?: ProductVariant[]
+  images?: SeriesImage[]
+}
+
+export interface SeriesColour {
+  id: string
+  series_id: string
+  name: string
+  slug: string
+  hex: string | null
+  display_order: number
+  is_default: boolean
+  is_active: boolean
+  created_at: string
+}
+
+export interface ProductVariant {
+  id: string
+  series_id: string
+  colour_id: string | null
+  btu: number | null
+  label: string | null
+  sku: string | null
+  model_indoor: string | null
+  model_outdoor: string | null
+  cooling_btu: number | null
+  heating_btu: number | null
+  cooling_kw_min: number | null
+  cooling_kw_nom: number | null
+  cooling_kw_max: number | null
+  seer: number | null
+  scop: number | null
+  seer_class: string | null
+  scop_class: string | null
+  energy_rating: string | null
+  dimensions_indoor: string | null
+  dimensions_outdoor: string | null
+  copper_gas: string | null
+  copper_liquid: string | null
+  refrigerant: string | null
+  voltage: number | null
+  currency: string
+  retail_price: number | null
+  original_price: number | null
+  sale_price: number | null
+  cost_price: number | null
+  trade_price: number | null
+  trade_discount_pct: number | null
+  trade_price_mode: TradePriceMode
+  specifications: Record<string, string>
+  availability: ProductAvailability
+  is_active: boolean
+  display_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface SeriesImage {
+  id: string
+  series_id: string
+  colour_id: string | null
+  url: string
+  thumbnail_url: string | null
+  alt_text: string | null
+  is_primary: boolean
+  display_order: number
+  created_at: string
+}
+
 export interface ProductDocument {
   id: string
   product_id: string

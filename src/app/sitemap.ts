@@ -8,14 +8,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let categories: typeof products = { data: [] }
   let brands: typeof products = { data: [] }
   let posts: typeof products = { data: [] }
+  let series: { data: { slug: string; updated_at: string; brand: { slug: string } | null }[] | null } = { data: [] }
 
   try {
     const db = createAdminClient()
-    ;[products, categories, brands, posts] = await Promise.all([
+    ;[products, categories, brands, posts, series] = await Promise.all([
       db.from('products').select('slug, updated_at').eq('is_active', true),
       db.from('categories').select('slug, updated_at').eq('is_active', true),
       db.from('brands').select('slug, updated_at').eq('is_active', true),
       db.from('blog_posts').select('slug, updated_at').eq('status', 'published'),
+      db.from('product_series').select('slug, updated_at, brand:brands(slug)').eq('is_active', true) as unknown as typeof series,
     ])
   } catch {
     // env vars not available at build time — return static routes only
@@ -65,5 +67,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticRoutes, ...productRoutes, ...categoryRoutes, ...brandRoutes, ...blogRoutes]
+  // AC series — one canonical URL per series (no per-BTU duplication)
+  const seriesRoutes: MetadataRoute.Sitemap = (series.data ?? [])
+    .filter(s => s.brand?.slug)
+    .map(s => ({
+      url: `${BASE}/products/${s.brand!.slug}/${s.slug}`,
+      lastModified: s.updated_at ? new Date(s.updated_at) : new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    }))
+
+  return [...staticRoutes, ...productRoutes, ...categoryRoutes, ...brandRoutes, ...blogRoutes, ...seriesRoutes]
 }

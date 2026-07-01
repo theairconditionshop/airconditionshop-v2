@@ -47,6 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
           { label: 'Brands',       href: '/admin/brands' },
         ],
       },
+      { label: 'AC Series', href: '/admin/series', icon: Layers },
       { label: 'Product Import', href: '/admin/product-import', icon: Upload },
     ],
   },

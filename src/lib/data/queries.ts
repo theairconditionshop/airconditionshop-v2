@@ -4,7 +4,13 @@ import { getPublicSupabase } from '@/lib/supabase/public'
 import type {
   Brand, Category, Product, BlogPost,
   Testimonial, Faq, HomepageSection, SiteSetting,
+  ProductSeries,
 } from '@/types/database'
+
+const SERIES_FULL_SELECT =
+  '*, brand:brands(*), category:categories(*), colours:series_colours(*), variants:product_variants(*), images:series_images(*)'
+const SERIES_CARD_SELECT =
+  '*, brand:brands(*), variants:product_variants(btu,retail_price,original_price,sale_price,is_active), images:series_images(url,thumbnail_url,colour_id,is_primary,display_order)'
 
 // ── Site Settings ────────────────────────────────────────────
 // Public client + unstable_cache: pages calling this stay ISR-eligible.
@@ -179,6 +185,55 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 
   return data as unknown as Product | null
+}
+
+// ── AC Series ─────────────────────────────────────────────────
+export async function getSeriesList(opts?: {
+  brandId?: string
+  featured?: boolean
+  limit?: number
+}): Promise<ProductSeries[]> {
+  const supabase = await createClient()
+  let query = supabase
+    .from('product_series')
+    .select(SERIES_CARD_SELECT)
+    .eq('is_active', true)
+    .order('display_order')
+    .order('created_at', { ascending: false })
+
+  if (opts?.brandId)  query = query.eq('brand_id', opts.brandId)
+  if (opts?.featured) query = query.eq('is_featured', true)
+  if (opts?.limit)    query = query.limit(opts.limit)
+
+  const { data } = await query
+  return (data as unknown as ProductSeries[]) || []
+}
+
+/** Full series by brand slug + series slug — used by the public product page. */
+export async function getSeriesByBrandAndSlug(
+  brandSlug: string,
+  seriesSlug: string,
+): Promise<ProductSeries | null> {
+  const supabase = await createClient()
+  const { data: brand } = await supabase
+    .from('brands').select('id').eq('slug', brandSlug).single()
+  if (!brand) return null
+
+  const { data } = await supabase
+    .from('product_series')
+    .select(SERIES_FULL_SELECT)
+    .eq('brand_id', brand.id)
+    .eq('slug', seriesSlug)
+    .eq('is_active', true)
+    .single()
+
+  if (data) {
+    supabase.from('product_series')
+      .update({ view_count: ((data as { view_count?: number }).view_count || 0) + 1 })
+      .eq('id', (data as { id: string }).id)
+      .then(() => {})
+  }
+  return (data as unknown as ProductSeries | null)
 }
 
 // ── Blog ──────────────────────────────────────────────────────

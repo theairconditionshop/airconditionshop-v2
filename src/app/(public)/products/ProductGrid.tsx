@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Search } from 'lucide-react'
-import { getProducts } from '@/lib/data/queries'
+import { getProducts, getSeriesList } from '@/lib/data/queries'
 import ProductCard from '@/components/products/product-card'
+import SeriesCard from '@/components/products/series-card'
 import type { UserRole } from '@/types/database'
 
 interface Props {
@@ -13,9 +14,23 @@ interface Props {
 }
 
 export default async function ProductGrid({ categoryId, brandId, search, acType, userRole }: Props) {
-  const products = await getProducts({ categoryId, brandId, search, acType })
+  const [products, allSeries] = await Promise.all([
+    getProducts({ categoryId, brandId, search, acType }),
+    getSeriesList({ brandId }),
+  ])
 
-  if (products.length === 0) {
+  // Series respect the same filters (category / ac_type / free-text search)
+  const q = search?.trim().toLowerCase()
+  const series = allSeries.filter(s => {
+    if (categoryId && s.category_id !== categoryId) return false
+    if (acType && s.ac_type !== acType) return false
+    if (q && !(`${s.brand?.name ?? ''} ${s.name}`.toLowerCase().includes(q))) return false
+    return true
+  })
+
+  const total = products.length + series.length
+
+  if (total === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-5">
@@ -49,10 +64,13 @@ export default async function ProductGrid({ categoryId, brandId, search, acType,
   return (
     <>
       <p className="text-sm text-slate-400 mb-4">
-        {products.length} product{products.length !== 1 ? 's' : ''}
+        {total} product{total !== 1 ? 's' : ''}
         {search && <span> for &ldquo;{search}&rdquo;</span>}
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
+        {series.map(s => (
+          <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} />
+        ))}
         {products.map(product => (
           <ProductCard key={product.id} product={product} userRole={userRole} />
         ))}
