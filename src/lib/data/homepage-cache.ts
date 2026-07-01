@@ -8,7 +8,7 @@
  */
 import { unstable_cache } from 'next/cache'
 import { getPublicSupabase } from '@/lib/supabase/public'
-import type { Brand, Category, Product, Testimonial, Faq } from '@/types/database'
+import type { Brand, Category, Product, Testimonial, Faq, ProductSeries } from '@/types/database'
 
 type HomepageSections = Record<string, Record<string, unknown>>
 
@@ -20,6 +20,7 @@ async function fetchHomepageData() {
     brandsRes,
     categoriesRes,
     productsRes,
+    seriesRes,
     testimonialsRes,
     faqsRes,
   ] = await Promise.all([
@@ -32,6 +33,12 @@ async function fetchHomepageData() {
       .eq('is_featured', true)
       .order('display_order')
       .order('created_at', { ascending: false })
+      .limit(8),
+    db.from('product_series')
+      .select('*, brand:brands(*), variants:product_variants(btu,retail_price,original_price,sale_price,is_active), colours:series_colours(id,name,hex,is_active,display_order), images:series_images(url,thumbnail_url,colour_id,is_primary,display_order)')
+      .eq('is_active', true)
+      .eq('is_featured', true)
+      .order('display_order')
       .limit(8),
     db.from('testimonials').select('*').eq('is_active', true).order('display_order'),
     db.from('faqs').select('*').eq('is_active', true).order('display_order'),
@@ -47,6 +54,7 @@ async function fetchHomepageData() {
     brands:     (brandsRes.data     ?? []) as Brand[],
     categories: (categoriesRes.data ?? []) as Category[],
     products:   (productsRes.data   ?? []) as unknown as Product[],
+    series:     (seriesRes.data     ?? []) as unknown as ProductSeries[],
     testimonials: (testimonialsRes.data ?? []) as Testimonial[],
     faqs:       (faqsRes.data       ?? []) as Faq[],
   }

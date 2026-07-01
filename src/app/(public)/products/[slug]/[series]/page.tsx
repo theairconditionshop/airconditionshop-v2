@@ -2,11 +2,12 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
-import { getSeriesByBrandAndSlug } from '@/lib/data/queries'
+import { getSeriesByBrandAndSlug, getSeriesList } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import SeriesProductView from '@/components/products/series-product-view'
+import SeriesCard from '@/components/products/series-card'
 import { resolveVariantPrice, shouldHideSeriesPrice } from '@/lib/pricing/variant-resolver'
 import { formatPrice } from '@/lib/pricing/resolver'
 
@@ -42,6 +43,11 @@ export default async function SeriesPage(
     getRole(),
   ])
   if (!s) notFound()
+
+  // Related: other series from the same brand
+  const related = s.brand_id
+    ? (await getSeriesList({ brandId: s.brand_id })).filter(r => r.id !== s.id).slice(0, 4)
+    : []
 
   const hidePricing = shouldHideSeriesPrice(s, role)
   const activeVariants = (s.variants ?? []).filter(v => v.is_active)
@@ -115,6 +121,17 @@ export default async function SeriesPage(
             : null
         }
       />
+
+      {related.length > 0 && (
+        <section className="mt-16">
+          <h2 className="text-lg font-bold text-slate-900 mb-5">More from {brandName}</h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+            {related.map(r => (
+              <SeriesCard key={r.id} series={r} userRole={role} brandSlug={r.brand?.slug ?? slug} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />

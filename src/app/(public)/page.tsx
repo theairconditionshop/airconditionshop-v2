@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 }
 
 export default async function HomePage() {
-  const { sections, brands, categories, products, testimonials, faqs } = await getCachedHomepageData()
+  const { sections, brands, categories, products, series, testimonials, faqs } = await getCachedHomepageData()
 
   return (
     <>
@@ -44,7 +44,7 @@ export default async function HomePage() {
         <BtuPromo data={sections.btu_promo as Record<string, string> || {}} />
         <BrandMarquee brands={brands} duration={32} />
         <ProductCategories categories={categories} />
-        <FeaturedProducts products={products} userRole={null} />
+        <FeaturedProducts products={products} series={series} userRole={null} />
         <WhyChooseUs data={sections.why_choose_us || {}} />
         <TradeCta data={sections.trade_cta as Record<string, string> || {}} />
         <ServicesSection data={sections.services || {}} />

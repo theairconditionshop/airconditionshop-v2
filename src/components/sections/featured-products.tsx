@@ -2,10 +2,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { resolvePrice, formatPrice } from '@/lib/pricing/resolver'
-import type { Product, UserRole } from '@/types/database'
+import SeriesCard from '@/components/products/series-card'
+import type { Product, ProductSeries, UserRole } from '@/types/database'
 
 interface Props {
   products: Product[]
+  series?: ProductSeries[]
   userRole?: UserRole | null
 }
 
@@ -21,13 +23,15 @@ function getGradient(name?: string) {
   return BRAND_GRADIENTS[name.toLowerCase()] ?? BRAND_GRADIENTS.default
 }
 
-export default function FeaturedProducts({ products, userRole }: Props) {
-  if (products.length < 2) return null
+export default function FeaturedProducts({ products, series = [], userRole }: Props) {
+  // Show the section if there's anything featured — a hero product OR series.
+  if (products.length === 0 && series.length === 0) return null
 
+  const hasHero = products.length >= 1
   const [hero, ...rest] = products
-  const heroPrice    = resolvePrice(hero, userRole ?? null)
-  const heroImage    = hero.images?.find(img => img.is_primary) || hero.images?.[0]
-  const heroGradient = getGradient(hero.brand?.name)
+  const heroPrice    = hasHero ? resolvePrice(hero, userRole ?? null) : null
+  const heroImage    = hasHero ? (hero.images?.find(img => img.is_primary) || hero.images?.[0]) : null
+  const heroGradient = getGradient(hero?.brand?.name)
 
   return (
     <section className="py-14 lg:py-20 bg-[#FAFAF9]">
@@ -53,6 +57,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
         </div>
 
         {/* Hero product — editorial large card */}
+        {hasHero && (
         <div className="mb-6">
           <Link
             href={`/products/${hero.slug}`}
@@ -132,7 +137,7 @@ export default function FeaturedProducts({ products, userRole }: Props) {
 
               <div className="flex items-end justify-between">
                 <div>
-                  {heroPrice.price != null ? (
+                  {heroPrice?.price != null ? (
                     <p className="text-3xl font-bold text-slate-900 tracking-tight">
                       {formatPrice(heroPrice.price, hero.currency)}
                     </p>
@@ -151,10 +156,14 @@ export default function FeaturedProducts({ products, userRole }: Props) {
             </div>
           </Link>
         </div>
+        )}
 
-        {/* Remaining products grid */}
-        {rest.length > 0 && (
+        {/* Series + remaining products grid */}
+        {(series.length > 0 || rest.length > 0) && (
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+            {series.slice(0, 8).map(s => (
+              <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} />
+            ))}
             {rest.slice(0, 7).map((product, i) => {
               const priceResult  = resolvePrice(product, userRole ?? null)
               const primaryImage = product.images?.find(img => img.is_primary) || product.images?.[0]

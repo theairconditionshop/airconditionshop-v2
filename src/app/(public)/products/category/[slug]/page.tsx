@@ -1,13 +1,14 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getCategoryBySlug, getProducts, getCategories } from '@/lib/data/queries'
+import { getCategoryBySlug, getProducts, getCategories, getSeriesList } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
 import PageHeader from '@/components/shared/page-header'
 import ProductCard from '@/components/products/product-card'
+import SeriesCard from '@/components/products/series-card'
 
 export const revalidate = 300
 
@@ -33,10 +34,16 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const [category, userRole] = await Promise.all([getCategoryBySlug(slug), getRole()])
   if (!category) notFound()
 
-  const [products, subcategories] = await Promise.all([
+  const [products, subcategories, allSeries] = await Promise.all([
     getProducts({ categoryId: category.id, acType: ac_type }),
     getCategories(category.id),
+    getSeriesList({}),
   ])
+  // Series in this category (respecting an optional ac_type filter)
+  const series = allSeries.filter(s =>
+    s.category_id === category.id && (!ac_type || s.ac_type === ac_type)
+  )
+  const totalItems = products.length + series.length
 
   const crumbs = [
     { label: 'Home', href: '/' },
@@ -69,10 +76,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           )}
 
           <div className="mt-8">
-            {products.length > 0 ? (
+            {totalItems > 0 ? (
               <>
-                <p className="text-sm text-slate-400 mb-5">{products.length} product{products.length !== 1 ? 's' : ''}</p>
+                <p className="text-sm text-slate-400 mb-5">{totalItems} product{totalItems !== 1 ? 's' : ''}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {series.map(s => <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} />)}
                   {products.map(p => <ProductCard key={p.id} product={p} userRole={userRole} />)}
                 </div>
               </>

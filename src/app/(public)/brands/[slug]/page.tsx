@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import { getBrandBySlug, getProducts } from '@/lib/data/queries'
+import { getBrandBySlug, getProducts, getSeriesList } from '@/lib/data/queries'
 import { PremiumImage } from '@/components/shared/premium-image'
 import { safeJsonLd } from '@/lib/sanitize'
 import { getRole } from '@/lib/auth/session'
@@ -9,6 +9,7 @@ import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
 import ProductCard from '@/components/products/product-card'
+import SeriesCard from '@/components/products/series-card'
 
 export const revalidate = 300
 
@@ -42,7 +43,11 @@ export default async function BrandPage({ params }: Props) {
   const [brand, userRole] = await Promise.all([getBrandBySlug(slug), getRole()])
   if (!brand) notFound()
 
-  const products = await getProducts({ brandId: brand.id })
+  const [products, series] = await Promise.all([
+    getProducts({ brandId: brand.id }),
+    getSeriesList({ brandId: brand.id }),
+  ])
+  const totalItems = products.length + series.length
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -105,8 +110,9 @@ export default async function BrandPage({ params }: Props) {
             </div>
           </div>
 
-          {products.length > 0 ? (
+          {totalItems > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {series.map(s => <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? brand.slug} />)}
               {products.map(p => <ProductCard key={p.id} product={p} userRole={userRole} />)}
             </div>
           ) : (

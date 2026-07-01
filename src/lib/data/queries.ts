@@ -101,13 +101,13 @@ export async function getCategoriesWithCount(): Promise<Array<Category & { produ
   const supabase = await createClient()
   const { data } = await supabase
     .from('categories')
-    .select('*, products(count)')
+    .select('*, products(count), product_series(count)')
     .eq('is_active', true)
     .is('parent_id', null)
     .order('display_order')
   if (!data) return []
-  return (data as unknown as Array<Category & { products: [{ count: number }] }>)
-    .map(c => ({ ...c, product_count: c.products?.[0]?.count ?? 0 }))
+  return (data as unknown as Array<Category & { products: [{ count: number }]; product_series: [{ count: number }] }>)
+    .map(c => ({ ...c, product_count: (c.products?.[0]?.count ?? 0) + (c.product_series?.[0]?.count ?? 0) }))
     .filter(c => c.product_count > 0)
     .sort((a, b) => b.product_count - a.product_count)
 }
@@ -117,26 +117,27 @@ export async function getBrandsWithCount(): Promise<Array<Brand & { product_coun
   const supabase = await createClient()
   const { data } = await supabase
     .from('brands')
-    .select('*, products(count)')
+    .select('*, products(count), product_series(count)')
     .eq('is_active', true)
     .order('display_order')
   if (!data) return []
-  return (data as unknown as Array<Brand & { products: [{ count: number }] }>)
-    .map(b => ({ ...b, product_count: b.products?.[0]?.count ?? 0 }))
+  return (data as unknown as Array<Brand & { products: [{ count: number }]; product_series: [{ count: number }] }>)
+    .map(b => ({ ...b, product_count: (b.products?.[0]?.count ?? 0) + (b.product_series?.[0]?.count ?? 0) }))
     .filter(b => b.product_count > 0)
     .sort((a, b) => b.product_count - a.product_count)
 }
 
-// ── Distinct AC types that have products ─────────────────────
+// ── Distinct AC types that have products OR series ───────────
 export async function getActiveAcTypes(): Promise<string[]> {
   const supabase = await createClient()
-  const { data } = await supabase
-    .from('products')
-    .select('ac_type')
-    .eq('is_active', true)
-    .not('ac_type', 'is', null)
-  if (!data) return []
-  const unique = [...new Set(data.map(r => r.ac_type as string))].sort()
+  const [{ data: prod }, { data: ser }] = await Promise.all([
+    supabase.from('products').select('ac_type').eq('is_active', true).not('ac_type', 'is', null),
+    supabase.from('product_series').select('ac_type').eq('is_active', true).not('ac_type', 'is', null),
+  ])
+  const unique = [...new Set([
+    ...(prod ?? []).map(r => r.ac_type as string),
+    ...(ser  ?? []).map(r => r.ac_type as string),
+  ])].sort()
   return unique
 }
 

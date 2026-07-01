@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Package, MessageSquare, FileText, Wrench, Users, TrendingUp } from 'lucide-react'
+import { Package, MessageSquare, FileText, Wrench, Users, TrendingUp, Layers } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Dashboard — Admin' }
 
 async function getStats() {
   const db = createAdminClient()
-  const [products, enquiries, quotes, services, trade] = await Promise.all([
-    db.from('products').select('id', { count: 'exact', head: true }),
+  const [products, series, enquiries, quotes, services, trade] = await Promise.all([
+    db.from('products').select('id', { count: 'exact', head: true }).eq('is_active', true),
+    db.from('product_series').select('id', { count: 'exact', head: true }).eq('is_active', true),
     db.from('enquiries').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     db.from('quote_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
     db.from('service_requests').select('id', { count: 'exact', head: true }).eq('status', 'new'),
@@ -15,6 +16,7 @@ async function getStats() {
   ])
   return {
     products:    products.count ?? 0,
+    series:      series.count ?? 0,
     enquiries:   enquiries.count ?? 0,
     quotes:      quotes.count ?? 0,
     services:    services.count ?? 0,
@@ -37,6 +39,7 @@ export default async function AdminDashboard() {
 
   const STAT_CARDS = [
     { label: 'Products',         value: stats.products,     href: '/admin/products',   color: 'bg-sky-50 text-sky-600',       Icon: Package },
+    { label: 'AC Series',         value: stats.series,       href: '/admin/series',     color: 'bg-indigo-50 text-indigo-600', Icon: Layers },
     { label: 'New Enquiries',     value: stats.enquiries,    href: '/admin/enquiries',  color: 'bg-amber-50 text-amber-600',   Icon: MessageSquare },
     { label: 'Quote Requests',    value: stats.quotes,       href: '/admin/quotes',     color: 'bg-purple-50 text-purple-600', Icon: FileText },
     { label: 'Service Requests',  value: stats.services,     href: '/admin/services',   color: 'bg-emerald-50 text-emerald-600', Icon: Wrench },
