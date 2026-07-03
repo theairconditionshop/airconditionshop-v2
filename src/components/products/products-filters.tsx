@@ -10,15 +10,25 @@ import { cn } from '@/lib/utils'
 interface Category { id: string; name: string; product_count?: number }
 interface Brand    { id: string; name: string; product_count?: number }
 
+interface AcFacets { btus: number[]; energyClasses: string[]; refrigerants: string[]; colours: string[] }
+
 interface Props {
   categories: Category[]
   brands: Brand[]
   acTypes: string[]
+  facets?: AcFacets
   activeCategory?: string
   activeBrand?: string
   activeSearch?: string
   activeAcType?: string
+  activeBtu?: string
+  activeEnergy?: string
+  activeRefrigerant?: string
+  activeWifi?: string
+  activeColour?: string
 }
+
+type FilterKey = 'category' | 'brand' | 'ac_type' | 'search' | 'btu' | 'energy' | 'refrigerant' | 'wifi' | 'colour'
 
 const MAX_VISIBLE = 6
 
@@ -142,7 +152,7 @@ export function FilterChips({ categories, brands, activeCategory, activeBrand, a
 
 // ─── main component ────────────────────────────────────────────────────────
 
-function ProductsFiltersInner({ categories, brands, acTypes, activeCategory, activeBrand, activeSearch, activeAcType }: Props) {
+function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCategory, activeBrand, activeSearch, activeAcType, activeBtu, activeEnergy, activeRefrigerant, activeWifi, activeColour }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -152,10 +162,10 @@ function ProductsFiltersInner({ categories, brands, acTypes, activeCategory, act
   const [localBrand, setLocalBrand]       = useState(activeBrand)
   const [localAcType, setLocalAcType]     = useState(activeAcType)
 
-  const activeCount = [activeCategory, activeBrand, activeSearch, activeAcType].filter(Boolean).length
+  const activeCount = [activeCategory, activeBrand, activeSearch, activeAcType, activeBtu, activeEnergy, activeRefrigerant, activeWifi, activeColour].filter(Boolean).length
 
   // Merge-based navigation — patch only what's passed, keep the rest
-  function navigate(patch: Partial<Record<'category' | 'brand' | 'ac_type' | 'search', string | null>>) {
+  function navigate(patch: Partial<Record<FilterKey, string | null>>) {
     const sp = new URLSearchParams(searchParams.toString())
     for (const [k, v] of Object.entries(patch)) {
       if (v === null || v === '') sp.delete(k)
@@ -237,6 +247,51 @@ function ProductsFiltersInner({ categories, brands, acTypes, activeCategory, act
           allLabel="All Types"
         />
       )}
+
+      {/* ── Air-conditioner facet filters ── */}
+      {facets && facets.btus.length > 0 && (
+        <FilterSection
+          label="BTU / Capacity"
+          items={facets.btus.map(b => ({ id: String(b), name: `${b.toLocaleString()} BTU` }))}
+          activeId={activeBtu}
+          onSelect={id => navigate({ btu: id })}
+          allLabel="Any capacity"
+        />
+      )}
+      {facets && facets.energyClasses.length > 0 && (
+        <FilterSection
+          label="Energy Class"
+          items={facets.energyClasses.map(e => ({ id: e, name: e }))}
+          activeId={activeEnergy}
+          onSelect={id => navigate({ energy: id })}
+          allLabel="Any class"
+        />
+      )}
+      {facets && facets.refrigerants.length > 0 && (
+        <FilterSection
+          label="Refrigerant"
+          items={facets.refrigerants.map(r => ({ id: r, name: r }))}
+          activeId={activeRefrigerant}
+          onSelect={id => navigate({ refrigerant: id })}
+          allLabel="Any refrigerant"
+        />
+      )}
+      {facets && facets.colours.length > 0 && (
+        <FilterSection
+          label="Colour"
+          items={facets.colours.map(c => ({ id: c, name: c }))}
+          activeId={activeColour}
+          onSelect={id => navigate({ colour: id })}
+          allLabel="Any colour"
+        />
+      )}
+      <div>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Connectivity</p>
+        <label className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 cursor-pointer">
+          <input type="checkbox" checked={activeWifi === '1'} onChange={e => navigate({ wifi: e.target.checked ? '1' : null })} className="w-4 h-4" />
+          Wi-Fi capable
+        </label>
+      </div>
 
       {activeCount > 0 && (
         <button

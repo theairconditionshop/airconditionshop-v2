@@ -62,7 +62,7 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
   const price = variant ? resolveVariantPrice(variant, role) : null
   const brandName = series.brand?.name ?? ''
 
-  const specRows: [string, string | null][] = variant ? [
+  const baseSpecRows: [string, string | null][] = variant ? [
     ['Cooling capacity', variant.cooling_btu ? `${variant.cooling_btu.toLocaleString()} BTU` : null],
     ['Heating capacity', variant.heating_btu ? `${variant.heating_btu.toLocaleString()} BTU` : null],
     ['Energy rating', variant.energy_rating],
@@ -76,6 +76,14 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
     ['Outdoor model', variant.model_outdoor],
     ['SKU', variant.sku],
   ] : []
+  // Extra verified specs stored per-variant (jsonb) — appended, de-duped by label
+  const shownLabels = new Set(baseSpecRows.map(([k]) => k.toLowerCase()))
+  const extraSpecRows: [string, string | null][] = variant?.specifications
+    ? Object.entries(variant.specifications)
+        .filter(([k, v]) => v && !shownLabels.has(k.toLowerCase()))
+        .map(([k, v]) => [k, String(v)] as [string, string])
+    : []
+  const specRows: [string, string | null][] = [...baseSpecRows, ...extraSpecRows]
 
   return (
     <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">

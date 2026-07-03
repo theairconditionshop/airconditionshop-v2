@@ -8,9 +8,9 @@ import type {
 } from '@/types/database'
 
 const SERIES_FULL_SELECT =
-  '*, brand:brands(*), category:categories(*), colours:series_colours(*), variants:product_variants(*), images:series_images(*)'
+  '*, brand:brands(*), category:categories(*), colours:series_colours(*), variants:product_variants(*), images:series_images(*), documents:series_documents(*)'
 const SERIES_CARD_SELECT =
-  '*, brand:brands(*), variants:product_variants(btu,retail_price,original_price,sale_price,is_active), images:series_images(url,thumbnail_url,colour_id,is_primary,display_order)'
+  '*, brand:brands(*), variants:product_variants(btu,retail_price,original_price,sale_price,energy_rating,refrigerant,specifications,is_active), colours:series_colours(id,name,hex,is_active,display_order), images:series_images(url,thumbnail_url,colour_id,is_primary,display_order)'
 
 // ── Site Settings ────────────────────────────────────────────
 // Public client + unstable_cache: pages calling this stay ISR-eligible.
@@ -235,6 +235,26 @@ export async function getSeriesByBrandAndSlug(
       .then(() => {})
   }
   return (data as unknown as ProductSeries | null)
+}
+
+// ── AC filter facets (BTU / energy / refrigerant / colour) ────
+export interface AcFacets {
+  btus: number[]
+  energyClasses: string[]
+  refrigerants: string[]
+  colours: string[]
+}
+export async function getAcFilterFacets(): Promise<AcFacets> {
+  const supabase = await createClient()
+  const [{ data: variants }, { data: colours }] = await Promise.all([
+    supabase.from('product_variants').select('btu, energy_rating, refrigerant, is_active').eq('is_active', true),
+    supabase.from('series_colours').select('name, is_active').eq('is_active', true),
+  ])
+  const btus = [...new Set((variants ?? []).map(v => v.btu).filter((b): b is number => b != null))].sort((a, b) => a - b)
+  const energyClasses = [...new Set((variants ?? []).map(v => v.energy_rating).filter((e): e is string => !!e))].sort()
+  const refrigerants  = [...new Set((variants ?? []).map(v => v.refrigerant).filter((r): r is string => !!r))].sort()
+  const colourNames   = [...new Set((colours ?? []).map(c => c.name).filter((n): n is string => !!n))].sort()
+  return { btus, energyClasses, refrigerants, colours: colourNames }
 }
 
 // ── Blog ──────────────────────────────────────────────────────

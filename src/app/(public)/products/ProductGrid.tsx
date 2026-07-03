@@ -10,25 +10,47 @@ interface Props {
   brandId?: string
   search?: string
   acType?: string
+  btu?: string
+  energy?: string
+  refrigerant?: string
+  wifi?: string
+  colour?: string
   userRole: UserRole | null
 }
 
-export default async function ProductGrid({ categoryId, brandId, search, acType, userRole }: Props) {
+export default async function ProductGrid({ categoryId, brandId, search, acType, btu, energy, refrigerant, wifi, colour, userRole }: Props) {
   const [products, allSeries] = await Promise.all([
     getProducts({ categoryId, brandId, search, acType }),
     getSeriesList({ brandId }),
   ])
 
-  // Series respect the same filters (category / ac_type / free-text search)
+  const btuN = btu ? parseInt(btu, 10) : null
+  const hasVariantMatch = (s: typeof allSeries[number], pred: (v: NonNullable<typeof allSeries[number]['variants']>[number]) => boolean) =>
+    (s.variants ?? []).some(v => v.is_active && pred(v))
+
+  // Series respect the same filters (category / ac_type / free-text search + AC facets)
   const q = search?.trim().toLowerCase()
   const series = allSeries.filter(s => {
     if (categoryId && s.category_id !== categoryId) return false
     if (acType && s.ac_type !== acType) return false
     if (q && !(`${s.brand?.name ?? ''} ${s.name}`.toLowerCase().includes(q))) return false
+    if (btuN != null && !hasVariantMatch(s, v => v.btu === btuN)) return false
+    if (energy && !hasVariantMatch(s, v => v.energy_rating === energy)) return false
+    if (refrigerant && !hasVariantMatch(s, v => v.refrigerant === refrigerant)) return false
+    if (wifi === '1' && !hasVariantMatch(s, v => {
+      const spec = (v.specifications ?? {}) as Record<string, string>
+      return Object.entries(spec).some(([k, val]) => /wi-?fi/i.test(k) && !/^\s*(no|none|—|-)?\s*$/i.test(val))
+    })) return false
+    if (colour && !(s.colours ?? []).some(c => c.is_active && c.name.toLowerCase() === colour.toLowerCase())) return false
     return true
   })
 
-  const total = products.length + series.length
+  // When AC-specific filters are active, flat products (accessories) are excluded —
+  // those filters only apply to air conditioners.
+  const acFilterActive = !!(btuN != null || energy || refrigerant || wifi === '1' || colour)
+  const shownProducts = acFilterActive ? [] : products
+
+  const total = shownProducts.length + series.length
 
   if (total === 0) {
     return (
@@ -71,7 +93,7 @@ export default async function ProductGrid({ categoryId, brandId, search, acType,
         {series.map(s => (
           <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} />
         ))}
-        {products.map(product => (
+        {shownProducts.map(product => (
           <ProductCard key={product.id} product={product} userRole={userRole} />
         ))}
       </div>

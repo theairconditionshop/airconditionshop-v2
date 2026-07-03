@@ -7,6 +7,7 @@ import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import SeriesProductView from '@/components/products/series-product-view'
+import SeriesContentSections from '@/components/products/series-content-sections'
 import SeriesCard from '@/components/products/series-card'
 import { resolveVariantPrice, shouldHideSeriesPrice } from '@/lib/pricing/variant-resolver'
 import { formatPrice } from '@/lib/pricing/resolver'
@@ -121,6 +122,8 @@ export default async function SeriesPage(
             : null
         }
       />
+
+      <SeriesContentSections series={s} />
 
       {related.length > 0 && (
         <section className="mt-16">

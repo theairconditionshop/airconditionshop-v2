@@ -85,6 +85,13 @@ const putSchema = z.object({
     is_active:        z.boolean().optional(),
     is_featured:      z.boolean().optional(),
     display_order:    z.number().int().optional(),
+    // optional content sections
+    faqs:                 z.array(z.object({ q: z.string(), a: z.string() })).optional(),
+    whats_included:       z.array(z.string()).optional(),
+    installation_info:    z.string().nullable().optional(),
+    warranty_info:        z.string().nullable().optional(),
+    certifications:       z.array(z.string()).optional(),
+    optional_accessories: z.array(z.object({ name: z.string(), note: z.string().optional() })).optional(),
   }),
   colours:           z.array(colourSchema).default([]),
   variants:          z.array(variantSchema).default([]),

@@ -7,6 +7,7 @@ import { Loader2, Plus, Trash2, GripVertical, Palette, Package, ChevronDown, Tra
 import { Button } from '@/components/ui/button'
 import { cn, slugify } from '@/lib/utils'
 import SeriesImageGallery from '@/components/admin/series-image-gallery'
+import SeriesDocuments from '@/components/admin/series-documents'
 import type { ProductSeries, SeriesColour, ProductVariant, SeriesImage } from '@/types/database'
 
 interface Opt { id: string; name: string }
@@ -17,6 +18,23 @@ type VariantRow = Partial<ProductVariant> & { _key: string; colour_slug: string 
 
 let keyCounter = 0
 const nk = () => `new-${keyCounter++}`
+
+// Variant.specifications (jsonb) <-> "Key: Value" text lines
+function specToText(spec?: Record<string, string>): string {
+  if (!spec) return ''
+  return Object.entries(spec).map(([k, v]) => `${k}: ${v}`).join('\n')
+}
+function textToSpec(text: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const line of text.split('\n')) {
+    const idx = line.indexOf(':')
+    if (idx === -1) continue
+    const k = line.slice(0, idx).trim()
+    const v = line.slice(idx + 1).trim()
+    if (k) out[k] = v
+  }
+  return out
+}
 
 export default function SeriesEditor({
   series, brands, categories,
@@ -40,6 +58,16 @@ export default function SeriesEditor({
   const [isFeatured, setIsFeatured]   = useState(series.is_featured)
   const [seoTitle, setSeoTitle]       = useState(series.seo_title ?? '')
   const [seoDesc, setSeoDesc]         = useState(series.seo_desc ?? '')
+
+  // ── Optional content sections ──
+  const [whatsIncluded, setWhatsIncluded]       = useState((series.whats_included ?? []).join('\n'))
+  const [installationInfo, setInstallationInfo] = useState(series.installation_info ?? '')
+  const [warrantyInfo, setWarrantyInfo]         = useState(series.warranty_info ?? '')
+  const [certifications, setCertifications]     = useState((series.certifications ?? []).join('\n'))
+  const [accessories, setAccessories]           = useState<{ name: string; note: string }[]>(
+    (series.optional_accessories ?? []).map(a => ({ name: a.name, note: a.note ?? '' }))
+  )
+  const [faqs, setFaqs] = useState<{ q: string; a: string }[]>(series.faqs ?? [])
 
   // ── Colours ──
   const [colours, setColours] = useState<ColourRow[]>(
@@ -123,6 +151,12 @@ export default function SeriesEditor({
         is_featured: isFeatured,
         seo_title: seoTitle || null,
         seo_desc: seoDesc || null,
+        whats_included: whatsIncluded.split('\n').map(s => s.trim()).filter(Boolean),
+        installation_info: installationInfo.trim() || null,
+        warranty_info: warrantyInfo.trim() || null,
+        certifications: certifications.split('\n').map(s => s.trim()).filter(Boolean),
+        optional_accessories: accessories.filter(a => a.name.trim()).map(a => ({ name: a.name.trim(), note: a.note.trim() || undefined })),
+        faqs: faqs.filter(f => f.q.trim() && f.a.trim()).map(f => ({ q: f.q.trim(), a: f.a.trim() })),
       },
       colours: hasColours ? colours.map((c, i) => ({
         id: c.id,
@@ -160,6 +194,7 @@ export default function SeriesEditor({
         trade_discount_pct: v.trade_discount_pct ?? null,
         trade_price_mode: v.trade_price_mode ?? 'fixed',
         availability: v.availability ?? 'in_stock',
+        specifications: v.specifications ?? {},
         is_active: v.is_active ?? true,
         display_order: i,
       })),
@@ -372,12 +407,84 @@ export default function SeriesEditor({
                     <label className="flex items-center gap-2 text-xs text-slate-600 cursor-pointer self-end">
                       <input type="checkbox" checked={v.is_active ?? true} onChange={e => updateVariant(v._key, { is_active: e.target.checked })} /> Active
                     </label>
+                    <div className="sm:col-span-3 space-y-1">
+                      <label className="text-[11px] font-medium text-slate-500">Advanced specifications <span className="text-slate-400">— one “Key: Value” per line (EER, COP, sound, weights, pipe limits…)</span></label>
+                      <textarea
+                        className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm min-h-28 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={specToText(v.specifications)}
+                        onChange={e => updateVariant(v._key, { specifications: textToSpec(e.target.value) })}
+                        placeholder={'EER (cooling): 3.74\nSound power (outdoor): 65 dB(A)\nMax pipe length: 25 m'}
+                      />
+                    </div>
                   </div>
                 )}
               </div>
             )
           })}
         </div>
+      </section>
+
+      {/* ── Content sections ── */}
+      <section className="bg-white rounded-xl border border-slate-100 p-6 space-y-5">
+        <h3 className="font-semibold text-slate-900 text-sm">Content Sections <span className="text-slate-400 font-normal">— optional; hidden on the site until filled</span></h3>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-700">What&apos;s included <span className="text-slate-400 font-normal">(one per line)</span></label>
+            <textarea className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm min-h-24 focus:outline-none focus:ring-2 focus:ring-blue-500" value={whatsIncluded} onChange={e => setWhatsIncluded(e.target.value)} placeholder={'Indoor unit\nOutdoor unit\nRemote controller'} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-700">Certifications <span className="text-slate-400 font-normal">(one per line)</span></label>
+            <textarea className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm min-h-24 focus:outline-none focus:ring-2 focus:ring-blue-500" value={certifications} onChange={e => setCertifications(e.target.value)} placeholder={'R32 refrigerant\nA++ energy efficiency\nCE marked'} />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-700">Installation information</label>
+          <textarea className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm min-h-20 focus:outline-none focus:ring-2 focus:ring-blue-500" value={installationInfo} onChange={e => setInstallationInfo(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <label className="text-sm font-medium text-slate-700">Warranty information</label>
+          <textarea className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm min-h-16 focus:outline-none focus:ring-2 focus:ring-blue-500" value={warrantyInfo} onChange={e => setWarrantyInfo(e.target.value)} />
+        </div>
+
+        {/* Optional accessories */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-slate-700">Optional accessories</label>
+            <Button variant="outline" size="sm" onClick={() => setAccessories(a => [...a, { name: '', note: '' }])} className="gap-1.5"><Plus className="w-3.5 h-3.5" /> Add</Button>
+          </div>
+          {accessories.map((a, idx) => (
+            <div key={idx} className="flex gap-2 items-center">
+              <input className={smInput} value={a.name} onChange={e => setAccessories(list => list.map((x, i) => i === idx ? { ...x, name: e.target.value } : x))} placeholder="Accessory name" />
+              <input className={smInput} value={a.note} onChange={e => setAccessories(list => list.map((x, i) => i === idx ? { ...x, note: e.target.value } : x))} placeholder="Note (optional)" />
+              <button onClick={() => setAccessories(list => list.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-600 cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+            </div>
+          ))}
+        </div>
+
+        {/* FAQs */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-slate-700">FAQs</label>
+            <Button variant="outline" size="sm" onClick={() => setFaqs(f => [...f, { q: '', a: '' }])} className="gap-1.5"><Plus className="w-3.5 h-3.5" /> Add FAQ</Button>
+          </div>
+          {faqs.map((f, idx) => (
+            <div key={idx} className="rounded-lg border border-slate-200 p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-slate-400 w-4">{idx + 1}</span>
+                <input className={cn(smInput, 'flex-1')} value={f.q} onChange={e => setFaqs(list => list.map((x, i) => i === idx ? { ...x, q: e.target.value } : x))} placeholder="Question" />
+                <button disabled={idx === 0} onClick={() => setFaqs(list => { const n = [...list];[n[idx - 1], n[idx]] = [n[idx], n[idx - 1]]; return n })} className="text-slate-400 hover:text-slate-600 disabled:opacity-30 cursor-pointer">↑</button>
+                <button disabled={idx === faqs.length - 1} onClick={() => setFaqs(list => { const n = [...list];[n[idx + 1], n[idx]] = [n[idx], n[idx + 1]]; return n })} className="text-slate-400 hover:text-slate-600 disabled:opacity-30 cursor-pointer">↓</button>
+                <button onClick={() => setFaqs(list => list.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-600 cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+              </div>
+              <textarea className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm min-h-16 focus:outline-none focus:ring-2 focus:ring-blue-500" value={f.a} onChange={e => setFaqs(list => list.map((x, i) => i === idx ? { ...x, a: e.target.value } : x))} placeholder="Answer" />
+            </div>
+          ))}
+        </div>
+
+        {/* Documents */}
+        <SeriesDocuments seriesId={series.id} initial={series.documents ?? []} />
       </section>
 
       {/* ── SEO ── */}

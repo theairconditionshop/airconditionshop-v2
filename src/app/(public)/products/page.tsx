@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
-import { getCategoriesWithCount, getBrandsWithCount, getActiveAcTypes } from '@/lib/data/queries'
+import { getCategoriesWithCount, getBrandsWithCount, getActiveAcTypes, getAcFilterFacets } from '@/lib/data/queries'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
@@ -18,16 +18,17 @@ export const metadata: Metadata = {
 }
 
 interface Props {
-  searchParams: Promise<{ category?: string; brand?: string; search?: string; ac_type?: string }>
+  searchParams: Promise<{ category?: string; brand?: string; search?: string; ac_type?: string; btu?: string; energy?: string; refrigerant?: string; wifi?: string; colour?: string }>
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
   const params = await searchParams
 
-  const [categories, brands, acTypes, userRole] = await Promise.all([
+  const [categories, brands, acTypes, facets, userRole] = await Promise.all([
     getCategoriesWithCount(),
     getBrandsWithCount(),
     getActiveAcTypes(),
+    getAcFilterFacets(),
     getRole(),
   ])
 
@@ -58,10 +59,16 @@ export default async function ProductsPage({ searchParams }: Props) {
               categories={categories}
               brands={brands}
               acTypes={acTypes}
+              facets={facets}
               activeCategory={params.category}
               activeBrand={params.brand}
               activeSearch={params.search}
               activeAcType={params.ac_type}
+              activeBtu={params.btu}
+              activeEnergy={params.energy}
+              activeRefrigerant={params.refrigerant}
+              activeWifi={params.wifi}
+              activeColour={params.colour}
             />
 
             {/* Product grid — Suspense boundary means only this re-renders on filter changes */}
@@ -75,7 +82,7 @@ export default async function ProductsPage({ searchParams }: Props) {
                 activeAcType={params.ac_type}
               />
               <Suspense
-                key={`${params.category}-${params.brand}-${params.search}-${params.ac_type}`}
+                key={`${params.category}-${params.brand}-${params.search}-${params.ac_type}-${params.btu}-${params.energy}-${params.refrigerant}-${params.wifi}-${params.colour}`}
                 fallback={<ProductGridSkeleton count={12} />}
               >
                 <ProductGrid
@@ -83,6 +90,11 @@ export default async function ProductsPage({ searchParams }: Props) {
                   brandId={params.brand}
                   search={params.search}
                   acType={params.ac_type}
+                  btu={params.btu}
+                  energy={params.energy}
+                  refrigerant={params.refrigerant}
+                  wifi={params.wifi}
+                  colour={params.colour}
                   userRole={userRole}
                 />
               </Suspense>

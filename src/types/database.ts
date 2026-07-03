@@ -154,6 +154,13 @@ export interface ProductSeries {
   is_featured: boolean
   display_order: number
   view_count: number
+  // optional content sections
+  faqs: SeriesFaq[]
+  whats_included: string[]
+  installation_info: string | null
+  warranty_info: string | null
+  certifications: string[]
+  optional_accessories: SeriesAccessory[]
   created_at: string
   updated_at: string
   // joined
@@ -162,6 +169,21 @@ export interface ProductSeries {
   colours?: SeriesColour[]
   variants?: ProductVariant[]
   images?: SeriesImage[]
+  documents?: SeriesDocument[]
+}
+
+export interface SeriesFaq { q: string; a: string }
+export interface SeriesAccessory { name: string; note?: string }
+
+export interface SeriesDocument {
+  id: string
+  series_id: string
+  title: string
+  url: string
+  file_type: string | null
+  size_bytes: number | null
+  display_order: number
+  created_at: string
 }
 
 export interface SeriesColour {

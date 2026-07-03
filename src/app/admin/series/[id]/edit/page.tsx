@@ -13,7 +13,7 @@ export default async function EditSeriesPage({ params }: { params: Promise<{ id:
 
   const [{ data: series }, { data: brands }, { data: categories }] = await Promise.all([
     db.from('product_series')
-      .select('*, colours:series_colours(*), variants:product_variants(*), images:series_images(*)')
+      .select('*, colours:series_colours(*), variants:product_variants(*), images:series_images(*), documents:series_documents(*)')
       .eq('id', id).single(),
     db.from('brands').select('id,name').eq('is_active', true).order('name'),
     db.from('categories').select('id,name').eq('is_active', true).order('name'),
