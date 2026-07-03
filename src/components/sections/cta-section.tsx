@@ -1,6 +1,10 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Phone } from 'lucide-react'
+import { Reveal, Magnetic } from '@/components/motion/primitives'
+import { motion, useReducedMotion } from 'framer-motion'
 
 interface CtaData {
   heading?: string
@@ -10,100 +14,98 @@ interface CtaData {
   cta_secondary?: { label: string; href: string }
 }
 
+const TRUST = ['All Malta Covered', 'Same-Day Emergency Response', 'F-Gas Certified Engineers']
+
 export default function CtaSection({ data }: { data: CtaData }) {
-  const heading      = data.heading      || 'Need Air Conditioning or HVAC in Malta?'
+  const reduce = useReducedMotion()
+  const heading      = data.heading      || 'Comfort is one call away.'
   const description  = data.description  || 'Whether you need a single unit for your home, a full commercial installation or an HVAC service call, our team is ready to help. We cover all Malta, respond quickly and give honest advice.'
   const ctaPrimary   = data.cta_primary   || { label: 'Request a Free Quote', href: '/quote' }
   const ctaSecondary = data.cta_secondary || { label: 'Contact Our Team',     href: '/contact' }
-  const imageUrl     = data.image_url || null
+  const imageUrl     = data.image_url?.trim() || null
 
   return (
-    <section className="py-8 lg:py-12 bg-[#FAFAF9]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-slate-950">
-          {/* Background image on mobile — only when image is set in admin */}
-          {imageUrl && (
-            <div className="absolute inset-0 lg:hidden">
-              <Image
-                src={imageUrl}
-                alt=""
-                fill
-                sizes="100vw"
-                className="object-cover object-center opacity-20"
-              />
-            </div>
-          )}
+    <section className="relative bg-[#f4f8fb] py-24 lg:py-32 overflow-hidden border-t border-slate-100">
+      {/* Resolved cool glow — the hero's heat haze has fully settled into calm blue here, closing the narrative loop */}
+      <div aria-hidden className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full bg-blue-400/[0.10] blur-[140px] pointer-events-none" />
+      {!reduce && (
+        <motion.div
+          aria-hidden
+          className="absolute inset-y-0 right-0 w-1/2 pointer-events-none"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
+          style={{ background: 'linear-gradient(270deg, rgba(56,189,248,0.10) 0%, rgba(224,242,254,0.06) 45%, transparent 100%)' }}
+        />
+      )}
 
-          {/* Two-column layout on desktop (with image), full-width (without) */}
-          <div className={imageUrl ? 'grid lg:grid-cols-[1fr_420px]' : ''}>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className={imageUrl ? 'grid lg:grid-cols-[1fr_440px] gap-14 lg:gap-16 items-center' : ''}>
 
-            {/* Left — text content */}
-            <div className="relative z-10 px-5 py-14 sm:px-14 sm:py-20">
-              {/* Ambient glow */}
-              <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-blue-600/10 blur-[80px] rounded-full" />
+          {/* Text content */}
+          <div className={imageUrl ? '' : 'max-w-2xl mx-auto text-center'}>
+            <Reveal mode="up" className={imageUrl ? '' : 'flex justify-center'}>
+              <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-5">Get a Quote Today</p>
+            </Reveal>
+            <Reveal mode="blur" delay={0.05}>
+              <h2 className="font-display text-5xl sm:text-6xl lg:text-6xl xl:text-7xl leading-[0.98] tracking-[-0.02em] text-slate-900">
+                {heading}
+              </h2>
+            </Reveal>
+            <Reveal mode="up" delay={0.12}>
+              <p className={`mt-6 text-lg text-slate-600 leading-relaxed ${imageUrl ? 'max-w-lg' : 'max-w-xl mx-auto'}`}>
+                {description}
+              </p>
+            </Reveal>
 
-              <div className="relative">
-                <p className="text-[11px] font-semibold text-blue-400 uppercase tracking-[0.2em] mb-5">
-                  Get a Quote Today
-                </p>
-                <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem] text-white mb-5 leading-[1.1]">
-                  {heading}
-                </h2>
-                <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-10 max-w-lg">
-                  {description}
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Link
-                    href={ctaPrimary.href}
-                    className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer"
-                  >
-                    {ctaPrimary.label}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                  <Link
-                    href={ctaSecondary.href}
-                    className="inline-flex items-center justify-center px-7 py-3.5 border border-white/15 text-white/80 hover:text-white hover:border-white/30 text-sm font-semibold rounded-xl transition-all duration-200 cursor-pointer"
-                  >
-                    {ctaSecondary.label}
-                  </Link>
-                </div>
-
-                <a
-                  href="tel:+35679661889"
-                  className="mt-8 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+            <Reveal mode="up" delay={0.18} className={`mt-10 flex flex-col sm:flex-row gap-3 ${imageUrl ? '' : 'sm:justify-center'}`}>
+              <Magnetic strength={0.25}>
+                <Link
+                  href={ctaPrimary.href}
+                  className="group inline-flex items-center justify-center gap-2.5 px-8 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300"
+                  style={{ borderRadius: 2 }}
                 >
-                  <Phone className="w-4 h-4" />
-                  +356 7966 1889
-                </a>
+                  {ctaPrimary.label}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </Link>
+              </Magnetic>
+              <Link
+                href={ctaSecondary.href}
+                className="inline-flex items-center justify-center px-8 h-14 border border-slate-300 text-slate-800 text-[15px] font-semibold hover:border-slate-900 hover:bg-white transition-all duration-300"
+                style={{ borderRadius: 2 }}
+              >
+                {ctaSecondary.label}
+              </Link>
+            </Reveal>
 
-                {/* Trust signals */}
-                <div className="mt-10 pt-8 border-t border-white/[0.06] flex flex-wrap gap-x-6 gap-y-2">
-                  {['All Malta Covered', 'Same-Day Emergency Response', 'F-Gas Certified Engineers'].map(t => (
-                    <span key={t} className="inline-flex items-center gap-1.5 text-[12px] text-slate-600">
-                      <span className="w-1 h-1 rounded-full bg-blue-600/60 shrink-0" />
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <Reveal mode="fade" delay={0.22}>
+              <a href="tel:+35679661889" className={`mt-8 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600 transition-colors ${imageUrl ? '' : 'justify-center w-full'}`}>
+                <Phone className="w-4 h-4" />
+                +356 7966 1889
+              </a>
+            </Reveal>
 
-            {/* Right — HVAC image (desktop only, when set in admin) */}
-            {imageUrl && (
-              <div className="hidden lg:block relative overflow-hidden">
-                <Image
-                  src={imageUrl}
-                  alt="THE AIRCONDITION SHOP — professional HVAC installation"
-                  fill
-                  sizes="420px"
-                  className="object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/60 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent" />
-              </div>
-            )}
+            {/* Trust signals */}
+            <Reveal mode="up" delay={0.26} className={`mt-10 pt-8 border-t border-slate-200 flex flex-wrap gap-x-6 gap-y-2 ${imageUrl ? '' : 'justify-center'}`}>
+              {TRUST.map(t => (
+                <span key={t} className="inline-flex items-center gap-2 text-[13px] font-medium text-slate-500">
+                  <span className="w-1 h-1 bg-blue-500" style={{ borderRadius: 1 }} />
+                  {t}
+                </span>
+              ))}
+            </Reveal>
           </div>
+
+          {/* Optional CMS image — architectural framed panel matching the rest of the site */}
+          {imageUrl && (
+            <Reveal mode="scale" delay={0.15} className="hidden lg:block">
+              <div className="relative aspect-[4/5] overflow-hidden border border-slate-200" style={{ borderRadius: 2 }}>
+                <Image src={imageUrl} alt="THE AIRCONDITION SHOP — professional HVAC installation" fill sizes="440px" className="object-cover object-center" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent" />
+              </div>
+            </Reveal>
+          )}
         </div>
       </div>
     </section>

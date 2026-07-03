@@ -132,6 +132,25 @@ body {
   animation: shimmer 1.6s ease-in-out infinite;
 }
 
+/* Hero heat-haze — warm shimmer that rises and refracts */
+@keyframes heatHaze {
+  0%   { transform: translateY(0) scale(1);      opacity: 0.5; }
+  50%  { transform: translateY(-14px) scale(1.04); opacity: 0.72; }
+  100% { transform: translateY(0) scale(1);      opacity: 0.5; }
+}
+.heat-haze {
+  background: radial-gradient(60% 60% at 70% 30%, rgba(251,146,60,0.28) 0%, rgba(251,191,36,0.14) 40%, transparent 72%);
+  filter: blur(30px);
+  animation: heatHaze 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* BTU result airflow bar */
+@keyframes growbar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

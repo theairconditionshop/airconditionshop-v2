@@ -1,7 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calculator, ArrowRight, Ruler, Thermometer, Zap } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ArrowRight, Ruler, Thermometer, Zap } from 'lucide-react'
+import { Reveal, Stagger, StaggerItem, CountUp, Magnetic } from '@/components/motion/primitives'
 
 interface BtuPromoData {
   image_url?: string
@@ -9,164 +11,129 @@ interface BtuPromoData {
   description?: string
 }
 
-const BTU_STEPS = [
-  {
-    icon: Ruler,
-    step: '01',
-    title: 'Measure Your Room',
-    body: 'Enter length, width and ceiling height',
-  },
-  {
-    icon: Thermometer,
-    step: '02',
-    title: 'Set Conditions',
-    body: 'Sun exposure, insulation and occupancy',
-  },
-  {
-    icon: Zap,
-    step: '03',
-    title: 'Get Your Result',
-    body: 'Matched to products in our catalogue',
-  },
+const STEPS = [
+  { icon: Ruler,       step: '01', title: 'Measure your room', body: 'Length, width and ceiling height.' },
+  { icon: Thermometer, step: '02', title: 'Set the conditions', body: 'Sun exposure, insulation, occupancy.' },
+  { icon: Zap,         step: '03', title: 'Get the exact match', body: 'Paired to real units in our range.' },
 ]
 
 export default function BtuPromo({ data = {} }: { data?: BtuPromoData }) {
-  const heading = data.heading ?? "Not sure which air conditioner you need?"
-  const description = data.description ?? "Calculate the right cooling capacity for your room in less than 30 seconds. No guesswork. No oversized units. No wasted energy."
+  const heading = data.heading ?? 'The right capacity. Not a watt more.'
+  const description = data.description ?? 'An oversized unit wastes energy; an undersized one never keeps up. Our calculator sizes your cooling to your exact room in under 30 seconds — matched to real products.'
 
   return (
-    <section className="relative py-10 lg:py-16 bg-slate-950 overflow-hidden">
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+    <section className="relative bg-white overflow-hidden">
+      {/* hairline top rule */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="h-px bg-slate-100" />
+      </div>
 
-          {/* Left — copy */}
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-              <Calculator aria-hidden="true" className="w-3.5 h-3.5 text-blue-400" />
-              <span className="text-xs font-semibold text-blue-400 uppercase tracking-widest">Free Tool</span>
-            </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
-            <h2 className="font-display text-3xl lg:text-4xl xl:text-5xl text-white leading-tight">
-              {heading.includes(' & ') || heading.includes('?') ? (
-                <>
-                  {heading.split('?')[0]}
-                  {heading.includes('?') && <span className="text-blue-400 italic">?</span>}
-                </>
-              ) : heading}
-            </h2>
+          {/* Left — copy + steps */}
+          <div className="lg:col-span-6">
+            <Reveal mode="up">
+              <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-5">
+                Free Tool · 30 Seconds
+              </p>
+            </Reveal>
+            <Reveal mode="blur" delay={0.05}>
+              <h2 className="font-display text-4xl lg:text-5xl xl:text-[3.4rem] leading-[1.02] tracking-[-0.02em] text-slate-900 max-w-lg">
+                {heading}
+              </h2>
+            </Reveal>
+            <Reveal mode="up" delay={0.12}>
+              <p className="mt-6 text-lg text-slate-600 leading-relaxed max-w-md">
+                {description}
+              </p>
+            </Reveal>
 
-            <p className="mt-5 text-lg text-slate-400 leading-relaxed max-w-md">
-              {description}
-            </p>
-
-            {/* Trust micro-signals */}
-            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-              {['Covers all room types', 'Malta climate optimised', 'Matched to real products'].map(item => (
-                <span key={item} className="inline-flex items-center gap-1.5 text-[13px] text-slate-500">
-                  <span className="w-1 h-1 rounded-full bg-blue-500/60 shrink-0" />
-                  {item}
-                </span>
+            {/* Steps */}
+            <Stagger className="mt-10 space-y-px border-t border-slate-100" gap={0.1}>
+              {STEPS.map(({ icon: Icon, step, title, body }) => (
+                <StaggerItem key={step}>
+                  <div className="group flex items-center gap-5 py-5 border-b border-slate-100 hover:bg-slate-50/60 transition-colors duration-300 px-1">
+                    <span className="font-display text-2xl text-slate-300 group-hover:text-blue-500 transition-colors duration-300 w-10 tabular-nums">{step}</span>
+                    <div className="w-10 h-10 flex items-center justify-center border border-slate-200 group-hover:border-blue-300 transition-colors duration-300 shrink-0" style={{ borderRadius: 2 }}>
+                      <Icon className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors duration-300" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-[15px] font-semibold text-slate-900">{title}</h3>
+                      <p className="text-sm text-slate-500">{body}</p>
+                    </div>
+                    <ArrowRight className="ml-auto w-4 h-4 text-slate-300 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 shrink-0" />
+                  </div>
+                </StaggerItem>
               ))}
-            </div>
+            </Stagger>
 
-            <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <Link href="/btu-calculator">
-                <Button size="lg" className="group bg-blue-600 hover:bg-blue-500 text-white gap-2.5 px-8 shadow-lg shadow-blue-900/40 transition-all duration-200">
-                  Find My Perfect Air Conditioner
-                  <ArrowRight aria-hidden="true" className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                </Button>
-              </Link>
-              <Link href="/contact">
-                <Button size="lg" variant="outline" className="border-white/15 text-white hover:bg-white/[0.08] hover:text-white gap-2 bg-transparent">
-                  Get expert advice
-                </Button>
-              </Link>
-            </div>
-
-            <p className="mt-5 text-sm text-slate-500">
-              Takes less than 30 seconds · No account required
-            </p>
+            <Reveal mode="up" delay={0.15} className="mt-10">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <Magnetic strength={0.25}>
+                  <Link
+                    href="/btu-calculator"
+                    className="group flex items-center justify-center gap-2.5 px-8 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300"
+                    style={{ borderRadius: 2 }}
+                  >
+                    Find my perfect fit
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                </Magnetic>
+                <Link
+                  href="/contact"
+                  className="flex items-center justify-center px-8 h-14 border border-slate-300 text-slate-800 text-[15px] font-semibold hover:border-slate-900 transition-colors duration-300"
+                  style={{ borderRadius: 2 }}
+                >
+                  Ask an expert
+                </Link>
+              </div>
+            </Reveal>
           </div>
 
-          {/* Right — CMS image or BTU process illustration */}
-          <div className="relative mt-8 lg:mt-0">
-            {data.image_url ? (
-              <div className="relative aspect-[4/3] lg:aspect-[5/4] overflow-hidden rounded-3xl">
-                <Image
-                  src={data.image_url}
-                  alt="BTU calculator — find your ideal air conditioner"
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                {/* Floating result badge */}
-                <div className="absolute bottom-5 left-5 right-5">
-                  <div className="inline-flex items-center gap-4 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-2xl px-5 py-3.5">
-                    <div className="text-center">
-                      <p className="text-xl font-bold text-blue-400 tabular-nums">9,000</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wide">BTU/hr</p>
-                    </div>
-                    <div className="text-slate-600 text-base">→</div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold text-blue-400 tabular-nums">2.6 kW</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wide">Capacity</p>
-                    </div>
-                    <div className="text-slate-600 text-base">→</div>
-                    <div className="text-center">
-                      <p className="text-xl font-bold text-emerald-400">A+++</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wide">Rating</p>
-                    </div>
+          {/* Right — architectural result panel */}
+          <div className="lg:col-span-6">
+            <Reveal mode="scale">
+              <div className="relative border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-8 lg:p-10" style={{ borderRadius: 2 }}>
+                {data.image_url && (
+                  <div className="relative aspect-[16/9] mb-8 overflow-hidden" style={{ borderRadius: 2 }}>
+                    <Image src={data.image_url} alt="Sizing an air conditioner for a Malta room" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
                   </div>
-                </div>
-              </div>
-            ) : (
-              /* BTU process illustration — dark card with 3 steps */
-              <div className="rounded-3xl border border-white/[0.07] bg-gradient-to-br from-slate-900 to-blue-950/40 p-8 lg:p-10">
-                <div className="space-y-6">
-                  {BTU_STEPS.map(({ icon: Icon, step, title, body }) => (
-                    <div
-                      key={step}
-                      className="flex items-start gap-5"
-                    >
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600/10 border border-blue-500/20">
-                        <Icon className="w-5 h-5 text-blue-400" />
-                      </div>
-                      <div className="flex-1 pt-0.5">
-                        <p className="text-[10px] font-bold text-blue-600/60 tracking-[0.2em] mb-1">STEP {step}</p>
-                        <h3 className="text-[15px] font-semibold text-white mb-0.5">{title}</h3>
-                        <p className="text-sm text-slate-500">{body}</p>
-                      </div>
-                    </div>
-                  ))}
+                )}
+
+                <p className="text-[11px] text-slate-400 uppercase tracking-[0.22em] mb-6">Example result · 20 m² room</p>
+
+                <div className="grid grid-cols-3 divide-x divide-slate-200">
+                  <Metric value={<CountUp to={9000} duration={2} />} unit="BTU / hr" />
+                  <Metric value={<><CountUp to={2.6} decimals={1} duration={2} /> kW</>} unit="Capacity" />
+                  <Metric value={<span className="text-emerald-600">A+++</span>} unit="Efficiency" />
                 </div>
 
-                {/* Example result card */}
-                <div className="mt-8 pt-6 border-t border-white/[0.06]">
-                  <p className="text-[11px] text-slate-600 uppercase tracking-widest mb-4">Example result</p>
-                  <div className="flex items-center gap-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-400 tabular-nums">9,000</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">BTU/hr</p>
-                    </div>
-                    <div className="text-slate-700">→</div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-400 tabular-nums">2.6 kW</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">Capacity</p>
-                    </div>
-                    <div className="text-slate-700">→</div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-emerald-400">A+++</p>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-wide mt-0.5">Rating</p>
-                    </div>
-                    <p className="ml-2 text-[11px] text-slate-600 leading-tight">20 m²<br />room</p>
-                  </div>
+                {/* airflow bar */}
+                <div className="mt-8 h-1.5 bg-slate-100 overflow-hidden" style={{ borderRadius: 2 }}>
+                  <Reveal mode="fade" delay={0.3}>
+                    <div className="h-full w-full bg-gradient-to-r from-orange-400 via-sky-400 to-blue-600 origin-left animate-[growbar_1.6s_ease-out]" />
+                  </Reveal>
+                </div>
+                <div className="mt-2.5 flex justify-between text-[11px] text-slate-400">
+                  <span>Heat load in</span>
+                  <span>Comfort out</span>
                 </div>
               </div>
-            )}
+            </Reveal>
           </div>
+
         </div>
       </div>
     </section>
+  )
+}
+
+function Metric({ value, unit }: { value: React.ReactNode; unit: string }) {
+  return (
+    <div className="px-3 first:pl-0 last:pr-0 text-center">
+      <p className="font-display text-3xl lg:text-4xl text-slate-900 tabular-nums leading-none">{value}</p>
+      <p className="mt-2 text-[10px] text-slate-400 uppercase tracking-[0.15em]">{unit}</p>
+    </div>
   )
 }

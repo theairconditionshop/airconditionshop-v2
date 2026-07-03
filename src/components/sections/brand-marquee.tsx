@@ -27,43 +27,35 @@ function BrandCard({ brand }: { brand: Brand }) {
       href={`/brands/${brand.slug}`}
       className={[
         'group relative flex items-center justify-center shrink-0',
-        'h-[76px] min-w-[168px] px-8 mx-3',
-        'rounded-2xl border border-slate-200 bg-white',
+        'h-[84px] min-w-[188px] px-10 mx-2',
+        'border-r border-slate-200/70 bg-transparent',
         'cursor-pointer overflow-hidden select-none',
-        'transition-all duration-200 ease-out',
-        'hover:border-blue-200 hover:shadow-[0_8px_32px_rgba(15,111,255,0.13)]',
-        'hover:scale-[1.045] hover:-translate-y-0.5',
+        'transition-colors duration-300 ease-out',
       ].join(' ')}
       style={{ willChange: 'transform' }}
       draggable="false"
     >
-      {/* Blue ring glow */}
+      {/* Soft hover glow */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-        style={{ boxShadow: 'inset 0 0 0 1.5px rgba(15,111,255,0.24)' }}
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: 'radial-gradient(60% 80% at 50% 50%, rgba(14,165,233,0.10), transparent 70%)' }}
       />
 
       {brand.logo_url ? (
         <Image
           src={brand.logo_url}
           alt={brand.name}
-          width={130}
+          width={140}
           height={52}
-          className="object-contain pointer-events-none"
-          style={{
-            maxHeight: '44px',
-            width: 'auto',
-            maxWidth: '130px',
-            objectFit: 'contain',
-            // No filters — always show full brand colours
-          }}
+          className="object-contain pointer-events-none grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.06] transition-all duration-300 ease-out"
+          style={{ maxHeight: '46px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }}
           loading="lazy"
           unoptimized
           draggable="false"
         />
       ) : (
-        <span className="text-[13px] font-bold text-slate-700 group-hover:text-blue-600 transition-colors tracking-wide text-center leading-tight">
+        <span className="text-[13px] font-bold text-slate-400 group-hover:text-blue-600 transition-colors tracking-wide text-center leading-tight">
           {brand.name}
         </span>
       )}
@@ -89,19 +81,23 @@ export default function BrandMarquee({ brands, duration = 30 }: BrandMarqueeProp
   const doubled = [...list, ...list]
 
   return (
-    <section className="py-12 lg:py-16 bg-white border-y border-slate-100 overflow-hidden">
+    <section className="py-16 lg:py-24 bg-white border-y border-slate-100 overflow-hidden">
 
       {/* Heading */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-9">
-        <p className="text-[10px] font-bold text-blue-600 uppercase tracking-[0.32em] mb-3">
-          Products From Leading Manufacturers
-        </p>
-        <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-          Official Brands Available at THE AIRCONDITION SHOP
-        </h2>
-        <p className="mt-2.5 text-sm text-slate-400 max-w-lg mx-auto leading-relaxed">
-          Premium HVAC equipment, professional tools and installation materials from the world&apos;s leading manufacturers.
-        </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="flex items-end justify-between gap-6 flex-wrap">
+          <div>
+            <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-3">
+              Authorized Dealer
+            </p>
+            <h2 className="font-display text-3xl sm:text-4xl text-slate-900 tracking-tight leading-tight max-w-xl">
+              The brands Malta trusts, under one roof.
+            </h2>
+          </div>
+          <p className="text-sm text-slate-500 max-w-xs leading-relaxed">
+            Premium HVAC equipment, professional tools and installation materials from the world&apos;s leading manufacturers.
+          </p>
+        </div>
       </div>
 
       {/* Marquee strip */}
