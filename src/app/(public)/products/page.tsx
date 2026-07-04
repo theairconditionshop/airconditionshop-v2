@@ -8,6 +8,7 @@ import ProductsFilters from '@/components/products/products-filters'
 import ProductGrid from './ProductGrid'
 import FilterChipsWrapper from './FilterChipsWrapper'
 import { ProductGridSkeleton } from '@/components/ui/skeleton'
+import { Reveal } from '@/components/motion/primitives'
 
 export const revalidate = 60
 
@@ -43,16 +44,20 @@ export default async function ProductsPage({ searchParams }: Props) {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="min-h-screen pt-20 bg-slate-50/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+      <main id="main-content" className="min-h-screen pt-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
 
           {/* Page title */}
-          <div className="mb-6 lg:mb-8">
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-1">Our Range</p>
-            <h1 className="font-display text-2xl lg:text-3xl text-slate-900">{pageTitle}</h1>
+          <div className="mb-10 lg:mb-12 border-b border-slate-100 pb-8">
+            <Reveal mode="up">
+              <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-4">Our Range</p>
+            </Reveal>
+            <Reveal mode="blur" delay={0.05}>
+              <h1 className="font-display text-4xl lg:text-5xl tracking-[-0.02em] text-slate-900">{pageTitle}</h1>
+            </Reveal>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
 
             {/* Sidebar + mobile filter toggle */}
             <ProductsFilters

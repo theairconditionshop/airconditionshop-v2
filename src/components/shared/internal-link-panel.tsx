@@ -28,9 +28,9 @@ export function InternalLinkPanel({
   const ctaCol  = variant === 'dark' ? 'text-blue-400' : 'text-blue-600'
 
   return (
-    <div className={`rounded-2xl border p-6 sm:p-8 ${bg} ${className}`}>
+    <div className={`border p-6 sm:p-8 ${bg} ${className}`} style={{ borderRadius: 2 }}>
       {heading && (
-        <p className={`text-[11px] font-semibold uppercase tracking-[0.22em] mb-5 ${variant === 'dark' ? 'text-slate-500' : 'text-slate-400'}`}>
+        <p className={`text-[11px] font-semibold uppercase tracking-[0.28em] mb-6 ${variant === 'dark' ? 'text-slate-500' : 'text-blue-600'}`}>
           {heading}
         </p>
       )}
@@ -39,7 +39,8 @@ export function InternalLinkPanel({
           <Link
             key={href}
             href={href}
-            className={`group flex flex-col gap-3 p-5 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer ${cardBg}`}
+            className={`group flex flex-col gap-3 p-5 border transition-colors duration-300 cursor-pointer ${cardBg}`}
+            style={{ borderRadius: 2 }}
           >
             <div className="flex-1">
               <p className={`font-semibold text-sm mb-1 ${headCol}`}>{label}</p>

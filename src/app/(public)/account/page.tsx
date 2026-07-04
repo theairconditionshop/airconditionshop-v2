@@ -22,7 +22,7 @@ export default async function AccountPage() {
         <div className="max-w-xl mx-auto px-4 sm:px-6 py-14">
           <h1 className="text-2xl font-bold text-slate-900 mb-2">My Account</h1>
           <p className="text-slate-500 text-sm mb-8">{user.email}</p>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+          <div className="bg-white border border-slate-200 p-8" style={{ borderRadius: 2 }}>
             <AccountForm profile={profile} />
           </div>
         </div>

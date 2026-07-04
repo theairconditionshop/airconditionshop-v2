@@ -38,7 +38,7 @@ function InfoRow({ label, value, icon: Icon }: { label: string; value: string | 
   return (
     <div className="flex items-start gap-3 py-3 border-b border-slate-50 last:border-0">
       {Icon && (
-        <div className="mt-0.5 w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+        <div className="mt-0.5 w-7 h-7 bg-slate-50 flex items-center justify-center shrink-0" style={{ borderRadius: 2 }}>
           <Icon className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
         </div>
       )}
@@ -114,9 +114,9 @@ export default async function TradeDashboardPage() {
           <div className="grid sm:grid-cols-3 gap-4">
             <Link
               href="/products"
-              className="group p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all flex items-center gap-4"
+              className="group p-5 bg-white border border-slate-100 hover:border-blue-200 transition-all flex items-center gap-4" style={{ borderRadius: 2 }}
             >
-              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
+              <div className="w-11 h-11 bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors" style={{ borderRadius: 2 }}>
                 <Package className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
@@ -128,9 +128,9 @@ export default async function TradeDashboardPage() {
 
             <Link
               href="/quote"
-              className="group p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-blue-200 hover:shadow-md transition-all flex items-center gap-4"
+              className="group p-5 bg-white border border-slate-100 hover:border-blue-200 transition-all flex items-center gap-4" style={{ borderRadius: 2 }}
             >
-              <div className="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
+              <div className="w-11 h-11 bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors" style={{ borderRadius: 2 }}>
                 <FileText className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
@@ -142,9 +142,9 @@ export default async function TradeDashboardPage() {
 
             <Link
               href="/contact"
-              className="group p-5 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-amber-200 hover:shadow-md transition-all flex items-center gap-4"
+              className="group p-5 bg-white border border-slate-100 hover:border-amber-200 transition-all flex items-center gap-4" style={{ borderRadius: 2 }}
             >
-              <div className="w-11 h-11 rounded-xl bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors">
+              <div className="w-11 h-11 bg-amber-50 flex items-center justify-center shrink-0 group-hover:bg-amber-100 transition-colors" style={{ borderRadius: 2 }}>
                 <LifeBuoy className="w-5 h-5 text-amber-600" />
               </div>
               <div className="flex-1 min-w-0">
@@ -159,7 +159,7 @@ export default async function TradeDashboardPage() {
           <div className="grid lg:grid-cols-2 gap-6">
 
             {/* Account info */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div className="bg-white border border-slate-100 p-6" style={{ borderRadius: 2 }}>
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-semibold text-slate-900">Account Information</h2>
                 <Link
@@ -180,7 +180,7 @@ export default async function TradeDashboardPage() {
             </div>
 
             {/* Business details */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <div className="bg-white border border-slate-100 p-6" style={{ borderRadius: 2 }}>
               <h2 className="font-semibold text-slate-900 mb-5">Business Details</h2>
               <InfoRow label="Business Type"      value={application?.business_type}         icon={Briefcase} />
               <InfoRow label="Identification"     value={application?.identification_type

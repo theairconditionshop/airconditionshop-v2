@@ -1,30 +1,30 @@
 import { cn } from '@/lib/utils'
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-shimmer rounded-lg', className)} />
+  return <div className={cn('animate-shimmer', className)} style={{ borderRadius: 2 }} />
 }
 
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-2xl border border-slate-100/80 overflow-hidden flex flex-col">
+    <div className="bg-white border border-slate-200 overflow-hidden flex flex-col" style={{ borderRadius: 2 }}>
       {/* Image — matches real card's aspect-[4/3] */}
       <div className="aspect-[4/3] animate-shimmer" />
 
       {/* Info — matches real card padding and content layout */}
       <div className="flex flex-col flex-1 p-4 lg:p-5 gap-2">
-        {/* Brand pill */}
-        <div className="h-2.5 w-14 animate-shimmer rounded-full" />
+        {/* Brand label */}
+        <div className="h-2.5 w-14 animate-shimmer" />
         {/* Product name — 2 lines */}
-        <div className="h-3.5 w-full animate-shimmer rounded" />
-        <div className="h-3.5 w-3/4 animate-shimmer rounded" />
+        <div className="h-3.5 w-full animate-shimmer" />
+        <div className="h-3.5 w-3/4 animate-shimmer" />
 
         {/* Price row + CTA */}
         <div className="mt-3 flex items-end justify-between">
           <div className="space-y-1">
-            <div className="h-2.5 w-10 animate-shimmer rounded" />
-            <div className="h-4 w-20 animate-shimmer rounded" />
+            <div className="h-2.5 w-10 animate-shimmer" />
+            <div className="h-4 w-20 animate-shimmer" />
           </div>
-          <div className="h-3 w-20 animate-shimmer rounded" />
+          <div className="h-3 w-20 animate-shimmer" />
         </div>
       </div>
     </div>
@@ -47,9 +47,9 @@ export function SidebarSkeleton() {
       <div className="sticky top-24 space-y-6">
         {[5, 4, 3].map((lines, gi) => (
           <div key={gi} className="space-y-2">
-            <div className="h-2.5 w-20 animate-shimmer rounded-full" />
+            <div className="h-2.5 w-20 animate-shimmer" style={{ borderRadius: 2 }} />
             {Array.from({ length: lines }).map((_, i) => (
-              <div key={i} className="h-8 animate-shimmer rounded-lg" />
+              <div key={i} className="h-8 animate-shimmer" style={{ borderRadius: 2 }} />
             ))}
           </div>
         ))}

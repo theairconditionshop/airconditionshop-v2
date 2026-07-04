@@ -24,9 +24,9 @@ export default async function InstallationOffer({ acType, coolingBtu }: Props) {
       : null
 
   return (
-    <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+    <div className="mt-5 border border-emerald-100 bg-emerald-50/40 p-5" style={{ borderRadius: 2 }}>
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+        <div className="w-9 h-9 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5" style={{ borderRadius: 2 }}>
           <Wrench className="w-4 h-4 text-emerald-600" />
         </div>
         <div className="flex-1 min-w-0">
@@ -53,7 +53,7 @@ export default async function InstallationOffer({ acType, coolingBtu }: Props) {
               <li>• 18,000 BTU and 24,000 BTU units: €{priceLarge} + VAT per additional metre</li>
             </ul>
             {tierLabel && (
-              <p className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 rounded-lg px-3 py-1.5">
+              <p className="mt-2 text-xs font-medium text-emerald-800 bg-emerald-100 px-3 py-1.5" style={{ borderRadius: 2 }}>
                 {tierLabel}
               </p>
             )}

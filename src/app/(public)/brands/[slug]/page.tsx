@@ -10,6 +10,7 @@ import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
 import ProductCard from '@/components/products/product-card'
 import SeriesCard from '@/components/products/series-card'
+import { Reveal, Stagger, StaggerItem } from '@/components/motion/primitives'
 
 export const revalidate = 300
 
@@ -100,23 +101,29 @@ export default async function BrandPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={[{ label: 'Home', href: '/' }, { label: 'Brands', href: '/brands' }, { label: brand.name }]} />
 
-          <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-5 mb-10 border-b border-slate-100 pb-8">
             {brand.logo_url && !brand.hero_url && (
               <Image src={brand.logo_url} alt={brand.name} width={80} height={40} className="object-contain" />
             )}
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">{brand.name}</h1>
-              {brand.description && <p className="mt-1 text-slate-500">{brand.description}</p>}
+              <Reveal mode="blur">
+                <h1 className="font-display text-4xl lg:text-5xl tracking-[-0.02em] text-slate-900">{brand.name}</h1>
+              </Reveal>
+              {brand.description && (
+                <Reveal mode="up" delay={0.08}>
+                  <p className="mt-3 text-slate-500 leading-relaxed max-w-xl">{brand.description}</p>
+                </Reveal>
+              )}
             </div>
           </div>
 
           {totalItems > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {series.map(s => <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? brand.slug} />)}
-              {products.map(p => <ProductCard key={p.id} product={p} userRole={userRole} />)}
-            </div>
+            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" gap={0.05}>
+              {series.map(s => <StaggerItem key={s.id}><SeriesCard series={s} userRole={userRole} brandSlug={s.brand?.slug ?? brand.slug} /></StaggerItem>)}
+              {products.map(p => <StaggerItem key={p.id}><ProductCard product={p} userRole={userRole} /></StaggerItem>)}
+            </Stagger>
           ) : (
-            <div className="py-16 text-center">
+            <div className="py-20 text-center border border-slate-100" style={{ borderRadius: 2 }}>
               <p className="text-slate-500 font-medium mb-2">Products being added</p>
               <p className="text-slate-400 text-sm mb-5">Our full range isn&apos;t listed online yet. Call or message us — we can quote any model from this brand.</p>
               <a href="/contact" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">Contact us to enquire →</a>

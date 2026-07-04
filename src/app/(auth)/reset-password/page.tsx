@@ -77,7 +77,7 @@ function RequestStep({ onNext }: { onNext: (email: string) => void }) {
   return (
     <>
       <div className="text-center mb-6">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+        <div className="mx-auto w-14 h-14 bg-white border border-slate-200 flex items-center justify-center mb-4" style={{ borderRadius: 2 }}>
           <Mail className="w-6 h-6 text-blue-500" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Reset your password</h1>
@@ -86,7 +86,7 @@ function RequestStep({ onNext }: { onNext: (email: string) => void }) {
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+      <div className="bg-white border border-slate-200 p-8" style={{ borderRadius: 2 }}>
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
             label="Email address"
@@ -98,7 +98,7 @@ function RequestStep({ onNext }: { onNext: (email: string) => void }) {
             autoComplete="email"
           />
           {error && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+            <div className="bg-red-50 border border-red-200 px-4 py-3" style={{ borderRadius: 2 }}>
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -187,7 +187,7 @@ function OtpStep({
   return (
     <>
       <div className="text-center mb-6">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+        <div className="mx-auto w-14 h-14 bg-white border border-slate-200 flex items-center justify-center mb-4" style={{ borderRadius: 2 }}>
           <Mail className="w-6 h-6 text-blue-500" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Check your email</h1>
@@ -197,7 +197,7 @@ function OtpStep({
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+      <div className="bg-white border border-slate-200 p-8" style={{ borderRadius: 2 }}>
         <OtpInput value={digits} onChange={setDigits} error={!!error} disabled={loading} />
 
         {error && (
@@ -279,7 +279,7 @@ function NewPasswordStep({ onNext }: { onNext: () => void }) {
   return (
     <>
       <div className="text-center mb-6">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+        <div className="mx-auto w-14 h-14 bg-white border border-slate-200 flex items-center justify-center mb-4" style={{ borderRadius: 2 }}>
           <KeyRound className="w-6 h-6 text-blue-500" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Choose a new password</h1>
@@ -288,7 +288,7 @@ function NewPasswordStep({ onNext }: { onNext: () => void }) {
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+      <div className="bg-white border border-slate-200 p-8" style={{ borderRadius: 2 }}>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <PasswordField
@@ -314,7 +314,7 @@ function NewPasswordStep({ onNext }: { onNext: () => void }) {
           />
 
           {error && (
-            <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3">
+            <div className="bg-red-50 border border-red-200 px-4 py-3" style={{ borderRadius: 2 }}>
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
@@ -341,7 +341,7 @@ function SuccessStep() {
   return (
     <>
       <div className="text-center mb-6">
-        <div className="mx-auto w-14 h-14 rounded-2xl bg-green-50 border border-green-100 flex items-center justify-center mb-4">
+        <div className="mx-auto w-14 h-14 bg-green-50 border border-green-100 flex items-center justify-center mb-4" style={{ borderRadius: 2 }}>
           <CheckCircle2 className="w-7 h-7 text-green-500" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Password updated</h1>
@@ -350,7 +350,7 @@ function SuccessStep() {
         </p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center">
+      <div className="bg-white border border-slate-200 p-8 text-center" style={{ borderRadius: 2 }}>
         <p className="text-sm text-slate-500 mb-6">
           You can now sign in with your new password.
         </p>

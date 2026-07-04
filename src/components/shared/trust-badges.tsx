@@ -55,7 +55,7 @@ export function TrustBadges({
     return (
       <div className={`flex flex-wrap gap-3 ${className}`}>
         {items.map(({ icon: Icon, label }) => (
-          <span key={label} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-white/[0.10] bg-white/[0.04] text-[12px] font-medium text-slate-300">
+          <span key={label} className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-white/[0.10] bg-white/[0.04] text-[12px] font-medium text-slate-300" style={{ borderRadius: 2 }}>
             <Icon className="w-3.5 h-3.5 text-blue-400 shrink-0" />
             {label}
           </span>
@@ -80,7 +80,7 @@ export function TrustBadges({
   return (
     <div className={`flex flex-wrap gap-3 ${className}`}>
       {items.map(({ icon: Icon, label }) => (
-        <span key={label} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-[12px] font-medium text-slate-600 shadow-sm">
+        <span key={label} className="inline-flex items-center gap-2 px-3.5 py-1.5 border border-slate-200 bg-white text-[12px] font-medium text-slate-600" style={{ borderRadius: 2 }}>
           <Icon className="w-3.5 h-3.5 text-blue-500 shrink-0" />
           {label}
         </span>

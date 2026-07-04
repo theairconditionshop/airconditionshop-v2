@@ -49,14 +49,15 @@ function FilterSection({ label, items, activeId, onSelect, allLabel = 'All' }: S
 
   return (
     <div>
-      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">{label}</p>
+      <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-3">{label}</p>
       <nav className="space-y-0.5">
         <button
           onClick={() => onSelect(null)}
           className={cn(
-            'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
+            'w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer',
             !activeId ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
           )}
+          style={{ borderRadius: 2 }}
         >
           {allLabel}
         </button>
@@ -65,9 +66,10 @@ function FilterSection({ label, items, activeId, onSelect, allLabel = 'All' }: S
             key={item.id}
             onClick={() => onSelect(item.id)}
             className={cn(
-              'w-full text-left px-3 py-2 text-sm rounded-lg transition-colors cursor-pointer',
+              'w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer',
               activeId === item.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-50'
             )}
+            style={{ borderRadius: 2 }}
           >
             {item.name}
           </button>
@@ -99,6 +101,23 @@ interface ChipsProps {
   onClearAll: () => void
 }
 
+function Chip({ children, onRemove, label, tone = 'blue' }: { children: React.ReactNode; onRemove: () => void; label: string; tone?: 'blue' | 'slate' }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border',
+        tone === 'blue' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-slate-50 text-slate-600 border-slate-200'
+      )}
+      style={{ borderRadius: 2 }}
+    >
+      {children}
+      <button onClick={onRemove} className={cn('cursor-pointer', tone === 'blue' ? 'hover:text-blue-900' : 'hover:text-slate-900')} aria-label={label}>
+        <X className="w-3 h-3" />
+      </button>
+    </span>
+  )
+}
+
 export function FilterChips({ categories, brands, activeCategory, activeBrand, activeAcType, activeSearch, onRemove, onClearAll }: ChipsProps) {
   const hasAny = activeCategory || activeBrand || activeAcType || activeSearch
   if (!hasAny) return null
@@ -107,39 +126,11 @@ export function FilterChips({ categories, brands, activeCategory, activeBrand, a
   const brandName    = brands.find(b => b.id === activeBrand)?.name
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mb-4">
-      {categoryName && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-          {categoryName}
-          <button onClick={() => onRemove('category')} className="hover:text-blue-900 cursor-pointer" aria-label="Remove category filter">
-            <X className="w-3 h-3" />
-          </button>
-        </span>
-      )}
-      {brandName && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-          {brandName}
-          <button onClick={() => onRemove('brand')} className="hover:text-blue-900 cursor-pointer" aria-label="Remove brand filter">
-            <X className="w-3 h-3" />
-          </button>
-        </span>
-      )}
-      {activeAcType && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full border border-blue-200">
-          {activeAcType}
-          <button onClick={() => onRemove('ac_type')} className="hover:text-blue-900 cursor-pointer" aria-label="Remove AC type filter">
-            <X className="w-3 h-3" />
-          </button>
-        </span>
-      )}
-      {activeSearch && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-600 text-xs font-medium rounded-full border border-slate-200">
-          &ldquo;{activeSearch}&rdquo;
-          <button onClick={() => onRemove('search')} className="hover:text-slate-900 cursor-pointer" aria-label="Remove search filter">
-            <X className="w-3 h-3" />
-          </button>
-        </span>
-      )}
+    <div className="flex flex-wrap items-center gap-2 mb-5">
+      {categoryName && <Chip onRemove={() => onRemove('category')} label="Remove category filter">{categoryName}</Chip>}
+      {brandName && <Chip onRemove={() => onRemove('brand')} label="Remove brand filter">{brandName}</Chip>}
+      {activeAcType && <Chip onRemove={() => onRemove('ac_type')} label="Remove AC type filter">{activeAcType}</Chip>}
+      {activeSearch && <Chip tone="slate" onRemove={() => onRemove('search')} label="Remove search filter">&ldquo;{activeSearch}&rdquo;</Chip>}
       <button
         onClick={onClearAll}
         className="text-xs text-red-500 hover:text-red-600 font-medium underline-offset-2 hover:underline transition-colors cursor-pointer"
@@ -197,10 +188,10 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
 
   // Desktop sidebar filter content
   const sidebarContent = (
-    <div className="space-y-6">
+    <div className="space-y-7">
       {/* Search */}
       <div>
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Search</p>
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-3">Search</p>
         <form onSubmit={e => {
           e.preventDefault()
           const fd = new FormData(e.currentTarget)
@@ -212,7 +203,8 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
               name="search"
               defaultValue={activeSearch}
               placeholder="Search products…"
-              className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              style={{ borderRadius: 2 }}
             />
           </div>
         </form>
@@ -286,7 +278,7 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
         />
       )}
       <div>
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Connectivity</p>
+        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em] mb-3">Connectivity</p>
         <label className="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 cursor-pointer">
           <input type="checkbox" checked={activeWifi === '1'} onChange={e => navigate({ wifi: e.target.checked ? '1' : null })} className="w-4 h-4" />
           Wi-Fi capable
@@ -316,12 +308,13 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
             setLocalAcType(activeAcType)
             setMobileOpen(true)
           }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 hover:border-blue-300 transition-colors cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-sm font-medium text-slate-700 hover:border-slate-900 transition-colors duration-300 cursor-pointer"
+          style={{ borderRadius: 2 }}
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filters
           {activeCount > 0 && (
-            <span className="ml-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">
+            <span className="ml-1 w-4 h-4 bg-blue-600 text-white text-[10px] flex items-center justify-center" style={{ borderRadius: 2 }}>
               {activeCount}
             </span>
           )}
@@ -344,8 +337,8 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
               </Dialog.Overlay>
               <Dialog.Content asChild>
                 <motion.div
-                  className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-3xl shadow-2xl flex flex-col"
-                  style={{ maxHeight: '88vh' }}
+                  className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-2xl flex flex-col"
+                  style={{ maxHeight: '88vh', borderTopLeftRadius: 4, borderTopRightRadius: 4 }}
                   initial={{ y: '100%' }}
                   animate={{ y: 0 }}
                   exit={{ y: '100%' }}
@@ -359,7 +352,7 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
                 >
                   {/* Drag handle */}
                   <div className="flex justify-center pt-3 pb-1 shrink-0 cursor-grab active:cursor-grabbing">
-                    <div className="w-10 h-1 rounded-full bg-slate-200" />
+                    <div className="w-10 h-1 bg-slate-200" style={{ borderRadius: 1 }} />
                   </div>
 
                   {/* Fixed header */}
@@ -367,11 +360,11 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
                     <Dialog.Title className="font-semibold text-slate-900">
                       Filters
                       {activeCount > 0 && (
-                        <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">{activeCount}</span>
+                        <span className="ml-2 px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium" style={{ borderRadius: 2 }}>{activeCount}</span>
                       )}
                     </Dialog.Title>
                     <Dialog.Close asChild>
-                      <button className="p-2 rounded-xl hover:bg-slate-100 cursor-pointer" aria-label="Close filters">
+                      <button className="p-2 hover:bg-slate-100 cursor-pointer" style={{ borderRadius: 2 }} aria-label="Close filters">
                         <X className="w-4 h-4 text-slate-500" />
                       </button>
                     </Dialog.Close>
@@ -414,13 +407,15 @@ function ProductsFiltersInner({ categories, brands, acTypes, facets, activeCateg
                   <div className="shrink-0 px-5 py-4 border-t border-slate-100 flex gap-3">
                     <button
                       onClick={clearMobile}
-                      className="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:border-slate-300 transition-colors cursor-pointer"
+                      className="flex-1 py-3 border border-slate-200 text-sm font-semibold text-slate-700 hover:border-slate-900 transition-colors duration-300 cursor-pointer"
+                      style={{ borderRadius: 2 }}
                     >
                       Clear All
                     </button>
                     <button
                       onClick={applyMobile}
-                      className="flex-[2] py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold transition-colors cursor-pointer"
+                      className="flex-[2] py-3 bg-slate-900 hover:bg-blue-600 text-white text-sm font-semibold transition-colors duration-300 cursor-pointer"
+                      style={{ borderRadius: 2 }}
                     >
                       Apply Filters
                     </button>

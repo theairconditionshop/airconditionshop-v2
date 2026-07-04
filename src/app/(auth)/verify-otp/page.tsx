@@ -100,7 +100,7 @@ export default function VerifyOtpPage() {
             </span>
           </Link>
 
-          <div className="mt-5 mx-auto w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center">
+          <div className="mt-5 mx-auto w-16 h-16 bg-white border border-slate-200 flex items-center justify-center" style={{ borderRadius: 2 }}>
             <ShieldCheck className="w-8 h-8 text-blue-500" />
           </div>
 
@@ -111,7 +111,7 @@ export default function VerifyOtpPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <div className="bg-white border border-slate-200 p-8" style={{ borderRadius: 2 }}>
 
           {/* OTP Input */}
           <div className="mb-2">

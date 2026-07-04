@@ -9,6 +9,7 @@ import Breadcrumb from '@/components/shared/breadcrumb'
 import PageHeader from '@/components/shared/page-header'
 import ProductCard from '@/components/products/product-card'
 import SeriesCard from '@/components/products/series-card'
+import { Reveal, Stagger, StaggerItem } from '@/components/motion/primitives'
 
 export const revalidate = 300
 
@@ -65,27 +66,28 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           />
 
           {subcategories.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-2">
+            <Reveal mode="up" delay={0.12} className="mt-8 flex flex-wrap gap-2">
               {subcategories.map(sub => (
                 <Link key={sub.id} href={`/products/category/${sub.slug}`}
-                  className="px-4 py-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-full text-sm text-slate-600 hover:text-blue-700 transition-colors">
+                  className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-900 text-sm text-slate-600 hover:text-slate-900 transition-colors duration-300"
+                  style={{ borderRadius: 2 }}>
                   {sub.name}
                 </Link>
               ))}
-            </div>
+            </Reveal>
           )}
 
-          <div className="mt-8">
+          <div className="mt-10">
             {totalItems > 0 ? (
               <>
                 <p className="text-sm text-slate-400 mb-5">{totalItems} product{totalItems !== 1 ? 's' : ''}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                  {series.map(s => <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} />)}
-                  {products.map(p => <ProductCard key={p.id} product={p} userRole={userRole} />)}
-                </div>
+                <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" gap={0.05}>
+                  {series.map(s => <StaggerItem key={s.id}><SeriesCard series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} /></StaggerItem>)}
+                  {products.map(p => <StaggerItem key={p.id}><ProductCard product={p} userRole={userRole} /></StaggerItem>)}
+                </Stagger>
               </>
             ) : (
-              <div className="py-20 text-center">
+              <div className="py-24 text-center border border-slate-100" style={{ borderRadius: 2 }}>
                 <p className="text-slate-400">No products in this category yet.</p>
                 <Link href="/products" className="mt-3 inline-block text-blue-600 text-sm hover:underline">Browse all products</Link>
               </div>

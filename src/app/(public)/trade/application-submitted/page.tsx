@@ -56,7 +56,7 @@ export default async function ApplicationSubmittedPage({
               className="absolute w-28 h-28 rounded-full bg-green-100 blur-2xl opacity-80"
             />
             {/* Outer ring */}
-            <div className="relative w-20 h-20 rounded-full bg-white border border-green-100 shadow-xl shadow-green-100/50 flex items-center justify-center">
+            <div className="relative w-20 h-20 rounded-full bg-white border border-green-100 flex items-center justify-center">
               <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center">
                 <CheckCircle2 className="w-8 h-8 text-green-500" aria-hidden="true" />
               </div>
@@ -108,7 +108,7 @@ export default async function ApplicationSubmittedPage({
           </div>
 
           {/* Status card */}
-          <div className="w-full max-w-sm bg-white rounded-2xl border border-slate-100 shadow-sm mb-8 overflow-hidden">
+          <div className="w-full max-w-sm bg-white border border-slate-100 mb-8 overflow-hidden" style={{ borderRadius: 2 }}>
             {/* Card header */}
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <p className="text-sm font-bold text-slate-900">Application Status</p>
@@ -128,7 +128,7 @@ export default async function ApplicationSubmittedPage({
           </div>
 
           {/* Need help */}
-          <div className="w-full max-w-sm bg-slate-900 rounded-2xl px-6 py-5 mb-8 text-center">
+          <div className="w-full max-w-sm bg-slate-900 px-6 py-5 mb-8 text-center" style={{ borderRadius: 2 }}>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-3">Need Help?</p>
             <a
               href="mailto:support@theairconditionshop.com"

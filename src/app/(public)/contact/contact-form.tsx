@@ -44,7 +44,7 @@ export default function ContactForm() {
   if (sent) {
     return (
       <div className="flex flex-col items-center text-center py-8">
-        <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center mb-4">
+        <div className="w-14 h-14 border border-green-100 bg-green-50 flex items-center justify-center mb-4" style={{ borderRadius: 2 }}>
           <CheckCircle2 className="w-7 h-7 text-green-500" />
         </div>
         <h3 className="text-lg font-semibold text-slate-900 mb-2">Message sent!</h3>

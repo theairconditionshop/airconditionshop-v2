@@ -8,6 +8,7 @@ import { sanitizeHtml } from '@/lib/sanitize'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
+import { Reveal } from '@/components/motion/primitives'
 
 export const revalidate = 600
 
@@ -38,12 +39,14 @@ export default async function BlogPostPage({ params }: Props) {
           <Breadcrumb crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]} />
 
           {post.cover_url && (
-            <div className="relative aspect-video rounded-2xl overflow-hidden mb-8 bg-slate-100">
-              <Image src={post.cover_url} alt={post.title} fill className="object-cover" priority />
-            </div>
+            <Reveal mode="scale">
+              <div className="relative aspect-video overflow-hidden mb-8 bg-slate-100 border border-slate-200">
+                <Image src={post.cover_url} alt={post.title} fill className="object-cover" priority />
+              </div>
+            </Reveal>
           )}
 
-          <div className="flex items-center gap-4 text-sm text-slate-400 mb-6">
+          <Reveal mode="fade" className="flex items-center gap-4 text-sm text-slate-400 mb-6">
             {post.published_at && (
               <span className="flex items-center gap-1.5">
                 <Calendar className="w-4 h-4" />
@@ -56,22 +59,28 @@ export default async function BlogPostPage({ params }: Props) {
                 {post.author.full_name}
               </span>
             )}
-          </div>
+          </Reveal>
 
-          <h1 className="text-3xl lg:text-4xl font-bold text-slate-900 leading-tight mb-6">{post.title}</h1>
+          <Reveal mode="blur" delay={0.05}>
+            <h1 className="font-display text-3xl lg:text-4xl tracking-[-0.02em] text-slate-900 leading-tight mb-6">{post.title}</h1>
+          </Reveal>
 
           {post.excerpt && (
-            <p className="text-lg text-slate-500 leading-relaxed mb-8 border-l-2 border-blue-200 pl-4">{post.excerpt}</p>
+            <Reveal mode="up" delay={0.1}>
+              <p className="text-lg text-slate-500 leading-relaxed mb-8 border-l-2 border-blue-500 pl-4">{post.excerpt}</p>
+            </Reveal>
           )}
 
           {post.content && (
-            <div
-              className="prose prose-slate prose-sm lg:prose-base max-w-none
-                prose-headings:font-bold prose-headings:text-slate-900
-                prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
-                prose-img:rounded-xl"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
-            />
+            <Reveal mode="fade" delay={0.15}>
+              <div
+                className="prose prose-slate prose-sm lg:prose-base max-w-none
+                  prose-headings:font-display prose-headings:tracking-[-0.02em] prose-headings:text-slate-900
+                  prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline
+                  prose-img:border prose-img:border-slate-200"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
+              />
+            </Reveal>
           )}
         </article>
       </main>

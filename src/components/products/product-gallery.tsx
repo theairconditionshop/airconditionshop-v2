@@ -39,12 +39,12 @@ export default function ProductGallery({ images, productName }: Props) {
 
   if (!sorted.length) {
     return (
-      <div className="aspect-square rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 flex flex-col items-center justify-center gap-3">
-        <span className="text-[11px] font-semibold tracking-[0.25em] text-white/20 uppercase">
+      <div className="aspect-square border border-slate-200 bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center gap-3" style={{ borderRadius: 2 }}>
+        <span className="text-[11px] font-semibold tracking-[0.25em] text-slate-300 uppercase">
           {productName}
         </span>
-        <div className="w-12 h-px bg-white/10" />
-        <span className="text-[10px] tracking-[0.2em] text-white/10 uppercase">No images yet</span>
+        <div className="w-12 h-px bg-slate-200" />
+        <span className="text-[10px] tracking-[0.2em] text-slate-300 uppercase">No images yet</span>
       </div>
     )
   }
@@ -54,7 +54,7 @@ export default function ProductGallery({ images, productName }: Props) {
   return (
     <div className="space-y-3">
       {/* Hero image */}
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-50 group">
+      <div className="relative aspect-square border border-slate-200 overflow-hidden bg-slate-50 group" style={{ borderRadius: 2 }}>
         <AnimatePresence mode="popLayout" initial={false} custom={direction}>
           <motion.div
             key={activeIdx}
@@ -86,14 +86,16 @@ export default function ProductGallery({ images, productName }: Props) {
           <>
             <button
               onClick={prev}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-white cursor-pointer"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-white cursor-pointer"
+              style={{ borderRadius: 2 }}
               aria-label="Previous image"
             >
               <ChevronLeft className="w-4 h-4 text-slate-700" />
             </button>
             <button
               onClick={next}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-white cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm shadow-md flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity hover:bg-white cursor-pointer"
+              style={{ borderRadius: 2 }}
               aria-label="Next image"
             >
               <ChevronRight className="w-4 h-4 text-slate-700" />
@@ -106,9 +108,10 @@ export default function ProductGallery({ images, productName }: Props) {
                   key={i}
                   onClick={() => goTo(i)}
                   className={cn(
-                    'rounded-full transition-all duration-200 cursor-pointer',
+                    'transition-all duration-200 cursor-pointer',
                     i === activeIdx ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50 hover:bg-white/80'
                   )}
+                  style={{ borderRadius: 1 }}
                   aria-label={`Image ${i + 1}`}
                 />
               ))}
@@ -125,11 +128,12 @@ export default function ProductGallery({ images, productName }: Props) {
               key={img.id}
               onClick={() => goTo(i)}
               className={cn(
-                'relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-pointer',
+                'relative aspect-square overflow-hidden border-2 transition-all duration-200 cursor-pointer',
                 i === activeIdx
-                  ? 'border-blue-500 ring-2 ring-blue-200'
+                  ? 'border-blue-500'
                   : 'border-transparent hover:border-slate-300'
               )}
+              style={{ borderRadius: 2 }}
               aria-label={`View image ${i + 1}`}
             >
               <Image

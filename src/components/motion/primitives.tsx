@@ -35,7 +35,7 @@ interface RevealProps {
   distance?: number
   once?: boolean
   as?: ElementType
-  amount?: number
+  amount?: number | 'some' | 'all'
 }
 
 /** Scroll-reveal a block. Renders instantly (no motion) when reduced-motion is on. */
@@ -74,11 +74,17 @@ interface StaggerProps {
   gap?: number
   delay?: number
   once?: boolean
-  amount?: number
+  amount?: number | 'some' | 'all'
 }
 
-/** Wrap children in <Stagger>…<StaggerItem/>…</Stagger> for a cascading reveal. */
-export function Stagger({ children, className, gap = 0.09, delay = 0.05, once = true, amount = 0.25 }: StaggerProps) {
+/**
+ * Wrap children in <Stagger>…<StaggerItem/>…</Stagger> for a cascading reveal.
+ * Defaults to amount:'some' (any part of the container visible) rather than a
+ * fractional threshold — Stagger commonly wraps grids whose total height can
+ * exceed the viewport (e.g. a 40+ item product grid), where a numeric fraction
+ * like 0.25 may never be satisfied and the reveal would never fire.
+ */
+export function Stagger({ children, className, gap = 0.09, delay = 0.05, once = true, amount = 'some' }: StaggerProps) {
   const ref = useRef(null)
   const reduce = useReducedMotion()
   const inView = useInView(ref, { once, amount, margin: '-8% 0px' })

@@ -82,8 +82,8 @@ function LoginForm() {
 
         {/* Pending application notice — shown briefly before redirect */}
         {pendingInfo && (
-          <div className="mb-4 rounded-2xl bg-amber-50 border border-amber-200 px-5 py-4 flex gap-3 items-start">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5">
+          <div className="mb-4 bg-amber-50 border border-amber-200 px-5 py-4 flex gap-3 items-start" style={{ borderRadius: 2 }}>
+            <div className="w-8 h-8 bg-amber-100 flex items-center justify-center shrink-0 mt-0.5" style={{ borderRadius: 2 }}>
               <Clock className="w-4 h-4 text-amber-600" aria-hidden="true" />
             </div>
             <div className="flex-1 min-w-0">
@@ -99,7 +99,7 @@ function LoginForm() {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+        <div className="bg-white border border-slate-100 p-8" style={{ borderRadius: 2 }}>
           <form onSubmit={handleLogin} className="space-y-5">
             <Input
               label="Email address"

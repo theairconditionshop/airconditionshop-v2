@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Navbar from '@/components/layout/navbar'
 import Footer from '@/components/layout/footer'
-import { Button } from '@/components/ui/button'
 import { PremiumImage } from '@/components/shared/premium-image'
 import { TrustBadges } from '@/components/shared/trust-badges'
 import { InternalLinkPanel } from '@/components/shared/internal-link-panel'
-import { FadeUpSection, AnimatedSection, FadeUp } from '@/components/shared/animated-section'
+import { Reveal, Stagger, StaggerItem, Magnetic } from '@/components/motion/primitives'
+import { getCachedTradePageData } from '@/lib/data/trade-page-cache'
 import {
   CheckCircle2, Phone, ArrowRight, LogIn, Tag, Zap, Headphones,
   Clock, XCircle, ShieldOff, Package, BarChart3, Users, Award, Star,
@@ -26,46 +26,14 @@ const STATS = [
 ]
 
 const BENEFITS = [
-  {
-    icon: Tag,
-    title: 'Exclusive Trade Pricing',
-    desc: 'Competitive trade rates on air conditioners, heat pumps, refrigeration equipment and installation materials — available to approved account holders.',
-  },
-  {
-    icon: Package,
-    title: 'Priority Stock Access',
-    desc: 'Pre-order and reserve stock before it goes to retail. Never lose a project to lead time delays.',
-  },
-  {
-    icon: Users,
-    title: 'Dedicated Account Manager',
-    desc: 'A named contact in our team who knows your business, your preferred brands and your project pipeline.',
-  },
-  {
-    icon: Zap,
-    title: 'Fast Quotations',
-    desc: 'Submit a project spec and receive a detailed quote quickly. We support jobs of all sizes, from a single domestic unit to full commercial fit-outs.',
-  },
-  {
-    icon: Headphones,
-    title: 'Technical Support',
-    desc: 'Direct access to our team for product selection, spec queries, warranty claims and after-sales assistance on all brands we supply.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Commercial Project Pricing',
-    desc: 'Volume pricing and special project rates for large commercial, hospitality and development contracts across Malta.',
-  },
-  {
-    icon: Award,
-    title: 'Manufacturer Support',
-    desc: 'As an authorised installer programme partner, trade account holders benefit from manufacturer training, certification and promotional support.',
-  },
-  {
-    icon: Star,
-    title: 'Priority Warranty Assistance',
-    desc: 'Fast-track warranty claims and direct liaison with manufacturers on your behalf to minimise downtime for your clients.',
-  },
+  { icon: Tag,        title: 'Exclusive Trade Pricing',      desc: 'Competitive trade rates on air conditioners, heat pumps, refrigeration equipment and installation materials — available to approved account holders.' },
+  { icon: Package,    title: 'Priority Stock Access',        desc: 'Pre-order and reserve stock before it goes to retail. Never lose a project to lead time delays.' },
+  { icon: Users,      title: 'Dedicated Account Manager',    desc: 'A named contact in our team who knows your business, your preferred brands and your project pipeline.' },
+  { icon: Zap,        title: 'Fast Quotations',               desc: 'Submit a project spec and receive a detailed quote quickly. We support jobs of all sizes, from a single domestic unit to full commercial fit-outs.' },
+  { icon: Headphones, title: 'Technical Support',             desc: 'Direct access to our team for product selection, spec queries, warranty claims and after-sales assistance on all brands we supply.' },
+  { icon: BarChart3,  title: 'Commercial Project Pricing',   desc: 'Volume pricing and special project rates for large commercial, hospitality and development contracts across Malta.' },
+  { icon: Award,      title: 'Manufacturer Support',         desc: 'As an authorised installer programme partner, trade account holders benefit from manufacturer training, certification and promotional support.' },
+  { icon: Star,       title: 'Priority Warranty Assistance', desc: 'Fast-track warranty claims and direct liaison with manufacturers on your behalf to minimise downtime for your clients.' },
 ]
 
 const WHY_CHOOSE = [
@@ -128,6 +96,10 @@ const TRADE_FAQS = [
   { q: 'Is there a minimum order value?', a: 'No minimum order is required. Trade pricing applies to all orders regardless of size. Volume discounts may be available on larger project orders.' },
 ]
 
+function Bracket({ className }: { className: string }) {
+  return <span aria-hidden className={`absolute w-4 h-4 border-amber-500/40 ${className}`} />
+}
+
 export default async function TradePage({
   searchParams,
 }: {
@@ -135,6 +107,7 @@ export default async function TradePage({
 }) {
   const { status } = await searchParams
   const banner = STATUS_BANNERS[status as TradeStatus] ?? null
+  const { warehousePhotoUrl, installerPhotoUrl, counterPhotoUrl } = await getCachedTradePageData()
 
   return (
     <>
@@ -160,39 +133,43 @@ export default async function TradePage({
           )
         })()}
 
-        {/* ── Hero ── */}
+        {/* ── Hero — intentionally dark, matches technical/blueprint trade motif ── */}
         <section className="relative min-h-[56vh] flex items-end overflow-hidden bg-slate-950">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute top-1/4 right-1/3 w-[500px] h-[500px] rounded-full bg-amber-500/8 blur-[140px]" />
-            <div className="absolute bottom-1/3 left-1/4 w-72 h-72 rounded-full bg-blue-600/10 blur-[100px]" />
-          </div>
+          <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+          <div aria-hidden className="absolute -top-40 right-[-8%] w-[560px] h-[560px] rounded-full bg-amber-500/[0.06] blur-[140px] pointer-events-none" />
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 pt-28 sm:pt-32 lg:pt-40 lg:pb-20 w-full">
-            <FadeUpSection>
-              <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-[0.28em] mb-4">
+            <Reveal mode="up">
+              <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.28em] mb-4">
                 For HVAC Installers &amp; Contractors
               </p>
-              <h1 className="font-display text-3xl sm:text-4xl lg:text-[3.25rem] text-white leading-tight max-w-3xl mb-3">
+            </Reveal>
+            <Reveal mode="blur" delay={0.05}>
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-[3.25rem] tracking-[-0.02em] text-white leading-tight max-w-3xl mb-3">
                 HVAC Trade Accounts for Installers &amp; Contractors in Malta
               </h1>
-              <p className="text-amber-400 italic text-xl sm:text-2xl mb-5">Exclusive Trade Pricing</p>
-              <p className="text-slate-300 text-base sm:text-lg max-w-xl leading-relaxed mb-8">
+            </Reveal>
+            <Reveal mode="up" delay={0.08}>
+              <p className="text-amber-500 italic text-xl sm:text-2xl mb-5">Exclusive Trade Pricing</p>
+            </Reveal>
+            <Reveal mode="up" delay={0.12}>
+              <p className="text-slate-400 text-base sm:text-lg max-w-xl leading-relaxed mb-8">
                 Join our Trade Programme to access installer pricing, priority quotations, dedicated account support and a wide range of professional HVAC products from leading manufacturers.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                <Link href="/trade/register">
-                  <Button size="lg" className="gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold cursor-pointer shadow-lg shadow-amber-500/20">
-                    Apply for Trade Account <ArrowRight className="w-4 h-4" />
-                  </Button>
+            </Reveal>
+            <Reveal mode="up" delay={0.16} className="flex flex-col sm:flex-row gap-3 mb-8">
+              <Magnetic strength={0.2}>
+                <Link href="/trade/register" className="group inline-flex items-center justify-center gap-2 px-7 h-14 bg-amber-500 text-slate-950 text-[15px] font-semibold hover:bg-amber-400 transition-colors duration-300" style={{ borderRadius: 2 }}>
+                  Apply for Trade Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
-                <Link href="/login">
-                  <Button size="lg" className="gap-2 border border-white/20 bg-transparent text-white hover:bg-white/[0.08] cursor-pointer">
-                    <LogIn className="w-4 h-4" /> Trade Login
-                  </Button>
-                </Link>
-              </div>
+              </Magnetic>
+              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-white/20 text-white hover:bg-white/[0.08] text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+                <LogIn className="w-4 h-4" /> Trade Login
+              </Link>
+            </Reveal>
+            <Reveal mode="fade" delay={0.2}>
               <TrustBadges set="trade" variant="dark" />
-            </FadeUpSection>
+            </Reveal>
           </div>
         </section>
 
@@ -200,118 +177,108 @@ export default async function TradePage({
         <section className="bg-white py-16 lg:py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <AnimatedSection className="mb-14">
-              <FadeUp>
-                <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3">Our Trade Network</p>
-              </FadeUp>
-              <FadeUp>
-                <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight max-w-2xl">
-                  Why Installers in Malta Choose Us
+            <div className="mb-14">
+              <Reveal mode="up"><p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3">Our Trade Network</p></Reveal>
+              <Reveal mode="blur" delay={0.05}>
+                <h2 className="font-display text-3xl lg:text-4xl tracking-[-0.02em] text-slate-900 leading-tight max-w-2xl">
+                  Why installers in Malta choose us.
                 </h2>
-              </FadeUp>
-            </AnimatedSection>
+              </Reveal>
+            </div>
 
-            {/* Stats row */}
-            <AnimatedSection className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-14" staggerChildren={0.08}>
+            {/* Stats row — dark technical cells */}
+            <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-14" gap={0.06}>
               {STATS.map(({ value, label, sub }) => (
-                <FadeUp key={label}>
-                  <div className="text-center p-7 rounded-2xl bg-slate-950 text-white">
+                <StaggerItem key={label}>
+                  <div className="relative text-center p-7 bg-slate-950 text-white" style={{ borderRadius: 2 }}>
+                    <Bracket className="top-3 left-3 border-t border-l" />
+                    <Bracket className="bottom-3 right-3 border-b border-r" />
                     <p className="font-display text-4xl font-black text-amber-400 mb-1">{value}</p>
                     <p className="font-semibold text-base text-white mb-1">{label}</p>
                     <p className="text-xs text-slate-400">{sub}</p>
                   </div>
-                </FadeUp>
+                </StaggerItem>
               ))}
-            </AnimatedSection>
+            </Stagger>
 
             {/* Why choose cards */}
-            <AnimatedSection className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" staggerChildren={0.07}>
+            <Stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" gap={0.05}>
               {WHY_CHOOSE.map(({ label, desc }) => (
-                <FadeUp key={label}>
-                  <div className="h-full flex flex-col gap-3 p-6 rounded-2xl border border-slate-100 hover:border-amber-200 hover:shadow-[0_8px_30px_-8px_rgba(245,158,11,0.1)] hover:-translate-y-0.5 transition-all duration-300">
-                    <div className="w-2 h-2 rounded-full bg-amber-400 mt-1" aria-hidden="true" />
+                <StaggerItem key={label}>
+                  <div className="group h-full flex flex-col gap-3 p-6 border border-slate-200 hover:border-amber-400 transition-colors duration-300" style={{ borderRadius: 2 }}>
+                    <div className="w-2 h-2 bg-amber-400 mt-1" style={{ borderRadius: 1 }} aria-hidden="true" />
                     <p className="font-bold text-slate-900 text-[15px]">{label}</p>
                     <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
                   </div>
-                </FadeUp>
+                </StaggerItem>
               ))}
-            </AnimatedSection>
+            </Stagger>
           </div>
         </section>
 
         {/* ── Commercial imagery ── */}
         <section className="bg-white pb-14 lg:pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <FadeUpSection className="lg:col-span-2 aspect-[4/3]">
+            <Stagger className="grid grid-cols-2 lg:grid-cols-4 gap-3" gap={0.06}>
+              <StaggerItem className="lg:col-span-2 aspect-[4/3]">
                 <PremiumImage
-                  src={null}
+                  src={warehousePhotoUrl}
                   alt="HVAC trade warehouse with shelving of air conditioning equipment and stock"
                   fill
                   sizes="(max-width: 1024px) 50vw, 33vw"
-                  containerClassName="w-full h-full"
-                  rounded="2xl"
-                  shadow
-                  hoverZoom
-                  placeholderLabel="Add warehouse / stock photo via Admin → Trade"
+                  containerClassName="w-full h-full border border-slate-200"
+                  rounded="none"
+                  placeholderLabel="Add warehouse / stock photo via Admin → Homepage → Trade Page Photos"
                   placeholderIcon={<Package className="w-5 h-5 text-slate-400" aria-hidden="true" />}
                 />
-              </FadeUpSection>
-              <FadeUpSection className="aspect-[4/3]">
+              </StaggerItem>
+              <StaggerItem className="aspect-[4/3]">
                 <PremiumImage
-                  src={null}
+                  src={installerPhotoUrl}
                   alt="Professional HVAC installer working on a commercial air conditioning system in Malta"
                   fill
                   sizes="(max-width: 1024px) 50vw, 25vw"
-                  containerClassName="w-full h-full"
-                  rounded="2xl"
-                  shadow
-                  hoverZoom
-                  placeholderLabel="Add installer photo via Admin → Trade"
+                  containerClassName="w-full h-full border border-slate-200"
+                  rounded="none"
+                  placeholderLabel="Add installer photo via Admin → Homepage → Trade Page Photos"
                 />
-              </FadeUpSection>
-              <FadeUpSection className="aspect-[4/3]">
+              </StaggerItem>
+              <StaggerItem className="aspect-[4/3]">
                 <PremiumImage
-                  src={null}
+                  src={counterPhotoUrl}
                   alt="Trade counter with HVAC products and installation materials available for professional buyers"
                   fill
                   sizes="(max-width: 1024px) 50vw, 25vw"
-                  containerClassName="w-full h-full"
-                  rounded="2xl"
-                  shadow
-                  hoverZoom
-                  placeholderLabel="Add trade counter photo via Admin → Trade"
+                  containerClassName="w-full h-full border border-slate-200"
+                  rounded="none"
+                  placeholderLabel="Add trade counter photo via Admin → Homepage → Trade Page Photos"
                 />
-              </FadeUpSection>
-            </div>
+              </StaggerItem>
+            </Stagger>
           </div>
         </section>
 
         {/* ── Benefits grid ── */}
-        <section className="py-14 lg:py-20 bg-[#FAFAF9]">
+        <section className="py-14 lg:py-20 bg-[#f8f9fa] border-t border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimatedSection className="mb-12">
-              <FadeUp>
-                <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3">Trade Benefits</p>
-              </FadeUp>
-              <FadeUp>
-                <h2 className="font-display text-3xl lg:text-4xl text-slate-900 leading-tight">Why Join Our Trade Programme?</h2>
-              </FadeUp>
-            </AnimatedSection>
+            <div className="mb-12">
+              <Reveal mode="up"><p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3">Trade Benefits</p></Reveal>
+              <Reveal mode="blur" delay={0.05}><h2 className="font-display text-3xl lg:text-4xl tracking-[-0.02em] text-slate-900 leading-tight">Why join our Trade Programme?</h2></Reveal>
+            </div>
 
-            <AnimatedSection className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5" staggerChildren={0.07}>
+            <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" gap={0.05}>
               {BENEFITS.map(({ icon: Icon, title, desc }) => (
-                <FadeUp key={title}>
-                  <div className="h-full flex flex-col p-7 rounded-2xl bg-white border border-slate-100 hover:border-amber-200 hover:shadow-[0_8px_30px_-8px_rgba(245,158,11,0.12)] hover:-translate-y-0.5 transition-all duration-300">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center mb-4">
-                      <Icon className="w-5 h-5 text-amber-600" aria-hidden="true" />
+                <StaggerItem key={title}>
+                  <div className="group h-full flex flex-col p-6 bg-white border border-slate-200 hover:border-amber-400 transition-colors duration-300" style={{ borderRadius: 2 }}>
+                    <div className="w-11 h-11 border border-slate-200 group-hover:border-amber-500 group-hover:bg-amber-500 flex items-center justify-center mb-5 transition-colors duration-300" style={{ borderRadius: 2 }}>
+                      <Icon className="w-4.5 h-4.5 text-slate-500 group-hover:text-slate-950 transition-colors duration-300" aria-hidden="true" />
                     </div>
                     <h3 className="font-bold text-slate-900 text-[15px] mb-2">{title}</h3>
                     <p className="text-sm text-slate-500 leading-relaxed flex-1">{desc}</p>
                   </div>
-                </FadeUp>
+                </StaggerItem>
               ))}
-            </AnimatedSection>
+            </Stagger>
           </div>
         </section>
 
@@ -322,36 +289,32 @@ export default async function TradePage({
 
               {/* Who can apply */}
               <div>
-                <AnimatedSection staggerChildren={0.07}>
-                  <FadeUp>
-                    <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Eligibility</p>
-                  </FadeUp>
-                  <FadeUp>
-                    <h2 className="font-display text-3xl text-slate-900 mb-8 leading-tight">Who Can Apply for a Trade Account?</h2>
-                  </FadeUp>
-                  <FadeUp>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                      {ELIGIBLE.map(e => (
-                        <div key={e} className="flex items-center gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" aria-hidden="true" />
-                          <span className="text-[15px] text-slate-700">{e}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </FadeUp>
-                  <FadeUp>
-                    <p className="text-sm text-slate-400 leading-relaxed border-t border-slate-100 pt-5">
-                      Applications reviewed within 2 business days. A valid Malta VAT number or business registration is required.
-                    </p>
-                  </FadeUp>
-                </AnimatedSection>
+                <Reveal mode="up"><p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.22em] mb-3">Eligibility</p></Reveal>
+                <Reveal mode="blur" delay={0.05}><h2 className="font-display text-3xl tracking-[-0.02em] text-slate-900 mb-8 leading-tight">Who can apply for a trade account?</h2></Reveal>
+                <Stagger className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8" gap={0.03}>
+                  {ELIGIBLE.map(e => (
+                    <StaggerItem key={e}>
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" aria-hidden="true" />
+                        <span className="text-[15px] text-slate-700">{e}</span>
+                      </div>
+                    </StaggerItem>
+                  ))}
+                </Stagger>
+                <Reveal mode="fade" delay={0.1}>
+                  <p className="text-sm text-slate-400 leading-relaxed border-t border-slate-200 pt-5">
+                    Applications reviewed within 2 business days. A valid Malta VAT number or business registration is required.
+                  </p>
+                </Reveal>
               </div>
 
-              {/* How it works card */}
-              <FadeUpSection delay={0.1}>
-                <div className="bg-slate-950 rounded-2xl p-8 lg:p-10">
+              {/* How it works card — dark technical motif */}
+              <Reveal mode="scale" delay={0.1}>
+                <div className="relative bg-slate-950 p-8 lg:p-10" style={{ borderRadius: 2 }}>
+                  <Bracket className="top-4 left-4 border-t border-l" />
+                  <Bracket className="bottom-4 right-4 border-b border-r" />
                   <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-[0.22em] mb-3">Application Process</p>
-                  <h3 className="font-display text-2xl text-white mb-3 leading-tight">How It Works</h3>
+                  <h3 className="font-display text-2xl tracking-[-0.02em] text-white mb-3 leading-tight">How it works.</h3>
                   <p className="text-slate-400 text-sm leading-relaxed mb-8">
                     The application takes under 5 minutes. Once approved, trade pricing is activated immediately on your account.
                   </p>
@@ -374,15 +337,13 @@ export default async function TradePage({
                   </div>
 
                   <div className="flex flex-col gap-3">
-                    <Link href="/trade/register" className="block">
-                      <Button size="lg" className="w-full gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold cursor-pointer">
-                        Apply for Trade Account <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </Link>
-                    <Link href="/login" className="block">
-                      <Button size="lg" variant="outline" className="w-full gap-2 border-white/15 text-white hover:bg-white/[0.08] cursor-pointer">
-                        <LogIn className="w-4 h-4" /> Trade Login
-                      </Button>
+                    <Magnetic strength={0.2}>
+                      <Link href="/trade/register" className="group flex items-center justify-center gap-2 w-full px-7 h-14 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+                        Apply for Trade Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                      </Link>
+                    </Magnetic>
+                    <Link href="/login" className="flex items-center justify-center gap-2 w-full px-7 h-14 border border-white/15 text-white hover:bg-white/[0.08] text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+                      <LogIn className="w-4 h-4" /> Trade Login
                     </Link>
                   </div>
 
@@ -393,15 +354,15 @@ export default async function TradePage({
                     </span>
                   </div>
                 </div>
-              </FadeUpSection>
+              </Reveal>
             </div>
           </div>
         </section>
 
         {/* ── Internal links ── */}
-        <section className="bg-[#FAFAF9] py-12">
+        <section className="bg-[#f8f9fa] py-12 border-t border-slate-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <FadeUpSection>
+            <Reveal mode="up">
               <InternalLinkPanel
                 heading="Explore more"
                 links={[
@@ -410,75 +371,74 @@ export default async function TradePage({
                   { label: 'Contact Our Team', description: 'Have a question about trade pricing, stock availability or a project quotation? Get in touch.', href: '/contact', cta: 'Speak to Our Team' },
                 ]}
               />
-            </FadeUpSection>
+            </Reveal>
           </div>
         </section>
 
         {/* ── FAQ ── */}
         <section className="py-14 lg:py-16 bg-white">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <AnimatedSection className="mb-10">
-              <FadeUp>
-                <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3 text-center">Common Questions</p>
-              </FadeUp>
-              <FadeUp>
-                <h2 className="font-display text-2xl sm:text-3xl text-slate-900 leading-snug text-center">
-                  Frequently Asked Questions About Trade Accounts
+            <div className="mb-10">
+              <Reveal mode="up"><p className="text-[11px] font-semibold text-amber-500 uppercase tracking-[0.22em] mb-3 text-center">Common Questions</p></Reveal>
+              <Reveal mode="blur" delay={0.05}>
+                <h2 className="font-display text-2xl sm:text-3xl tracking-[-0.02em] text-slate-900 leading-snug text-center">
+                  Frequently asked questions about trade accounts.
                 </h2>
-              </FadeUp>
-            </AnimatedSection>
-            <AnimatedSection className="space-y-4" staggerChildren={0.07}>
+              </Reveal>
+            </div>
+            <Stagger className="space-y-3" gap={0.05}>
               {TRADE_FAQS.map(({ q, a }) => (
-                <FadeUp key={q}>
-                  <div className="bg-[#FAFAF9] rounded-xl border border-slate-100 p-6 hover:border-amber-100 transition-colors duration-200">
+                <StaggerItem key={q}>
+                  <div className="bg-[#f8f9fa] border border-slate-200 p-6 hover:border-amber-300 transition-colors duration-300" style={{ borderRadius: 2 }}>
                     <p className="font-semibold text-slate-900 text-sm mb-2">{q}</p>
                     <p className="text-sm text-slate-500 leading-relaxed">{a}</p>
                   </div>
-                </FadeUp>
+                </StaggerItem>
               ))}
-            </AnimatedSection>
+            </Stagger>
           </div>
         </section>
 
-        {/* ── Bottom CTA ── */}
-        <section className="py-16 lg:py-20 bg-slate-950">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <FadeUpSection>
-              <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-[0.28em] mb-4">Join Our Trade Network</p>
-              <h2 className="font-display text-3xl sm:text-4xl text-white leading-tight mb-5">
-                Ready to Become a Trade Partner?
+        {/* ── Bottom CTA — dark technical motif ── */}
+        <section className="relative py-16 lg:py-20 bg-slate-950 overflow-hidden">
+          <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <Reveal mode="up"><p className="text-[11px] font-semibold text-amber-400 uppercase tracking-[0.28em] mb-4">Join Our Trade Network</p></Reveal>
+            <Reveal mode="blur" delay={0.05}>
+              <h2 className="font-display text-3xl sm:text-4xl tracking-[-0.02em] text-white leading-tight mb-5">
+                Ready to become a trade partner?
               </h2>
+            </Reveal>
+            <Reveal mode="up" delay={0.1}>
               <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
                 Join Malta&apos;s growing network of HVAC professionals who rely on THE AIRCONDITION SHOP for premium products, competitive pricing and dependable support.
               </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <Link href="/trade/register">
-                  <Button size="lg" className="gap-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold cursor-pointer shadow-lg shadow-amber-500/25">
-                    Apply for Trade Account <ArrowRight className="w-4 h-4" />
-                  </Button>
+            </Reveal>
+            <Reveal mode="up" delay={0.15} className="flex flex-col sm:flex-row justify-center gap-4">
+              <Magnetic strength={0.2}>
+                <Link href="/trade/register" className="group inline-flex items-center justify-center gap-2 px-7 h-14 bg-amber-500 hover:bg-amber-400 text-slate-950 text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+                  Apply for Trade Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
-                <Link href="/contact">
-                  <Button size="lg" className="gap-2 border border-white/20 bg-transparent text-white hover:bg-white/[0.08] cursor-pointer">
-                    Contact Trade Team
-                  </Button>
-                </Link>
-              </div>
-            </FadeUpSection>
+              </Magnetic>
+              <Link href="/contact" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-white/20 text-white hover:bg-white/[0.08] text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+                Contact Trade Team
+              </Link>
+            </Reveal>
           </div>
         </section>
 
         {/* ── SEO footer ── */}
-        <section className="bg-slate-50 py-12 border-t border-slate-100">
+        <section className="bg-white py-12 border-t border-slate-100">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-            <FadeUpSection>
-              <h2 className="font-display text-xl text-slate-800 mb-4">HVAC Trade Accounts in Malta</h2>
+            <Reveal mode="up">
+              <h2 className="font-display text-xl tracking-[-0.02em] text-slate-800 mb-4">HVAC Trade Accounts in Malta</h2>
               <p className="text-sm text-slate-500 leading-relaxed mb-4">
                 THE AIRCONDITION SHOP operates a dedicated Trade Programme for registered HVAC installers, refrigeration engineers, mechanical contractors and commercial buyers across Malta. Trade account holders benefit from installer pricing, priority stock allocation, fast project quotations and direct technical support from our experienced team.
               </p>
               <p className="text-sm text-slate-500 leading-relaxed">
                 We are an authorised stockist for Daikin, Gree, Fujitsu and other leading HVAC manufacturers. Our trade stock includes split systems, multi-split systems, VRF units, commercial refrigeration equipment and a full range of HVAC installation materials. <Link href="/trade/register" className="text-blue-600 hover:underline">Apply for a trade account</Link> or <Link href="/contact" className="text-blue-600 hover:underline">contact our trade team</Link> for more information.
               </p>
-            </FadeUpSection>
+            </Reveal>
           </div>
         </section>
 

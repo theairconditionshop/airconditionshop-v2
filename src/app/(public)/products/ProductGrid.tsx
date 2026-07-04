@@ -3,6 +3,7 @@ import { Search } from 'lucide-react'
 import { getProducts, getSeriesList } from '@/lib/data/queries'
 import ProductCard from '@/components/products/product-card'
 import SeriesCard from '@/components/products/series-card'
+import { Stagger, StaggerItem } from '@/components/motion/primitives'
 import type { UserRole } from '@/types/database'
 
 interface Props {
@@ -54,12 +55,12 @@ export default async function ProductGrid({ categoryId, brandId, search, acType,
 
   if (total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-5">
-          <Search className="w-7 h-7 text-slate-300" />
+      <div className="flex flex-col items-center justify-center py-24 text-center border border-slate-100" style={{ borderRadius: 2 }}>
+        <div className="w-14 h-14 border border-slate-200 flex items-center justify-center mb-6" style={{ borderRadius: 2 }}>
+          <Search className="w-6 h-6 text-slate-300" />
         </div>
-        <h3 className="font-display text-xl text-slate-900 mb-2">No products found</h3>
-        <p className="text-slate-500 text-sm max-w-xs leading-relaxed mb-6">
+        <h3 className="font-display text-2xl text-slate-900 mb-2">No products found</h3>
+        <p className="text-slate-500 text-sm max-w-xs leading-relaxed mb-7">
           Try removing a filter or{' '}
           <Link href="/products" className="text-blue-600 hover:underline font-medium">
             browse all products
@@ -68,13 +69,15 @@ export default async function ProductGrid({ categoryId, brandId, search, acType,
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
             href="/products"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors duration-150"
+            className="inline-flex items-center justify-center gap-2 px-6 h-12 bg-slate-900 hover:bg-blue-600 text-white text-sm font-semibold transition-colors duration-300"
+            style={{ borderRadius: 2 }}
           >
             Browse All Products
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 border border-slate-200 text-slate-700 hover:border-blue-200 hover:text-blue-700 text-sm font-semibold rounded-xl transition-colors duration-150"
+            className="inline-flex items-center justify-center gap-2 px-6 h-12 border border-slate-300 text-slate-700 hover:border-slate-900 text-sm font-semibold transition-colors duration-300"
+            style={{ borderRadius: 2 }}
           >
             Ask Our Team
           </Link>
@@ -85,18 +88,18 @@ export default async function ProductGrid({ categoryId, brandId, search, acType,
 
   return (
     <>
-      <p className="text-sm text-slate-400 mb-4">
+      <p className="text-sm text-slate-400 mb-5">
         {total} product{total !== 1 ? 's' : ''}
         {search && <span> for &ldquo;{search}&rdquo;</span>}
       </p>
-      <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
+      <Stagger className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5" gap={0.05}>
         {series.map(s => (
-          <SeriesCard key={s.id} series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} />
+          <StaggerItem key={s.id}><SeriesCard series={s} userRole={userRole} brandSlug={s.brand?.slug ?? ''} /></StaggerItem>
         ))}
         {shownProducts.map(product => (
-          <ProductCard key={product.id} product={product} userRole={userRole} />
+          <StaggerItem key={product.id}><ProductCard product={product} userRole={userRole} /></StaggerItem>
         ))}
-      </div>
+      </Stagger>
     </>
   )
 }

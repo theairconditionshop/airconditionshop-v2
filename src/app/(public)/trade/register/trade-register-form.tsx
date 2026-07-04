@@ -264,7 +264,7 @@ export default function TradeRegisterForm() {
     return (
       <div className="flex flex-col items-center">
         {/* Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-5">
+        <div className="w-16 h-16 bg-blue-50 border border-blue-100 flex items-center justify-center mb-5" style={{ borderRadius: 2 }}>
           <Mail className="w-7 h-7 text-blue-500" aria-hidden="true" />
         </div>
 

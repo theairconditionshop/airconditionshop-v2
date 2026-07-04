@@ -87,7 +87,7 @@ export default function ServiceRequestForm() {
           A confirmation email has been sent to you.
         </p>
 
-        <div className="mb-6 px-6 py-4 bg-blue-50 border border-blue-100 rounded-2xl w-full max-w-xs">
+        <div className="mb-6 px-6 py-4 bg-blue-50 border border-blue-100 w-full max-w-xs" style={{ borderRadius: 2 }}>
           <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest mb-1">
             Your reference number
           </p>

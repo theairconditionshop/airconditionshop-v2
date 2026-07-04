@@ -100,6 +100,82 @@ function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, un
   )
 }
 
+function ServicesPageEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Engineer / Service Photo"
+        hint="Shown in the 'Why regular servicing matters' section on the /services page. Recommended: 1200×1500px portrait or similar."
+        aspectRatio="4 / 5"
+        value={(data.engineer_photo_url as string) || null}
+        onChange={url => {
+          const next = { ...data, engineer_photo_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
+      />
+    </div>
+  )
+}
+
+function TradePageEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Warehouse / Stock Photo"
+        hint="Shown large in the imagery strip on the /trade page. Recommended: 1600×1200px or similar."
+        aspectRatio="4 / 3"
+        value={(data.warehouse_photo_url as string) || null}
+        onChange={url => {
+          const next = { ...data, warehouse_photo_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
+      />
+      <ImageUploadField
+        label="Installer Photo"
+        hint="Shown in the imagery strip on the /trade page. Recommended: 1200×900px or similar."
+        aspectRatio="4 / 3"
+        value={(data.installer_photo_url as string) || null}
+        onChange={url => {
+          const next = { ...data, installer_photo_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
+      />
+      <ImageUploadField
+        label="Trade Counter Photo"
+        hint="Shown in the imagery strip on the /trade page. Recommended: 1200×900px or similar."
+        aspectRatio="4 / 3"
+        value={(data.counter_photo_url as string) || null}
+        onChange={url => {
+          const next = { ...data, counter_photo_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
+      />
+    </div>
+  )
+}
+
+function AboutPageEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+  return (
+    <div className="space-y-4">
+      <ImageUploadField
+        label="Showroom Photo"
+        hint="Shown in the 'Our Story' section on the /about page. Recommended: 1600×900px (16:9) or similar."
+        aspectRatio="16 / 9"
+        value={(data.showroom_photo_url as string) || null}
+        onChange={url => {
+          const next = { ...data, showroom_photo_url: url ?? '' }
+          onChange(next)
+          onImageChange?.(next)
+        }}
+      />
+    </div>
+  )
+}
+
 function WhyChooseUsEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   type Item = { icon: string; title: string; description: string }
   const items: Item[] = Array.isArray(data.items)
@@ -299,6 +375,9 @@ const SECTION_LABELS: Record<string, string> = {
   btu_calculator: 'BTU Calculator Promo',
   btu_promo:      'BTU Calculator Promo',
   trade_cta:      'Trade Programme',
+  services_page:  'Services Page Photo',
+  trade_page:     'Trade Page Photos',
+  about_page:     'About Page Photo',
   brands:         'Featured Brands',
   products:       'Featured Products',
   testimonials:   'Customer Reviews',
@@ -315,6 +394,9 @@ function sectionDescription(key: string): string {
     why_choose_us:  'Three reasons customers choose you',
     cta:            'Bottom call-to-action block',
     services:       'Services overview section',
+    services_page:  'Photo shown on the standalone /services page',
+    trade_page:     'Warehouse, installer and trade counter photos shown on /trade',
+    about_page:     'Showroom photo shown on the standalone /about page',
     btu_calculator: 'BTU calculator promotional block',
     brands:         'Brand logos displayed on homepage',
     products:       'Featured product grid',
@@ -379,6 +461,9 @@ export default function HomepageSectionEditor({ section }: { section: Section })
     if (key === 'services')       return <ServicesEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
     if (key === 'btu_promo' || key === 'btu_calculator') return <BtuPromoEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
     if (key === 'trade_cta')      return <TradeCtaEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'services_page')  return <ServicesPageEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'trade_page')     return <TradePageEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'about_page')     return <AboutPageEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
     return <GenericEditor data={data} onChange={handleChange} />
   }
 

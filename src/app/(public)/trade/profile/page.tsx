@@ -39,7 +39,7 @@ function ReadOnlyField({ label, value, icon: Icon }: { label: string; value: str
   return (
     <div className="flex items-start gap-3 py-3.5 border-b border-slate-50 last:border-0">
       {Icon && (
-        <div className="mt-0.5 w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+        <div className="mt-0.5 w-7 h-7 bg-slate-50 flex items-center justify-center shrink-0" style={{ borderRadius: 2 }}>
           <Icon className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
         </div>
       )}
@@ -57,7 +57,7 @@ function EditableField({ label, icon: Icon, children }: {
   return (
     <div className="flex items-start gap-3 py-3.5 border-b border-slate-50 last:border-0">
       {Icon && (
-        <div className="mt-0.5 w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+        <div className="mt-0.5 w-7 h-7 bg-blue-50 flex items-center justify-center shrink-0" style={{ borderRadius: 2 }}>
           <Icon className="w-3.5 h-3.5 text-blue-500" aria-hidden="true" />
         </div>
       )}
@@ -142,7 +142,7 @@ export default async function TradeProfilePage() {
           </div>
 
           {/* ── Personal information ─────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-100 overflow-hidden" style={{ borderRadius: 2 }}>
             <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2">
               <User className="w-4 h-4 text-slate-400" aria-hidden="true" />
               <h2 className="font-semibold text-slate-900">Personal Information</h2>
@@ -157,7 +157,7 @@ export default async function TradeProfilePage() {
           </div>
 
           {/* ── Business information ─────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-100 overflow-hidden" style={{ borderRadius: 2 }}>
             <div className="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-slate-400" aria-hidden="true" />
@@ -178,7 +178,7 @@ export default async function TradeProfilePage() {
           </div>
 
           {/* ── Account security ─────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-100 overflow-hidden" style={{ borderRadius: 2 }}>
             <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2">
               <Lock className="w-4 h-4 text-slate-400" aria-hidden="true" />
               <h2 className="font-semibold text-slate-900">Account Security</h2>
@@ -191,7 +191,7 @@ export default async function TradeProfilePage() {
           </div>
 
           {/* ── Account metadata ─────────────────────────────────────────── */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="bg-white border border-slate-100 overflow-hidden" style={{ borderRadius: 2 }}>
             <div className="px-6 py-4 border-b border-slate-50 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-slate-400" aria-hidden="true" />
               <h2 className="font-semibold text-slate-900">Account History</h2>

@@ -33,12 +33,12 @@ function StatusCard({
 }) {
   return (
     <div className="flex flex-col items-center text-center max-w-md mx-auto py-4">
-      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-5 ${iconBg}`}>
+      <div className={`w-16 h-16 border flex items-center justify-center mb-5 ${iconBg}`} style={{ borderRadius: 2 }}>
         {icon}
       </div>
       <span
-        className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-4"
-        style={{ backgroundColor: badgeBg, color: badgeFg }}
+        className="inline-block text-xs font-semibold px-3 py-1 border mb-4"
+        style={{ backgroundColor: badgeBg, color: badgeFg, borderColor: badgeFg + "33", borderRadius: 2 }}
       >
         {badge}
       </span>
@@ -126,10 +126,10 @@ export default async function TradeRegisterPage() {
       }
       return (
         <div className="flex flex-col items-center text-center max-w-md mx-auto py-4">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 bg-red-50 border border-red-100">
+          <div className="w-16 h-16 border flex items-center justify-center mb-5 bg-red-50 border-red-100" style={{ borderRadius: 2 }}>
             <XCircle className="w-8 h-8 text-red-500" />
           </div>
-          <span className="inline-block text-xs font-semibold px-3 py-1 rounded-full mb-4 bg-red-50 text-red-600">
+          <span className="inline-block text-xs font-semibold px-3 py-1 border border-red-100 mb-4 bg-red-50 text-red-600" style={{ borderRadius: 2 }}>
             Application Not Approved
           </span>
           <h2 className="text-2xl font-bold text-slate-900 mb-3">
@@ -140,7 +140,7 @@ export default async function TradeRegisterPage() {
             {companyName ? ` for ${companyName}` : ''}, we were unable to approve a trade account at this time.
           </p>
           {rejectionReason && (
-            <div className="w-full rounded-xl bg-red-50 border border-red-100 px-5 py-4 mb-6 text-left">
+            <div className="w-full bg-red-50 border border-red-100 px-5 py-4 mb-6 text-left" style={{ borderRadius: 2 }}>
               <p className="text-xs font-bold text-red-500 uppercase tracking-wider mb-1.5">Reason provided</p>
               <p className="text-sm text-red-800 leading-relaxed">{rejectionReason}</p>
             </div>
@@ -192,7 +192,7 @@ export default async function TradeRegisterPage() {
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-14">
 
           {gate ? (
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-10">
+            <div className="bg-white border border-slate-200 p-10" style={{ borderRadius: 2 }}>
               {gate}
             </div>
           ) : (
@@ -202,7 +202,7 @@ export default async function TradeRegisterPage() {
                 <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">Trade Account Application</h1>
                 <p className="mt-3 text-slate-500">Applications are reviewed within 1–2 business days.</p>
               </div>
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+              <div className="bg-white border border-slate-200 p-8" style={{ borderRadius: 2 }}>
                 <TradeRegisterForm />
               </div>
             </>
