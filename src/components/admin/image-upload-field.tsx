@@ -11,6 +11,25 @@ interface Props {
   label?: string
   hint?: string
   aspectRatio?: string
+  /** Recommended pixel width, e.g. 3840 */
+  recommendedWidth?: number
+  /** Recommended pixel height, e.g. 1646 */
+  recommendedHeight?: number
+  /** Aspect ratio label shown to the admin, e.g. "21:9" — defaults to a reduced form of width/height */
+  aspectRatioLabel?: string
+  /** Max upload size in MB shown to the admin (actual enforcement is separate, see handleFile) */
+  maxSizeMb?: number
+  /** Formats shown to the admin — actual validation is via the accept attribute below */
+  formats?: string[]
+}
+
+function gcd(a: number, b: number): number {
+  return b === 0 ? a : gcd(b, a % b)
+}
+
+function reducedRatio(width: number, height: number): string {
+  const divisor = gcd(width, height)
+  return `${width / divisor}:${height / divisor}`
 }
 
 async function uploadFile(file: File): Promise<string> {
@@ -39,19 +58,26 @@ export default function ImageUploadField({
   label,
   hint,
   aspectRatio = '16 / 9',
+  recommendedWidth,
+  recommendedHeight,
+  aspectRatioLabel,
+  maxSizeMb = 10,
+  formats = ['JPG', 'PNG', 'WebP', 'AVIF'],
 }: Props) {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress]   = useState(0)
   const [dragging, setDragging]   = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const ratioLabel = aspectRatioLabel ?? (recommendedWidth && recommendedHeight ? reducedRatio(recommendedWidth, recommendedHeight) : null)
+
   const handleFile = useCallback(async (file: File) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file (SVG, PNG, WebP, JPG)')
       return
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image must be under 10 MB')
+    if (file.size > maxSizeMb * 1024 * 1024) {
+      toast.error(`Image must be under ${maxSizeMb} MB`)
       return
     }
 
@@ -77,7 +103,7 @@ export default function ImageUploadField({
       setProgress(0)
       if (inputRef.current) inputRef.current.value = ''
     }
-  }, [value, onChange])
+  }, [value, onChange, maxSizeMb])
 
   function handleRemove() {
     if (value) deleteFile(value)
@@ -95,6 +121,31 @@ export default function ImageUploadField({
     <div className="flex flex-col gap-1.5">
       {label && (
         <span className="text-xs font-semibold text-slate-700">{label}</span>
+      )}
+
+      {(recommendedWidth || ratioLabel) && (
+        <div className="flex flex-wrap gap-x-5 gap-y-1 rounded-lg bg-slate-50 border border-slate-100 px-3 py-2">
+          {recommendedWidth && recommendedHeight && (
+            <div>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Recommended Size</p>
+              <p className="text-xs font-semibold text-slate-700">{recommendedWidth.toLocaleString()} × {recommendedHeight.toLocaleString()} px</p>
+            </div>
+          )}
+          {ratioLabel && (
+            <div>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Aspect Ratio</p>
+              <p className="text-xs font-semibold text-slate-700">{ratioLabel}</p>
+            </div>
+          )}
+          <div>
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Formats</p>
+            <p className="text-xs font-semibold text-slate-700">{formats.join(' ')}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Maximum Size</p>
+            <p className="text-xs font-semibold text-slate-700">{maxSizeMb} MB</p>
+          </div>
+        </div>
       )}
 
       {/* Hidden file input */}
@@ -210,7 +261,7 @@ export default function ImageUploadField({
                 <p className={`text-sm font-semibold transition-colors ${dragging ? 'text-sky-600' : 'text-slate-600'}`}>
                   {dragging ? 'Drop image here' : 'Click to upload or drag & drop'}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">SVG, PNG, WebP, JPG · Max 10 MB</p>
+                <p className="text-xs text-slate-400 mt-1">{formats.join(', ')} · Max {maxSizeMb} MB</p>
               </div>
             </>
           )}

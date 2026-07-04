@@ -30,6 +30,7 @@ const NAV_GROUPS: NavGroup[] = [
     group: 'Content',
     items: [
       { label: 'Homepage',     href: '/admin/homepage',            icon: Globe },
+      { label: 'Page Heroes',  href: '/admin/page-heroes',         icon: Image },
       { label: 'Campaigns',    href: '/admin/marketing/campaigns', icon: Megaphone },
       { label: 'Blog',         href: '/admin/blog',                icon: BookOpen },
       { label: 'Testimonials', href: '/admin/testimonials',        icon: Star },

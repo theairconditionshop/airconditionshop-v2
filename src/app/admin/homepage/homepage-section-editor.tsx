@@ -61,6 +61,8 @@ function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, un
         label="Background Image"
         hint="Upload a high-quality HVAC photo. Recommended: 1920×1080px or wider."
         aspectRatio="16 / 9"
+        recommendedWidth={2560}
+        recommendedHeight={1440}
         value={(data.media_url as string) || null}
         onChange={url => {
           const next = { ...data, media_url: url ?? '' }
@@ -107,6 +109,8 @@ function ServicesPageEditor({ data, onChange, onImageChange }: { data: Record<st
         label="Engineer / Service Photo"
         hint="Shown in the 'Why regular servicing matters' section on the /services page. Recommended: 1200×1500px portrait or similar."
         aspectRatio="4 / 5"
+        recommendedWidth={1600}
+        recommendedHeight={2000}
         value={(data.engineer_photo_url as string) || null}
         onChange={url => {
           const next = { ...data, engineer_photo_url: url ?? '' }
@@ -125,6 +129,8 @@ function TradePageEditor({ data, onChange, onImageChange }: { data: Record<strin
         label="Warehouse / Stock Photo"
         hint="Shown large in the imagery strip on the /trade page. Recommended: 1600×1200px or similar."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={1200}
         value={(data.warehouse_photo_url as string) || null}
         onChange={url => {
           const next = { ...data, warehouse_photo_url: url ?? '' }
@@ -136,6 +142,8 @@ function TradePageEditor({ data, onChange, onImageChange }: { data: Record<strin
         label="Installer Photo"
         hint="Shown in the imagery strip on the /trade page. Recommended: 1200×900px or similar."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={1200}
         value={(data.installer_photo_url as string) || null}
         onChange={url => {
           const next = { ...data, installer_photo_url: url ?? '' }
@@ -147,6 +155,8 @@ function TradePageEditor({ data, onChange, onImageChange }: { data: Record<strin
         label="Trade Counter Photo"
         hint="Shown in the imagery strip on the /trade page. Recommended: 1200×900px or similar."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={1200}
         value={(data.counter_photo_url as string) || null}
         onChange={url => {
           const next = { ...data, counter_photo_url: url ?? '' }
@@ -165,6 +175,8 @@ function AboutPageEditor({ data, onChange, onImageChange }: { data: Record<strin
         label="Showroom Photo"
         hint="Shown in the 'Our Story' section on the /about page. Recommended: 1600×900px (16:9) or similar."
         aspectRatio="16 / 9"
+        recommendedWidth={2560}
+        recommendedHeight={1440}
         value={(data.showroom_photo_url as string) || null}
         onChange={url => {
           const next = { ...data, showroom_photo_url: url ?? '' }
@@ -235,6 +247,8 @@ function CtaEditor({ data, onChange, onImageChange }: { data: Record<string, unk
         label="Right-Side Image"
         hint="Shown on desktop beside the text. Leave empty for full-width text layout."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={1200}
         value={(data.image_url as string) || null}
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
@@ -286,6 +300,8 @@ function BtuPromoEditor({ data, onChange, onImageChange }: { data: Record<string
         label="Section Image"
         hint="Optional — leave empty to show the 3-step process illustration instead."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={1200}
         value={(data.image_url as string) || null}
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
@@ -304,6 +320,8 @@ function TradeCtaEditor({ data, onChange, onImageChange }: { data: Record<string
         label="Installer Photo"
         hint="HVAC installer or technician at work. Shown beside the trade content."
         aspectRatio="3 / 4"
+        recommendedWidth={1500}
+        recommendedHeight={2000}
         value={(data.image_url as string) || null}
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
@@ -331,6 +349,8 @@ function ServicesEditor({ data, onChange, onImageChange }: { data: Record<string
         label="Services Photo"
         hint="HVAC technician or installation. Shown above the heading on mobile, beside services on desktop."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={1200}
         value={(data.image_url as string) || null}
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }

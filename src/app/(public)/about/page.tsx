@@ -5,6 +5,8 @@ import Footer from '@/components/layout/footer'
 import { PremiumImage } from '@/components/shared/premium-image'
 import { Reveal, Stagger, StaggerItem, Magnetic } from '@/components/motion/primitives'
 import { getCachedAboutPageData } from '@/lib/data/about-page-cache'
+import { getCachedPageHero } from '@/lib/data/page-hero-cache'
+import { PageHero } from '@/components/shared/page-hero'
 import { MapPin, Phone, Mail, Globe, Building2, Briefcase, Home, CheckCircle2, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -28,32 +30,22 @@ const VALUES = [
 ]
 
 export default async function AboutPage() {
-  const { showroomPhotoUrl } = await getCachedAboutPageData()
+  const [{ showroomPhotoUrl }, hero] = await Promise.all([
+    getCachedAboutPageData(),
+    getCachedPageHero('about'),
+  ])
 
   return (
     <>
       <Navbar transparent />
       <main id="main-content" className="min-h-screen">
 
-        {/* ── Hero ── */}
-        <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-[#f4f8fb] pt-24">
-          <div aria-hidden className="absolute -top-32 right-[-6%] w-[600px] h-[420px] rounded-full bg-blue-400/[0.10] blur-[130px] pointer-events-none" />
-          <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '56px 56px' }} />
-
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full">
-            <Reveal mode="up"><p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-5">About Us</p></Reveal>
-            <Reveal mode="blur" delay={0.05}>
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-[-0.02em] text-slate-900 leading-[1.0] max-w-2xl mb-4">
-                Malta&apos;s HVAC specialists.
-              </h1>
-            </Reveal>
-            <Reveal mode="up" delay={0.1}>
-              <p className="text-slate-600 text-lg max-w-lg leading-relaxed">
-                Supplying, installing, and servicing HVAC and refrigeration equipment across Malta. Based in Mosta. Serving the whole island.
-              </p>
-            </Reveal>
-          </div>
-        </section>
+        <PageHero
+          hero={hero}
+          eyebrow="About Us"
+          fallbackTitle="Malta's HVAC specialists."
+          fallbackSubtitle="Supplying, installing, and servicing HVAC and refrigeration equipment across Malta. Based in Mosta. Serving the whole island."
+        />
 
         {/* ── Pillars strip ── */}
         <section className="bg-white border-b border-slate-100">
