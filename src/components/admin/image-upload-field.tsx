@@ -163,11 +163,12 @@ export default function ImageUploadField({
       {value ? (
         /* ── Preview state ── */
         <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 group">
-          <div style={{ aspectRatio }}>
+          <div style={{ aspectRatio, position: 'relative' }}>
             <Image
               src={value}
               alt="Uploaded image preview"
               fill
+              sizes="(max-width: 768px) 100vw, 400px"
               unoptimized={value.toLowerCase().endsWith('.svg')}
               className="object-cover"
             />
