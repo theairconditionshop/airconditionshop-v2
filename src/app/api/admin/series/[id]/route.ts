@@ -75,6 +75,7 @@ const putSchema = z.object({
     description:      z.string().nullable().optional(),
     features:         z.array(z.string()).optional(),
     ac_type:          z.string().nullable().optional(),
+    variant_label:    z.string().min(1).optional(),
     shared_specs:     z.record(z.string(), z.string()).optional(),
     warranty_years:   z.number().int().nullable().optional(),
     has_colours:      z.boolean().optional(),

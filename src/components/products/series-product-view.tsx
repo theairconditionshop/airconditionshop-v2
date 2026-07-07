@@ -51,6 +51,16 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
     [variants, effectiveBtu, colour],
   )
 
+  // "12,000 BTU" only makes sense for the default AC label — other product
+  // families (covers, trunking, pumps…) show the variant's own label instead.
+  const isBtuFamily = series.variant_label === 'Capacity (BTU)'
+  const variantSuffix = effectiveBtu
+    ? (isBtuFamily ? ` ${effectiveBtu.toLocaleString()} BTU` : variant?.label ? ` ${variant.label}` : '')
+    : ''
+  const variantHeading = effectiveBtu
+    ? (isBtuFamily ? `${effectiveBtu.toLocaleString()} BTU` : variant?.label ?? '')
+    : ''
+
   // Gallery: colour images if any, else series hero images
   const galleryImages = useMemo(() => {
     const all = series.images ?? []
@@ -199,7 +209,7 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
         {btuOptions.length > 0 && (
           <Reveal mode="up" delay={0.08}>
           <div className="mt-6">
-            <p className="text-sm font-medium text-slate-700 mb-2">Capacity (BTU)</p>
+            <p className="text-sm font-medium text-slate-700 mb-2">{series.variant_label}</p>
             <div className="flex flex-wrap gap-2">
               {btuOptions.map(b => (
                 <button key={b} onClick={() => setBtu(b)}
@@ -239,7 +249,7 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
           </div>
 
           <div className="mt-4 flex flex-col sm:flex-row gap-2.5">
-            <Link href={`/contact?product=${encodeURIComponent(`${brandName} ${series.name}${effectiveBtu ? ` ${effectiveBtu} BTU` : ''}`)}`}
+            <Link href={`/contact?product=${encodeURIComponent(`${brandName} ${series.name}${variantSuffix}`)}`}
               className="flex-1 inline-flex items-center justify-center h-12 bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors"
               style={{ borderRadius: 2 }}>
               Request a Quote
@@ -276,7 +286,7 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
         {specRows.some(([, v]) => v) && (
           <div className="mt-8">
             <Reveal mode="up">
-              <h2 className="text-sm font-semibold text-slate-900 mb-3">Specifications {effectiveBtu ? `— ${effectiveBtu.toLocaleString()} BTU` : ''}</h2>
+              <h2 className="text-sm font-semibold text-slate-900 mb-3">Specifications {variantHeading ? `— ${variantHeading}` : ''}</h2>
             </Reveal>
             <div className="border border-slate-200 overflow-hidden divide-y divide-slate-100" style={{ borderRadius: 2 }}>
               {specRows.filter(([, v]) => v).map(([k, v]) => (

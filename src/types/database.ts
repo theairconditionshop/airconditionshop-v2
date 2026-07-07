@@ -146,6 +146,8 @@ export interface ProductSeries {
   shared_specs: Record<string, string>
   warranty_years: number | null
   has_colours: boolean
+  /** Label shown above the variant selector, e.g. "Capacity (BTU)", "Size", "Model", "Type". Defaults to "Capacity (BTU)" for existing AC series. */
+  variant_label: string
   price_visibility: PriceVisibility
   seo_title: string | null
   seo_desc: string | null

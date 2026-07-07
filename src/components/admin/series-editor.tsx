@@ -51,6 +51,7 @@ export default function SeriesEditor({
   const [description, setDescription] = useState(series.description ?? '')
   const [features, setFeatures]       = useState((series.features ?? []).join('\n'))
   const [acType, setAcType]           = useState(series.ac_type ?? '')
+  const [variantLabel, setVariantLabel] = useState(series.variant_label ?? 'Capacity (BTU)')
   const [warranty, setWarranty]       = useState(series.warranty_years?.toString() ?? '')
   const [hasColours, setHasColours]   = useState(series.has_colours)
   const [visibility, setVisibility]   = useState<ProductSeries['price_visibility']>(series.price_visibility)
@@ -144,6 +145,7 @@ export default function SeriesEditor({
         description: description || null,
         features: features.split('\n').map(f => f.trim()).filter(Boolean),
         ac_type: acType || null,
+        variant_label: variantLabel.trim() || 'Capacity (BTU)',
         warranty_years: warranty.trim() === '' ? null : Number(warranty),
         has_colours: hasColours,
         price_visibility: visibility,
@@ -272,6 +274,11 @@ export default function SeriesEditor({
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Warranty (years)</label>
             <input className={inputCls} type="number" value={warranty} onChange={e => setWarranty(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-700">Variant selector label</label>
+            <input className={inputCls} value={variantLabel} onChange={e => setVariantLabel(e.target.value)} placeholder="Capacity (BTU)" />
+            <p className="text-[11px] text-slate-400">Shown above the size/model selector on the product page — e.g. &quot;Capacity (BTU)&quot; for AC units, &quot;Size&quot; for covers/trunking, &quot;Model&quot; for pumps, &quot;Type&quot; for controllers.</p>
           </div>
         </div>
         <div className="space-y-1.5">
