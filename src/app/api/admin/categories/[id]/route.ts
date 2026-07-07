@@ -16,7 +16,7 @@ const updateSchema = z.object({
   seo_desc:    z.string().max(500).nullable().optional(),
   image_url:   z.string().max(500).nullable().optional(),
   parent_id:   z.string().uuid().nullable().optional(),
-  sort_order:  z.number().int().optional(),
+  display_order: z.number().int().optional(),
   is_active:   z.boolean().optional(),
 })
 

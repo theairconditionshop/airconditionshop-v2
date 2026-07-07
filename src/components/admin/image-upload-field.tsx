@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { RefreshCw, X, ImageIcon } from 'lucide-react'
 import { toast } from 'sonner'
+import { uploadMediaFile } from '@/lib/media/client'
 
 interface Props {
   value: string | null
@@ -30,26 +31,6 @@ function gcd(a: number, b: number): number {
 function reducedRatio(width: number, height: number): string {
   const divisor = gcd(width, height)
   return `${width / divisor}:${height / divisor}`
-}
-
-async function uploadFile(file: File): Promise<string> {
-  const form = new FormData()
-  form.append('files', file)
-  const res = await fetch('/api/admin/media', { method: 'POST', body: form })
-  if (!res.ok) throw new Error('Upload failed')
-  const data = await res.json()
-  const url = data.results?.[0]?.url
-  if (!url) throw new Error('Upload returned no URL')
-  return url as string
-}
-
-function deleteFile(url: string) {
-  // Fire-and-forget — silently cleans up orphaned storage files
-  fetch('/api/admin/media', {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url }),
-  }).catch(() => null)
 }
 
 export default function ImageUploadField({
@@ -81,32 +62,48 @@ export default function ImageUploadField({
       return
     }
 
-    const oldUrl = value
     setUploading(true)
     setProgress(10)
 
     const interval = setInterval(() =>
       setProgress(p => Math.min(p + 18, 88)), 220)
 
+    // Only the network call is allowed to produce the "upload failed" toast.
+    // Everything after a successful upload (state update) is handled outside
+    // this try/catch so a bug there can never be misreported as an upload
+    // failure when the file is already safely in Storage + the DB.
+    //
+    // Note what this function deliberately does NOT do: delete the old
+    // image. The old (superseded) file is left alone — if the surrounding
+    // form's Save is never clicked, fails, or the browser closes, the old
+    // image must still be exactly where it was. Storage cleanup for files
+    // no longer referenced by any saved record is handled entirely by the
+    // scheduled orphan sweep (src/app/api/cron/cleanup-orphans/route.ts).
+    let url: string
     try {
-      const url = await uploadFile(file)
-      clearInterval(interval)
-      setProgress(100)
-      onChange(url)
-      if (oldUrl) deleteFile(oldUrl)
-      toast.success('Image uploaded successfully')
+      url = await uploadMediaFile(file)
     } catch {
       clearInterval(interval)
-      toast.error('Upload failed — please try again')
-    } finally {
       setUploading(false)
       setProgress(0)
       if (inputRef.current) inputRef.current.value = ''
+      toast.error('Upload failed — please try again')
+      return
     }
-  }, [value, onChange, maxSizeMb])
+
+    clearInterval(interval)
+    setProgress(100)
+    onChange(url)
+    toast.success('Image uploaded successfully')
+    setUploading(false)
+    setProgress(0)
+    if (inputRef.current) inputRef.current.value = ''
+  }, [onChange, maxSizeMb])
 
   function handleRemove() {
-    if (value) deleteFile(value)
+    // Same reasoning as above: clearing the field only updates local/draft
+    // state. The file itself is left in Storage until the orphan sweep
+    // confirms no saved record references it anymore.
     onChange(null)
   }
 

@@ -5,6 +5,8 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Campaign, CampaignStatus, CampaignType } from '@/types/database'
+import { uploadMediaFile } from '@/lib/media/client'
+import ImageUploadField from '@/components/admin/image-upload-field'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -51,15 +53,6 @@ function toLocalDatetime(iso: string | null | undefined): string {
   if (!iso) return ''
   // datetime-local input expects "YYYY-MM-DDTHH:MM"
   return iso.slice(0, 16)
-}
-
-async function uploadImage(file: File): Promise<string> {
-  const form = new FormData()
-  form.append('files', file)
-  const res = await fetch('/api/admin/media', { method: 'POST', body: form })
-  if (!res.ok) throw new Error('Upload failed')
-  const result = await res.json()
-  return result.results[0].url as string
 }
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -146,7 +139,6 @@ export default function CampaignForm({
   const [heroImage, setHeroImage] = useState<string | null>(
     campaign?.hero_image ?? null
   )
-  const [heroUploading, setHeroUploading] = useState(false)
   const [galleryImages, setGalleryImages] = useState<string[]>(
     campaign?.gallery_images ?? []
   )
@@ -184,7 +176,6 @@ export default function CampaignForm({
 
   const [uploadError, setUploadError] = useState<string | null>(null)
 
-  const heroInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
   // ── Handlers ────────────────────────────────────────────────────────────────
@@ -201,38 +192,36 @@ export default function CampaignForm({
     setSlug(val)
   }
 
-  async function handleHeroUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setHeroUploading(true)
-    setUploadError(null)
-    try {
-      const url = await uploadImage(file)
-      setHeroImage(url)
-    } catch {
-      setUploadError('Hero image upload failed. Please try again.')
-    } finally {
-      setHeroUploading(false)
-      e.target.value = ''
-    }
-  }
-
   async function handleGalleryUpload(e: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
     setGalleryUploading(true)
     setUploadError(null)
     try {
-      const urls = await Promise.all(files.map(uploadImage))
-      setGalleryImages((prev) => [...prev, ...urls])
-    } catch {
-      setUploadError('Gallery upload failed. Please try again.')
+      // Use allSettled, not all — a single failed file must not discard
+      // URLs that already succeeded and were persisted server-side.
+      const outcomes = await Promise.allSettled(files.map(uploadMediaFile))
+      const succeeded = outcomes.filter(o => o.status === 'fulfilled') as PromiseFulfilledResult<string>[]
+      const failed = outcomes.length - succeeded.length
+      if (succeeded.length) {
+        setGalleryImages((prev) => [...prev, ...succeeded.map(o => o.value)])
+      }
+      if (failed > 0) {
+        setUploadError(
+          succeeded.length
+            ? `${failed} of ${files.length} image(s) failed to upload. The rest were added.`
+            : 'Gallery upload failed. Please try again.'
+        )
+      }
     } finally {
       setGalleryUploading(false)
       e.target.value = ''
     }
   }
 
+  // Note: removing a gallery image here only updates local/draft state —
+  // the underlying file is left in Storage until the orphan sweep confirms
+  // no saved campaign references it (mirrors ImageUploadField's lifecycle).
   function removeGalleryImage(index: number) {
     setGalleryImages((prev) => prev.filter((_, i) => i !== index))
   }
@@ -356,68 +345,16 @@ export default function CampaignForm({
           </div>
         )}
 
-        {/* Hero Image */}
-        <Field label="Hero Image" hint="Main banner image for the campaign (recommended: 1200×630px).">
-          <div className="flex flex-col gap-3">
-            {heroImage ? (
-              <div className="relative h-48 w-full overflow-hidden rounded-xl border border-slate-200">
-                <Image
-                  src={heroImage}
-                  alt="Hero image preview"
-                  fill
-                  className="object-cover"
-                />
-                <button
-                  type="button"
-                  onClick={() => setHeroImage(null)}
-                  className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-slate-900/70 text-white transition-colors hover:bg-red-600"
-                  aria-label="Remove hero image"
-                >
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <div
-                onClick={() => heroInputRef.current?.click()}
-                className="flex h-40 cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-400 transition-colors hover:border-blue-400 hover:bg-blue-50 hover:text-blue-500"
-              >
-                {heroUploading ? (
-                  <span className="text-sm">Uploading…</span>
-                ) : (
-                  <>
-                    <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                    </svg>
-                    <span className="text-sm font-medium">Click to upload hero image</span>
-                    <span className="text-xs">PNG, JPG, WebP up to 10MB</span>
-                  </>
-                )}
-              </div>
-            )}
-            <input
-              ref={heroInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleHeroUpload}
-              disabled={heroUploading}
-            />
-            {!heroImage && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => heroInputRef.current?.click()}
-                disabled={heroUploading}
-                className="w-fit"
-              >
-                {heroUploading ? 'Uploading…' : 'Choose File'}
-              </Button>
-            )}
-          </div>
-        </Field>
+        {/* Hero Image — shared upload component, same lifecycle as every other admin image field */}
+        <ImageUploadField
+          label="Hero Image"
+          hint="Main banner image for the campaign."
+          aspectRatio="1200 / 630"
+          recommendedWidth={1200}
+          recommendedHeight={630}
+          value={heroImage}
+          onChange={setHeroImage}
+        />
 
         {/* Gallery */}
         <Field label="Gallery Images" hint="Additional images shown in a gallery below the hero.">

@@ -3,13 +3,36 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { Upload, Image as ImageIcon } from 'lucide-react'
+import { Upload, Image as ImageIcon, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function MediaLibrary() {
   const [uploading, setUploading] = useState(false)
+  const [cleaning, setCleaning] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+
+  async function handleCleanup() {
+    setCleaning(true)
+    try {
+      const res = await fetch('/api/cron/cleanup-orphans', { method: 'POST' })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        toast.error(body.error || 'Cleanup failed')
+        return
+      }
+      toast.success(
+        body.deleted > 0
+          ? `Removed ${body.deleted} orphaned file(s)`
+          : 'No orphaned files found — nothing to clean up'
+      )
+      router.refresh()
+    } catch {
+      toast.error('Cleanup failed — please try again')
+    } finally {
+      setCleaning(false)
+    }
+  }
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
@@ -59,6 +82,22 @@ export default function MediaLibrary() {
         <p className="text-xs text-slate-300 mt-1">
           Media is stored in Supabase Storage. Configure your bucket in the Supabase dashboard.
         </p>
+      </div>
+
+      {/* Orphan cleanup — runs automatically once a day; this button triggers it on demand */}
+      <div className="flex items-center justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50 p-5">
+        <div>
+          <p className="text-sm font-medium text-slate-700">Storage cleanup</p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            Removes uploaded files no longer referenced by any saved page, product, brand, or campaign.
+            Files uploaded in the last 48 hours are never touched, so an in-progress edit is always safe.
+            Runs automatically every night — use this to run it immediately.
+          </p>
+        </div>
+        <Button variant="outline" size="sm" type="button" onClick={handleCleanup} loading={cleaning} className="shrink-0 gap-1.5">
+          <Trash2 className="w-3.5 h-3.5" />
+          Run Cleanup Now
+        </Button>
       </div>
     </div>
   )
