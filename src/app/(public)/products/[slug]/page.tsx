@@ -15,6 +15,7 @@ import Footer from '@/components/layout/footer'
 import Breadcrumb from '@/components/shared/breadcrumb'
 import ProductCard from '@/components/products/product-card'
 import ProductGallery from '@/components/products/product-gallery'
+import SpecGauge from '@/components/products/spec-gauge'
 import InstallationOffer from '@/components/products/installation-offer'
 import DeliveryInfo from '@/components/products/delivery-info'
 import TradePricingCta from '@/components/products/trade-pricing-cta'
@@ -272,62 +273,67 @@ export default async function ProductPage({ params }: Props) {
                 </div>
               )}
 
-              {/* Price / Trade CTA */}
-              {hidePricing ? (
-                <TradePricingCta variant="panel" />
-              ) : (
-                <div className="mt-6 p-5 bg-slate-50 border border-slate-100" style={{ borderRadius: 2 }}>
-                  {priceResult.price != null ? (
-                    <div>
-                      {priceResult.originalPrice != null && (
-                        <p className="text-base text-slate-400 line-through leading-none mb-1">
-                          {formatPrice(priceResult.originalPrice, product.currency)}
+              {/* Sticky purchase panel — price + primary CTAs stay anchored in
+                  view as the rest of the info column (description, features,
+                  delivery info) scrolls beneath it, like a premium ecommerce
+                  flagship product page. */}
+              <div className="lg:sticky lg:top-24 lg:z-10 lg:bg-white/95 lg:backdrop-blur-sm lg:pb-2">
+                {hidePricing ? (
+                  <TradePricingCta variant="panel" />
+                ) : (
+                  <div className="mt-6 p-5 bg-slate-50 border border-slate-100" style={{ borderRadius: 2 }}>
+                    {priceResult.price != null ? (
+                      <div>
+                        {priceResult.originalPrice != null && (
+                          <p className="text-base text-slate-400 line-through leading-none mb-1">
+                            {formatPrice(priceResult.originalPrice, product.currency)}
+                          </p>
+                        )}
+                        <p className={`text-3xl font-bold ${priceResult.originalPrice != null ? 'text-emerald-600' : 'text-slate-900'}`}>
+                          {formatPrice(priceResult.price, product.currency)}
                         </p>
-                      )}
-                      <p className={`text-3xl font-bold ${priceResult.originalPrice != null ? 'text-emerald-600' : 'text-slate-900'}`}>
-                        {formatPrice(priceResult.price, product.currency)}
-                      </p>
-                      {priceResult.savingsAmount != null && priceResult.savingsAmount > 0 && (
-                        <p className="mt-1 text-sm font-medium text-emerald-600">
-                          Save {formatPrice(priceResult.savingsAmount, product.currency)} · {priceResult.saleDiscountPct}% off
-                        </p>
-                      )}
-                      {priceResult.isTrade ? (
-                        <div className="mt-1 flex items-center gap-2">
-                          <Badge variant="trade">{priceResult.label}</Badge>
-                          {priceResult.discountPct && (
-                            <span className="text-xs text-slate-500">{priceResult.discountPct}% off retail</span>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="mt-1 text-xs text-slate-400">Price excl. installation. Contact for trade pricing.</p>
-                      )}
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-lg font-semibold text-slate-700">Contact for pricing</p>
-                      <p className="text-sm text-slate-400 mt-0.5">Call or email us for a quote</p>
-                    </div>
-                  )}
-                </div>
-              )}
+                        {priceResult.savingsAmount != null && priceResult.savingsAmount > 0 && (
+                          <p className="mt-1 text-sm font-medium text-emerald-600">
+                            Save {formatPrice(priceResult.savingsAmount, product.currency)} · {priceResult.saleDiscountPct}% off
+                          </p>
+                        )}
+                        {priceResult.isTrade ? (
+                          <div className="mt-1 flex items-center gap-2">
+                            <Badge variant="trade">{priceResult.label}</Badge>
+                            {priceResult.discountPct && (
+                              <span className="text-xs text-slate-500">{priceResult.discountPct}% off retail</span>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="mt-1 text-xs text-slate-400">Price excl. installation. Contact for trade pricing.</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-lg font-semibold text-slate-700">Contact for pricing</p>
+                        <p className="text-sm text-slate-400 mt-0.5">Call or email us for a quote</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-              {/* CTAs — always visible */}
-              <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                <Link
-                  href={`/quote?product=${product.id}`}
-                  className="group flex-1 inline-flex items-center justify-center gap-2 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300"
-                  style={{ borderRadius: 2 }}
-                >
-                  Request a Quote <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-                <a
-                  href="tel:+35679661889"
-                  className="flex-1 inline-flex items-center justify-center gap-2 h-14 border border-slate-300 text-slate-800 text-[15px] font-semibold hover:border-slate-900 transition-colors duration-300"
-                  style={{ borderRadius: 2 }}
-                >
-                  <Phone className="w-4 h-4" /> +356 7966 1889
-                </a>
+                {/* CTAs — always visible */}
+                <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href={`/quote?product=${product.id}`}
+                    className="group flex-1 inline-flex items-center justify-center gap-2 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300"
+                    style={{ borderRadius: 2 }}
+                  >
+                    Request a Quote <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Link>
+                  <a
+                    href="tel:+35679661889"
+                    className="flex-1 inline-flex items-center justify-center gap-2 h-14 border border-slate-300 text-slate-800 text-[15px] font-semibold hover:border-slate-900 transition-colors duration-300"
+                    style={{ borderRadius: 2 }}
+                  >
+                    <Phone className="w-4 h-4" /> +356 7966 1889
+                  </a>
+                </div>
               </div>
 
               {/* Delivery & stock info */}
@@ -370,6 +376,28 @@ export default async function ProductPage({ params }: Props) {
               <Reveal mode="up" delay={0.05}>
                 <p className="text-sm text-slate-500 mb-8">Performance data and technical details for this unit</p>
               </Reveal>
+
+              {/* Headline performance stats — animated on scroll, distinct from the full data grid below */}
+              {(product.cooling_btu || product.seer || (isAcUnit && product.warranty_years)) && (
+                <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" gap={0.06}>
+                  {product.cooling_btu && (
+                    <StaggerItem>
+                      <SpecGauge icon={Zap} label="Cooling Capacity" value={product.cooling_btu} max={24000} unit="BTU/hr" accent="blue" />
+                    </StaggerItem>
+                  )}
+                  {product.seer && (
+                    <StaggerItem>
+                      <SpecGauge icon={Zap} label="SEER Rating" value={product.seer} max={8.5} decimals={1} accent="emerald" />
+                    </StaggerItem>
+                  )}
+                  {isAcUnit && product.warranty_years != null && product.warranty_years > 0 && (
+                    <StaggerItem>
+                      <SpecGauge icon={ShieldCheck} label="Manufacturer Warranty" value={product.warranty_years} max={10} unit={product.warranty_years === 1 ? 'year' : 'years'} accent="orange" />
+                    </StaggerItem>
+                  )}
+                </Stagger>
+              )}
+
               <Stagger className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" gap={0.04}>
                 {hvacSpecs.map((spec, i) => (
                   <StaggerItem key={i}><HvacSpecCard {...spec} /></StaggerItem>

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ProductImage {
@@ -28,6 +28,9 @@ export default function ProductGallery({ images, productName }: Props) {
 
   const [activeIdx, setActiveIdx] = useState(0)
   const [direction, setDirection] = useState(0)
+  const [zoomed, setZoomed] = useState(false)
+  const [zoomOrigin, setZoomOrigin] = useState('50% 50%')
+  const frameRef = useRef<HTMLDivElement>(null)
 
   function goTo(idx: number) {
     setDirection(idx > activeIdx ? 1 : -1)
@@ -36,6 +39,16 @@ export default function ProductGallery({ images, productName }: Props) {
 
   function prev() { goTo((activeIdx - 1 + sorted.length) % sorted.length) }
   function next() { goTo((activeIdx + 1) % sorted.length) }
+
+  // Cursor-follow zoom — desktop only (pointer:fine), the main image scales
+  // and pans to track the cursor position, like Apple's product photography.
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!frameRef.current) return
+    const rect = frameRef.current.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setZoomOrigin(`${x}% ${y}%`)
+  }
 
   if (!sorted.length) {
     return (
@@ -54,7 +67,14 @@ export default function ProductGallery({ images, productName }: Props) {
   return (
     <div className="space-y-3">
       {/* Hero image */}
-      <div className="relative aspect-square border border-slate-200 overflow-hidden bg-slate-50 group" style={{ borderRadius: 2 }}>
+      <div
+        ref={frameRef}
+        className="relative aspect-square border border-slate-200 overflow-hidden bg-slate-50 group"
+        style={{ borderRadius: 2 }}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setZoomed(true)}
+        onMouseLeave={() => setZoomed(false)}
+      >
         <AnimatePresence mode="popLayout" initial={false} custom={direction}>
           <motion.div
             key={activeIdx}
@@ -70,16 +90,35 @@ export default function ProductGallery({ images, productName }: Props) {
             transition={{ duration: 0.25, ease: 'easeInOut' }}
             className="absolute inset-0"
           >
-            <Image
-              src={active.url}
-              alt={active.alt_text || productName}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover"
-              priority={activeIdx === 0}
-            />
+            <motion.div
+              className="absolute inset-0"
+              animate={{ scale: zoomed ? 1.7 : 1 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              style={{ transformOrigin: zoomOrigin }}
+            >
+              <Image
+                src={active.url}
+                alt={active.alt_text || productName}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                priority={activeIdx === 0}
+              />
+            </motion.div>
           </motion.div>
         </AnimatePresence>
+
+        {/* Zoom affordance — hidden once actually zoomed in */}
+        <div
+          className={cn(
+            'absolute top-3 right-3 hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-white/90 backdrop-blur-sm text-[11px] font-medium text-slate-600 pointer-events-none transition-opacity duration-200',
+            zoomed ? 'opacity-0' : 'opacity-0 group-hover:opacity-100'
+          )}
+          style={{ borderRadius: 2 }}
+        >
+          <ZoomIn className="w-3 h-3" aria-hidden="true" />
+          Hover to zoom
+        </div>
 
         {/* Prev / Next */}
         {sorted.length > 1 && (
