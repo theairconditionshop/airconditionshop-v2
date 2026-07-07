@@ -7,6 +7,7 @@ import { TrustBadges } from '@/components/shared/trust-badges'
 import { InternalLinkPanel } from '@/components/shared/internal-link-panel'
 import { Reveal, Stagger, StaggerItem, Magnetic } from '@/components/motion/primitives'
 import { getCachedTradePageData } from '@/lib/data/trade-page-cache'
+import { getCachedPageHero } from '@/lib/data/page-hero-cache'
 import {
   CheckCircle2, Phone, ArrowRight, LogIn, Tag, Zap, Headphones,
   Clock, XCircle, ShieldOff, Package, BarChart3, Users, Award, Star,
@@ -107,7 +108,10 @@ export default async function TradePage({
 }) {
   const { status } = await searchParams
   const banner = STATUS_BANNERS[status as TradeStatus] ?? null
-  const { warehousePhotoUrl, installerPhotoUrl, counterPhotoUrl } = await getCachedTradePageData()
+  const [{ warehousePhotoUrl, installerPhotoUrl, counterPhotoUrl }, hero] = await Promise.all([
+    getCachedTradePageData(),
+    getCachedPageHero('trade'),
+  ])
 
   return (
     <>
@@ -135,6 +139,13 @@ export default async function TradePage({
 
         {/* ── Hero — intentionally dark, matches technical/blueprint trade motif ── */}
         <section className="relative min-h-[56vh] flex items-end overflow-hidden bg-slate-950">
+          {hero.desktopImageUrl && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={hero.desktopImageUrl} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" loading="eager" />
+              <div aria-hidden className="absolute inset-0 z-[1] bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
+            </>
+          )}
           <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.05]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
           <div aria-hidden className="absolute -top-40 right-[-8%] w-[560px] h-[560px] rounded-full bg-amber-500/[0.06] blur-[140px] pointer-events-none" />
 
@@ -159,11 +170,11 @@ export default async function TradePage({
             </Reveal>
             <Reveal mode="up" delay={0.16} className="flex flex-col sm:flex-row gap-3 mb-8">
               <Magnetic strength={0.2}>
-                <Link href="/trade/register" className="group inline-flex items-center justify-center gap-2 px-7 h-14 bg-amber-500 text-slate-950 text-[15px] font-semibold hover:bg-amber-400 transition-colors duration-300" style={{ borderRadius: 2 }}>
+                <Link href="/trade/register" className="group inline-flex items-center justify-center gap-2 px-7 h-14 bg-amber-500 text-slate-950 text-[15px] font-semibold hover:bg-amber-400 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" style={{ borderRadius: 2 }}>
                   Apply for Trade Account <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </Link>
               </Magnetic>
-              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-white/20 text-white hover:bg-white/[0.08] text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+              <Link href="/login" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-white/20 text-white hover:bg-white/[0.08] text-[15px] font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950" style={{ borderRadius: 2 }}>
                 <LogIn className="w-4 h-4" /> Trade Login
               </Link>
             </Reveal>

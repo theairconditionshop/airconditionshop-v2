@@ -26,6 +26,8 @@ const schema = z.object({
   slug:               z.string().min(2).regex(SLUG_REGEX, 'Slug must be lowercase letters, numbers and hyphens only — no spaces'),
   sku:                z.string().optional(),
   description:        z.string().optional(),
+  seo_title:          z.string().optional(),
+  seo_desc:           z.string().optional(),
   retail_price:       z.coerce.number().optional(),
   original_price:     z.coerce.number().optional(),
   sale_price:         z.coerce.number().optional(),
@@ -68,7 +70,7 @@ export default function ProductForm({ product, categories, brands }: Props) {
   const router = useRouter()
   const isEdit = !!product
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, watch, setValue, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(schema) as any,
     defaultValues: isEdit ? {
@@ -76,6 +78,8 @@ export default function ProductForm({ product, categories, brands }: Props) {
       slug:               product.slug as string,
       sku:                product.sku as string,
       description:        product.description as string,
+      seo_title:          product.seo_title as string,
+      seo_desc:           product.seo_desc as string,
       retail_price:       product.retail_price as number,
       original_price:     product.original_price as number,
       sale_price:         product.sale_price as number,
@@ -107,6 +111,16 @@ export default function ProductForm({ product, categories, brands }: Props) {
   })
 
   const tradeMode = watch('trade_price_mode')
+
+  function autoFillSeo() {
+    const { name, description } = getValues()
+    if (name) setValue('seo_title', `${name} Malta`, { shouldValidate: true })
+    const brandName = brands.find(b => b.id === getValues('brand_id'))?.name
+    const desc = description?.trim()
+      ? description.trim().slice(0, 155)
+      : `${name}${brandName ? ` by ${brandName}` : ''} — available from THE AIRCONDITION SHOP Malta. Supply, delivery and installation across the island.`
+    setValue('seo_desc', desc, { shouldValidate: true })
+  }
 
   async function onSubmit(data: FormData) {
     const url    = isEdit ? `/api/admin/products/${product!.id}` : '/api/admin/products'
@@ -159,6 +173,23 @@ export default function ProductForm({ product, categories, brands }: Props) {
           <label className="text-sm font-medium text-slate-700">Description</label>
           <textarea {...register('description')} rows={5}
             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold text-slate-900 text-sm">SEO</h3>
+          <button type="button" onClick={autoFillSeo}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 cursor-pointer">
+            Generate from name &amp; description
+          </button>
+        </div>
+        <Input label="SEO title" {...register('seo_title')} hint="Falls back to product name if left blank" />
+        <div className="flex flex-col gap-1.5">
+          <label className="text-sm font-medium text-slate-700">SEO description</label>
+          <textarea {...register('seo_desc')} rows={3} maxLength={500}
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+          <p className="text-[11px] text-slate-400">Falls back to the description above if left blank — aim for ~155 characters.</p>
         </div>
       </div>
 

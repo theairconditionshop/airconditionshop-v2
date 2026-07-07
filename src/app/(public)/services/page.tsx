@@ -8,6 +8,7 @@ import { TrustBadges } from '@/components/shared/trust-badges'
 import { InternalLinkPanel } from '@/components/shared/internal-link-panel'
 import { Reveal, Stagger, StaggerItem, Magnetic } from '@/components/motion/primitives'
 import { getCachedServicesPageData } from '@/lib/data/services-page-cache'
+import { getCachedPageHero } from '@/lib/data/page-hero-cache'
 import {
   Wrench, Calendar, Shield, Clock, CheckCircle2, ThumbsUp,
   ArrowRight, Phone, Award, Globe, Thermometer, Snowflake,
@@ -75,7 +76,11 @@ function Bracket({ className }: { className: string }) {
 }
 
 export default async function ServicesPage() {
-  const { engineerPhotoUrl } = await getCachedServicesPageData()
+  const [{ engineerPhotoUrl }, hero] = await Promise.all([
+    getCachedServicesPageData(),
+    getCachedPageHero('services'),
+  ])
+  const hasHeroImage = !!hero.desktopImageUrl
   return (
     <>
       <Navbar transparent />
@@ -83,38 +88,48 @@ export default async function ServicesPage() {
 
         {/* ── Hero — bright, matches site-wide language ── */}
         <section className="relative min-h-[62vh] flex items-end overflow-hidden bg-[#f4f8fb] pt-24">
-          <div aria-hidden className="absolute -top-40 right-[-8%] w-[700px] h-[500px] rounded-full bg-blue-400/[0.10] blur-[140px] pointer-events-none" />
-          <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '56px 56px' }} />
+          {hasHeroImage ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={hero.desktopImageUrl!} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0" loading="eager" />
+              <div aria-hidden className="absolute inset-0 z-[1] bg-slate-950" style={{ opacity: hero.overlayOpacity }} />
+            </>
+          ) : (
+            <>
+              <div aria-hidden className="absolute -top-40 right-[-8%] w-[700px] h-[500px] rounded-full bg-blue-400/[0.10] blur-[140px] pointer-events-none" />
+              <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '56px 56px' }} />
+            </>
+          )}
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 lg:pb-20 w-full">
             <Reveal mode="up">
-              <p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-5">Professional HVAC Services</p>
+              <p className={`text-[11px] font-semibold uppercase tracking-[0.28em] mb-5 ${hasHeroImage ? 'text-blue-300' : 'text-blue-600'}`}>Professional HVAC Services</p>
             </Reveal>
             <Reveal mode="blur" delay={0.05}>
-              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl tracking-[-0.02em] text-slate-900 leading-[1.0] max-w-3xl mb-4">
+              <h1 className={`font-display text-4xl sm:text-5xl lg:text-6xl tracking-[-0.02em] leading-[1.0] max-w-3xl mb-4 ${hasHeroImage ? 'text-white' : 'text-slate-900'}`}>
                 Installation, repairs &amp; servicing in Malta.
               </h1>
             </Reveal>
             <Reveal mode="up" delay={0.1}>
-              <p className="text-slate-600 text-lg max-w-xl leading-relaxed mb-8">
+              <p className={`text-lg max-w-xl leading-relaxed mb-8 ${hasHeroImage ? 'text-slate-200' : 'text-slate-600'}`}>
                 Whether you need a new air conditioner installed, an urgent repair or scheduled servicing, our F-Gas certified team delivers reliable HVAC solutions across Malta for homes and businesses.
               </p>
             </Reveal>
             <Reveal mode="up" delay={0.15} className="flex flex-col sm:flex-row gap-3 mb-9">
               <Magnetic strength={0.2}>
-                <a href="#book" className="group inline-flex items-center justify-center gap-2 px-7 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300" style={{ borderRadius: 2 }}>
+                <a href="#book" className="group inline-flex items-center justify-center gap-2 px-7 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" style={{ borderRadius: 2 }}>
                   Book a Service <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                 </a>
               </Magnetic>
-              <Link href="/quote" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-slate-300 text-slate-800 text-[15px] font-semibold hover:border-slate-900 transition-colors duration-300" style={{ borderRadius: 2 }}>
+              <Link href="/quote" className={`inline-flex items-center justify-center gap-2 px-7 h-14 border text-[15px] font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${hasHeroImage ? 'border-white/30 text-white hover:bg-white/10' : 'border-slate-300 text-slate-800 hover:border-slate-900'}`} style={{ borderRadius: 2 }}>
                 Request a Quote
               </Link>
-              <a href="tel:+35679661889" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-red-300 text-red-600 hover:bg-red-50 text-[15px] font-semibold transition-colors duration-300" style={{ borderRadius: 2 }}>
+              <a href="tel:+35679661889" className="inline-flex items-center justify-center gap-2 px-7 h-14 border border-red-300 text-red-600 hover:bg-red-50 text-[15px] font-semibold transition-colors duration-300 bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" style={{ borderRadius: 2 }}>
                 <Phone className="w-4 h-4" /> Emergency Call
               </a>
             </Reveal>
             <Reveal mode="fade" delay={0.2}>
-              <TrustBadges set="service" variant="light" />
+              <TrustBadges set="service" variant={hasHeroImage ? 'dark' : 'light'} />
             </Reveal>
           </div>
         </section>

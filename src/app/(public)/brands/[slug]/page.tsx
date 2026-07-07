@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import { getBrandBySlug, getProducts, getSeriesList } from '@/lib/data/queries'
-import { PremiumImage } from '@/components/shared/premium-image'
 import { safeJsonLd } from '@/lib/sanitize'
 import { getRole } from '@/lib/auth/session'
 import Navbar from '@/components/layout/navbar'
@@ -74,48 +73,54 @@ export default async function BrandPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }} />
-      <Navbar />
-      <main id="main-content" className="min-h-screen pt-20">
-        {/* Brand hero — shows when hero_url is set in admin */}
-        <div className="relative h-48 lg:h-64">
-          <PremiumImage
-            src={brand.hero_url ?? null}
-            alt={`${brand.name} HVAC products`}
-            fill
-            sizes="100vw"
-            priority
-            rounded="none"
-            placeholderLabel={brand.name}
-            objectPosition="center"
-          />
-          {/* Dark overlay + logo centred */}
-          {brand.hero_url && (
-            <div className="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
+      <Navbar transparent={!!brand.hero_url} />
+      <main id="main-content" className={brand.hero_url ? 'min-h-screen' : 'min-h-screen pt-20'}>
+        {/* Brand hero — cinematic full-bleed when hero_url is set in admin */}
+        {brand.hero_url ? (
+          <section className="relative min-h-[56vh] flex items-end overflow-hidden bg-slate-950 pt-24">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={brand.hero_url} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0" loading="eager" />
+            <div aria-hidden className="absolute inset-0 z-[1] bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/20" />
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-14 w-full">
               {brand.logo_url && (
-                <Image src={brand.logo_url} alt={brand.name} width={180} height={80} className="object-contain filter brightness-0 invert" />
+                <Reveal mode="fade">
+                  <div className="inline-flex items-center justify-center bg-white px-5 py-3 mb-6" style={{ borderRadius: 2 }}>
+                    <Image src={brand.logo_url} alt={brand.name} width={120} height={48} className="object-contain h-8 w-auto" />
+                  </div>
+                </Reveal>
+              )}
+              <Reveal mode="blur" delay={0.05}>
+                <h1 className="font-display text-4xl lg:text-5xl tracking-[-0.02em] text-white leading-[1.05]">{brand.name}</h1>
+              </Reveal>
+              {brand.description && (
+                <Reveal mode="up" delay={0.1}>
+                  <p className="mt-4 text-slate-200 leading-relaxed max-w-xl text-lg">{brand.description}</p>
+                </Reveal>
               )}
             </div>
-          )}
-        </div>
+          </section>
+        ) : null}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={[{ label: 'Home', href: '/' }, { label: 'Brands', href: '/brands' }, { label: brand.name }]} />
 
-          <div className="flex items-center gap-5 mb-10 border-b border-slate-100 pb-8">
-            {brand.logo_url && !brand.hero_url && (
-              <Image src={brand.logo_url} alt={brand.name} width={80} height={40} className="object-contain" />
-            )}
-            <div>
-              <Reveal mode="blur">
-                <h1 className="font-display text-4xl lg:text-5xl tracking-[-0.02em] text-slate-900">{brand.name}</h1>
-              </Reveal>
-              {brand.description && (
-                <Reveal mode="up" delay={0.08}>
-                  <p className="mt-3 text-slate-500 leading-relaxed max-w-xl">{brand.description}</p>
-                </Reveal>
+          {!brand.hero_url && (
+            <div className="flex items-center gap-5 mb-10 border-b border-slate-100 pb-8">
+              {brand.logo_url && (
+                <Image src={brand.logo_url} alt={brand.name} width={80} height={40} className="object-contain" />
               )}
+              <div>
+                <Reveal mode="blur">
+                  <h1 className="font-display text-4xl lg:text-5xl tracking-[-0.02em] text-slate-900">{brand.name}</h1>
+                </Reveal>
+                {brand.description && (
+                  <Reveal mode="up" delay={0.08}>
+                    <p className="mt-3 text-slate-500 leading-relaxed max-w-xl">{brand.description}</p>
+                  </Reveal>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {totalItems > 0 ? (
             <Stagger className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" gap={0.05}>

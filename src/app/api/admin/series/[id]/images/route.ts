@@ -18,6 +18,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const file = formData.get('file') as File | null
     const colourIdRaw = formData.get('colour_id')
     const colourId = colourIdRaw && String(colourIdRaw).length ? String(colourIdRaw) : null
+    const altTextRaw = formData.get('alt_text')
+    const altText = altTextRaw && String(altTextRaw).trim().length ? String(altTextRaw).trim() : null
     if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     if (!ACCEPTED_TYPES.has(file.type)) return NextResponse.json({ error: `File type not allowed: ${file.type}` }, { status: 400 })
     if (file.size > MAX_RAW_BYTES) return NextResponse.json({ error: 'File too large (max 20 MB)' }, { status: 400 })
@@ -62,7 +64,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         colour_id:     colourId,
         url:           fullUrl.publicUrl,
         thumbnail_url: thumbOk ? thumbUrl.publicUrl : null,
-        alt_text:      null,
+        alt_text:      altText,
         is_primary:    isPrimary,
         display_order: count ?? 0,
       })

@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { toast } from 'sonner'
-import { Upload, X, Star, Loader2, ImageIcon } from 'lucide-react'
+import { Upload, X, Star, Loader2, ImageIcon, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { SeriesImage } from '@/types/database'
 
@@ -11,17 +11,21 @@ interface Props {
   seriesId: string
   colourId: string | null      // null = series-level hero gallery
   label: string
+  /** Used to auto-generate alt text at upload time, e.g. "Daikin Sensira". */
+  altContext?: string
   initial: SeriesImage[]
 }
 
 const MAX = 8
 
 /** Self-contained gallery that persists immediately against the series images API. */
-export default function SeriesImageGallery({ seriesId, colourId, label, initial }: Props) {
+export default function SeriesImageGallery({ seriesId, colourId, label, altContext, initial }: Props) {
   const [images, setImages] = useState<SeriesImage[]>(
     [...initial].sort((a, b) => a.display_order - b.display_order)
   )
   const [uploading, setUploading] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
+  const [dragging, setDragging] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const canAdd = images.length < MAX
 
@@ -33,6 +37,7 @@ export default function SeriesImageGallery({ seriesId, colourId, label, initial 
     const fd = new FormData()
     fd.append('file', file)
     if (colourId) fd.append('colour_id', colourId)
+    if (altContext) fd.append('alt_text', `${altContext} — ${label}`)
     const res = await fetch(`/api/admin/series/${seriesId}/images`, { method: 'POST', body: fd })
     if (res.ok) {
       const img: SeriesImage = await res.json()
@@ -48,6 +53,29 @@ export default function SeriesImageGallery({ seriesId, colourId, label, initial 
   function handleFiles(files: FileList | null) {
     if (!files) return
     Array.from(files).slice(0, MAX - images.length).forEach(uploadFile)
+  }
+
+  // Drag-to-reorder (mirrors ProductImageGallery's pattern)
+  function handleDragOver(e: React.DragEvent, targetId: string) {
+    e.preventDefault()
+    if (!dragging || dragging === targetId) return
+    setImages(prev => {
+      const from = prev.findIndex(i => i.id === dragging)
+      const to   = prev.findIndex(i => i.id === targetId)
+      if (from === -1 || to === -1) return prev
+      const next = [...prev]
+      const [item] = next.splice(from, 1)
+      next.splice(to, 0, item)
+      return next.map((img, idx) => ({ ...img, display_order: idx }))
+    })
+  }
+
+  async function persistOrder(newOrder: SeriesImage[]) {
+    await fetch(`/api/admin/series/${seriesId}/images`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reorder: newOrder.map((img, i) => ({ id: img.id, display_order: i })) }),
+    })
   }
 
   async function remove(id: string) {
@@ -81,8 +109,14 @@ export default function SeriesImageGallery({ seriesId, colourId, label, initial 
       {images.length > 0 && (
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
           {images.map((img, idx) => (
-            <div key={img.id} className={cn('group relative aspect-square rounded-lg overflow-hidden border-2',
-              img.is_primary ? 'border-blue-500' : 'border-slate-200')}>
+            <div key={img.id}
+              draggable
+              onDragStart={() => setDragging(img.id)}
+              onDragEnd={() => { setDragging(null); persistOrder(images) }}
+              onDragOver={e => handleDragOver(e, img.id)}
+              className={cn('group relative aspect-square rounded-lg overflow-hidden border-2 cursor-grab active:cursor-grabbing transition-all duration-200',
+                img.is_primary ? 'border-blue-500' : 'border-slate-200',
+                dragging === img.id && 'opacity-40 scale-95')}>
               <Image src={img.thumbnail_url ?? img.url} alt={img.alt_text || `${label} ${idx + 1}`} fill sizes="100px" className="object-cover" />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-1">
                 <div className="opacity-0 group-hover:opacity-100 flex gap-1">
@@ -99,17 +133,26 @@ export default function SeriesImageGallery({ seriesId, colourId, label, initial 
                 </div>
               </div>
               {img.is_primary && <div className="absolute top-1 left-1 bg-blue-500 text-white text-[8px] font-bold px-1 py-0.5 rounded uppercase">Main</div>}
+              <div className="absolute bottom-1 right-1 text-white/0 group-hover:text-white/70 transition-colors">
+                <GripVertical className="w-3.5 h-3.5" />
+              </div>
             </div>
           ))}
         </div>
       )}
 
       {canAdd && (
-        <button type="button" onClick={() => !uploading && inputRef.current?.click()}
-          className="w-full border-2 border-dashed border-slate-200 rounded-lg py-5 flex flex-col items-center gap-1.5 hover:border-blue-300 hover:bg-slate-50/50 transition-colors cursor-pointer">
+        <div
+          onClick={() => !uploading && inputRef.current?.click()}
+          onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files) }}
+          className={cn('w-full border-2 border-dashed rounded-lg py-5 flex flex-col items-center gap-1.5 transition-colors cursor-pointer',
+            dragOver ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50/50',
+            uploading && 'pointer-events-none')}>
           {uploading ? <Loader2 className="w-5 h-5 text-blue-500 animate-spin" /> : <ImageIcon className="w-5 h-5 text-slate-400" />}
           <span className="text-xs text-slate-500">{uploading ? 'Uploading…' : 'Drop or click to upload'}</span>
-        </button>
+        </div>
       )}
     </div>
   )

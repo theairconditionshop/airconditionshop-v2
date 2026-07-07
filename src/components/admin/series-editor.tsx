@@ -309,7 +309,7 @@ export default function SeriesEditor({
       {/* ── Hero gallery ── */}
       <section className="bg-white rounded-xl border border-slate-100 p-6 space-y-4">
         <h3 className="font-semibold text-slate-900 text-sm">Hero Images <span className="text-slate-400 font-normal">— shown when no colour is selected</span></h3>
-        <SeriesImageGallery seriesId={series.id} colourId={null} label="Series hero" initial={images.filter(i => i.colour_id == null)} />
+        <SeriesImageGallery seriesId={series.id} colourId={null} label="Series hero" altContext={`${brands.find(b => b.id === brandId)?.name ?? ''} ${name}`.trim()} initial={images.filter(i => i.colour_id == null)} />
       </section>
 
       {/* ── Colours ── */}
@@ -339,7 +339,7 @@ export default function SeriesEditor({
                     <button onClick={() => removeColour(c._key)} className="text-red-400 hover:text-red-600 cursor-pointer"><Trash2 className="w-4 h-4" /></button>
                   </div>
                   {savedColour ? (
-                    <SeriesImageGallery seriesId={series.id} colourId={savedColour.id} label={`${savedColour.name} gallery`} initial={images.filter(i => i.colour_id === savedColour.id)} />
+                    <SeriesImageGallery seriesId={series.id} colourId={savedColour.id} label={`${savedColour.name} gallery`} altContext={`${brands.find(b => b.id === brandId)?.name ?? ''} ${name} — ${savedColour.name}`.trim()} initial={images.filter(i => i.colour_id === savedColour.id)} />
                   ) : (
                     <p className="text-[11px] text-amber-600 bg-amber-50 rounded px-2 py-1">Save the series to enable this colour’s image gallery.</p>
                   )}

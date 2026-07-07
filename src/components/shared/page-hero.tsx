@@ -44,7 +44,7 @@ export function PageHero({ hero, fallbackTitle, fallbackSubtitle, crumbs, eyebro
             src={desktopSrc || tabletSrc || mobileSrc || ''}
             alt=""
             aria-hidden="true"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[center_30%]"
             loading="eager"
           />
         </picture>
@@ -90,7 +90,7 @@ export function PageHero({ hero, fallbackTitle, fallbackSubtitle, crumbs, eyebro
             <Magnetic strength={0.2}>
               <Link
                 href={hero.ctaHref}
-                className={`group inline-flex items-center justify-center gap-2 px-7 h-14 text-[15px] font-semibold transition-colors duration-300 ${hasImage ? 'bg-white text-slate-900 hover:bg-blue-50' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
+                className={`group inline-flex items-center justify-center gap-2 px-7 h-14 text-[15px] font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${hasImage ? 'bg-white text-slate-900 hover:bg-blue-50' : 'bg-slate-900 text-white hover:bg-blue-600'}`}
                 style={{ borderRadius: 2 }}
               >
                 {hero.ctaLabel} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />

@@ -10,6 +10,8 @@ import PageHeader from '@/components/shared/page-header'
 import ProductCard from '@/components/products/product-card'
 import SeriesCard from '@/components/products/series-card'
 import { Reveal, Stagger, StaggerItem } from '@/components/motion/primitives'
+import { BreadcrumbJsonLd } from '@/components/shared/json-ld'
+import { safeJsonLd } from '@/lib/sanitize'
 
 export const revalidate = 300
 
@@ -23,8 +25,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = await getCategoryBySlug(slug)
   if (!cat) return {}
   return {
-    title: cat.seo_title || cat.name,
-    description: cat.seo_desc || cat.description || undefined,
+    title: cat.seo_title || `${cat.name} Malta`,
+    description: cat.seo_desc || cat.description
+      || `Shop ${cat.name} at THE AIRCONDITION SHOP — Malta's HVAC specialist. Supply, installation and after-sales support across the island.`,
     alternates: { canonical: `https://www.theairconditionshop.com/products/category/${slug}` },
   }
 }
@@ -53,17 +56,53 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     { label: category.name },
   ]
 
+  const BASE = 'https://www.theairconditionshop.com'
+  const collectionPageLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: category.name,
+    description: category.seo_desc || category.description || undefined,
+    url: `${BASE}/products/category/${slug}`,
+    ...(totalItems > 0 ? { mainEntity: { '@type': 'ItemList', numberOfItems: totalItems } } : {}),
+  }
+
   return (
     <>
-      <Navbar />
-      <main id="main-content" className="min-h-screen pt-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLd(collectionPageLd) }} />
+      <BreadcrumbJsonLd items={[
+        { name: 'Home', url: BASE },
+        { name: 'Products', url: `${BASE}/products` },
+        { name: category.name, url: `${BASE}/products/category/${slug}` },
+      ]} />
+      <Navbar transparent={!!category.image_url} />
+      <main id="main-content" className={category.image_url ? 'min-h-screen' : 'min-h-screen pt-20'}>
+        {category.image_url ? (
+          <section className="relative min-h-[42vh] flex items-end overflow-hidden bg-slate-950 pt-24">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={category.image_url} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0" loading="eager" />
+            <div aria-hidden className="absolute inset-0 z-[1] bg-slate-950/50" />
+            <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 w-full">
+              <Reveal mode="up"><p className="text-[11px] font-semibold text-blue-300 uppercase tracking-[0.28em] mb-4">Category</p></Reveal>
+              <Reveal mode="blur" delay={0.05}>
+                <h1 className="font-display text-4xl lg:text-5xl tracking-[-0.02em] text-white leading-[1.05]">{category.name}</h1>
+              </Reveal>
+              {category.description && (
+                <Reveal mode="up" delay={0.1}>
+                  <p className="mt-5 text-slate-200 leading-relaxed max-w-2xl text-lg">{category.description}</p>
+                </Reveal>
+              )}
+            </div>
+          </section>
+        ) : null}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <Breadcrumb crumbs={crumbs} />
-          <PageHeader
-            eyebrow="Category"
-            title={category.name}
-            description={category.description || undefined}
-          />
+          {!category.image_url && (
+            <PageHeader
+              eyebrow="Category"
+              title={category.name}
+              description={category.description || undefined}
+            />
+          )}
 
           {subcategories.length > 0 && (
             <Reveal mode="up" delay={0.12} className="mt-8 flex flex-wrap gap-2">

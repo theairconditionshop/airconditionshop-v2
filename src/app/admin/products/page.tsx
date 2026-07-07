@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase/admin'
 import AdminPageHeader from '@/components/admin/page-header'
 import DeleteButton from '@/components/admin/delete-button'
+import DuplicateButton from '@/components/admin/duplicate-button'
 import { ImageIcon, ChevronLeft, ChevronRight, Eye, EyeOff } from 'lucide-react'
 
 export const metadata: Metadata = { title: 'Products — Admin' }
@@ -202,6 +203,7 @@ export default async function AdminProductsPage({
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <a href={`/admin/products/${r.id}/edit`} className="text-blue-600 font-medium">Edit</a>
+                    <DuplicateButton id={r.id} entity="products" label={r.name} editPath={id => `/admin/products/${id}/edit`} />
                     <DeleteButton id={r.id} entity="products" label={r.name} />
                   </div>
                 </div>
@@ -311,6 +313,8 @@ export default async function AdminProductsPage({
                           <a href={`/admin/products/${r.id}/edit`} className="text-blue-600 hover:underline font-medium">Edit</a>
                           <span className="text-slate-200">|</span>
                           <a href={`/products/${r.slug}`} target="_blank" className="text-slate-400 hover:text-slate-600">View</a>
+                          <span className="text-slate-200">|</span>
+                          <DuplicateButton id={r.id} entity="products" label={r.name} editPath={id => `/admin/products/${id}/edit`} />
                           <span className="text-slate-200">|</span>
                           <DeleteButton id={r.id} entity="products" label={r.name} />
                         </div>

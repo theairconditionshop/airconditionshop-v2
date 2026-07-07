@@ -4,6 +4,7 @@ import Footer from '@/components/layout/footer'
 import ContactForm from './contact-form'
 import { getSiteSettings } from '@/lib/data/queries'
 import { getCachedAboutPageData } from '@/lib/data/about-page-cache'
+import { getCachedPageHero } from '@/lib/data/page-hero-cache'
 import { TrustBadges } from '@/components/shared/trust-badges'
 import { InternalLinkPanel } from '@/components/shared/internal-link-panel'
 import { Reveal, Stagger, StaggerItem } from '@/components/motion/primitives'
@@ -45,13 +46,15 @@ const CONTACT_FAQS = [
 ]
 
 export default async function ContactPage() {
-  const [settings, { showroomPhotoUrl }] = await Promise.all([
+  const [settings, { showroomPhotoUrl }, hero] = await Promise.all([
     getSiteSettings(),
     getCachedAboutPageData(),
+    getCachedPageHero('contact'),
   ])
   const googleReviewUrl = (typeof settings.google_review_url === 'string' && settings.google_review_url)
     ? settings.google_review_url
     : 'https://g.page/r/CdjWGAZmBi4pEAE/review'
+  const hasHeroImage = !!hero.desktopImageUrl
 
   return (
     <>
@@ -60,26 +63,36 @@ export default async function ContactPage() {
 
         {/* ── Hero ── */}
         <section className="relative min-h-[52vh] flex items-end overflow-hidden bg-[#f4f8fb] pt-24">
-          <div aria-hidden className="absolute -top-32 left-[-6%] w-[600px] h-[420px] rounded-full bg-blue-400/[0.10] blur-[130px] pointer-events-none" />
-          <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '56px 56px' }} />
+          {hasHeroImage ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={hero.desktopImageUrl!} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover z-0" loading="eager" />
+              <div aria-hidden className="absolute inset-0 z-[1] bg-slate-950" style={{ opacity: hero.overlayOpacity }} />
+            </>
+          ) : (
+            <>
+              <div aria-hidden className="absolute -top-32 left-[-6%] w-[600px] h-[420px] rounded-full bg-blue-400/[0.10] blur-[130px] pointer-events-none" />
+              <div aria-hidden className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)', backgroundSize: '56px 56px' }} />
+            </>
+          )}
 
           <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full">
-            <Reveal mode="up"><p className="text-[11px] font-semibold text-blue-600 uppercase tracking-[0.28em] mb-5">Get in Touch</p></Reveal>
+            <Reveal mode="up"><p className={`text-[11px] font-semibold uppercase tracking-[0.28em] mb-5 ${hasHeroImage ? 'text-blue-300' : 'text-blue-600'}`}>Get in Touch</p></Reveal>
             <Reveal mode="blur" delay={0.05}>
-              <h1 className="font-display text-[1.9rem] sm:text-5xl lg:text-6xl tracking-[-0.02em] text-slate-900 leading-[1.0] max-w-2xl mb-4">
+              <h1 className={`font-display text-[1.9rem] sm:text-5xl lg:text-6xl tracking-[-0.02em] leading-[1.0] max-w-2xl mb-4 ${hasHeroImage ? 'text-white' : 'text-slate-900'}`}>
                 Contact THE AIRCONDITION SHOP.
               </h1>
             </Reveal>
             <Reveal mode="up" delay={0.08}>
-              <p className="text-blue-600 italic text-xl sm:text-2xl mb-5">We&apos;re here to help.</p>
+              <p className={`italic text-xl sm:text-2xl mb-5 ${hasHeroImage ? 'text-blue-300' : 'text-blue-600'}`}>We&apos;re here to help.</p>
             </Reveal>
             <Reveal mode="up" delay={0.12}>
-              <p className="text-slate-600 text-base sm:text-lg max-w-lg leading-relaxed mb-8">
+              <p className={`text-base sm:text-lg max-w-lg leading-relaxed mb-8 ${hasHeroImage ? 'text-slate-200' : 'text-slate-600'}`}>
                 Need advice, a quotation or technical support? Contact our experienced team for air conditioning, heat pumps, refrigeration and HVAC solutions anywhere in Malta.
               </p>
             </Reveal>
             <Reveal mode="fade" delay={0.16}>
-              <TrustBadges set="core" variant="light" />
+              <TrustBadges set="core" variant={hasHeroImage ? 'dark' : 'light'} />
             </Reveal>
           </div>
         </section>
