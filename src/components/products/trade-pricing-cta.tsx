@@ -13,7 +13,7 @@ export default function TradePricingCta({ variant = 'panel' }: TradePricingCtaPr
   if (variant === 'card') {
     return (
       <div className="mt-0.5">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-100">
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 border border-blue-100" style={{ borderRadius: 2 }}>
           <Lock aria-hidden="true" className="w-3 h-3 text-blue-500 shrink-0" />
           <span className="text-xs font-semibold text-blue-700 leading-none">Trade Price</span>
         </div>
@@ -24,9 +24,9 @@ export default function TradePricingCta({ variant = 'panel' }: TradePricingCtaPr
 
   if (variant === 'panel') {
     return (
-      <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50/60 p-5">
+      <div className="mt-6 border border-blue-100 bg-blue-50/60 p-5" style={{ borderRadius: 2 }}>
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+          <div className="w-7 h-7 bg-blue-100 flex items-center justify-center shrink-0" style={{ borderRadius: 2 }}>
             <Lock aria-hidden="true" className="w-3.5 h-3.5 text-blue-600" />
           </div>
           <p className="text-sm font-semibold text-blue-900">Trade Pricing Available</p>
@@ -63,11 +63,11 @@ export default function TradePricingCta({ variant = 'panel' }: TradePricingCtaPr
 
   // premium — standalone dark section
   return (
-    <div className="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950 p-8 text-white">
+    <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-blue-950 p-8 text-white" style={{ borderRadius: 2 }}>
       <p className="text-xs font-semibold tracking-[0.18em] text-blue-400 uppercase mb-2">
         Trade Programme
       </p>
-      <h2 className="text-2xl font-bold text-white mb-2">Need Trade Pricing?</h2>
+      <h2 className="font-display text-2xl text-white mb-2 tracking-[-0.01em]">Need Trade Pricing?</h2>
       <p className="text-blue-200 text-sm mb-7 leading-relaxed">
         Join Malta&apos;s professional HVAC installer network. Approved trade accounts get
         exclusive pricing, bulk discounts, and priority support.

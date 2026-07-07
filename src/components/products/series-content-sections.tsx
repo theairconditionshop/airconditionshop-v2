@@ -1,4 +1,5 @@
 import { Check, FileText, Download, ShieldCheck, Wrench, Package, Award, Plus } from 'lucide-react'
+import { Reveal } from '@/components/motion/primitives'
 import type { ProductSeries } from '@/types/database'
 
 /** Renders the optional series content sections — each only when it has content. */
@@ -56,7 +57,7 @@ export default function SeriesContentSections({ series }: { series: ProductSerie
         <Section icon={Award} title="Certifications & standards">
           <div className="flex flex-wrap gap-2">
             {certs.map(c => (
-              <span key={c} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-100 rounded-full px-3 py-1.5">
+              <span key={c} className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700 bg-slate-100 px-3 py-1.5" style={{ borderRadius: 2 }}>
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />{c}
               </span>
             ))}
@@ -76,11 +77,11 @@ export default function SeriesContentSections({ series }: { series: ProductSerie
       {/* Downloads / documents */}
       {documents.length > 0 && (
         <Section icon={Download} title="Downloads & documents">
-          <ul className="divide-y divide-slate-100 rounded-xl border border-slate-100 overflow-hidden">
+          <ul className="divide-y divide-slate-100 border border-slate-200 overflow-hidden" style={{ borderRadius: 2 }}>
             {documents.map(d => (
               <li key={d.id}>
                 <a href={d.url} target="_blank" rel="noopener noreferrer"
-                   className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                   className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors duration-200">
                   <FileText className="w-4 h-4 text-slate-400 shrink-0" />
                   <span className="text-sm text-slate-700 flex-1">{d.title}</span>
                   {d.file_type && <span className="text-[10px] uppercase font-semibold text-slate-400">{d.file_type}</span>}
@@ -97,10 +98,10 @@ export default function SeriesContentSections({ series }: { series: ProductSerie
         <Section icon={FileText} title="Frequently asked questions">
           <div className="space-y-3">
             {faqs.map((f, i) => (
-              <details key={i} className="group rounded-xl border border-slate-100 px-4 py-3">
+              <details key={i} className="group border border-slate-200 hover:border-slate-900 px-4 py-3 transition-colors duration-300" style={{ borderRadius: 2 }}>
                 <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-slate-800 list-none">
                   {f.q}
-                  <span className="text-slate-400 group-open:rotate-45 transition-transform">+</span>
+                  <span className="text-slate-400 group-open:rotate-45 transition-transform duration-300">+</span>
                 </summary>
                 <p className="mt-2 text-sm text-slate-600 leading-relaxed">{f.a}</p>
               </details>
@@ -122,11 +123,13 @@ export default function SeriesContentSections({ series }: { series: ProductSerie
 
 function Section({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
   return (
-    <section>
-      <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900 mb-4">
-        <Icon className="w-4 h-4 text-slate-400" />{title}
-      </h2>
-      {children}
-    </section>
+    <Reveal mode="up">
+      <section>
+        <h2 className="flex items-center gap-2 font-display text-xl text-slate-900 mb-4 tracking-[-0.01em]">
+          <Icon className="w-4 h-4 text-slate-400" />{title}
+        </h2>
+        {children}
+      </section>
+    </Reveal>
   )
 }

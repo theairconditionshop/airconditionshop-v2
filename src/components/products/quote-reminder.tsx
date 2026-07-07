@@ -38,8 +38,8 @@ export default function QuoteReminder({ productId, productName }: Props) {
         show ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none',
       )}
     >
-      <div className="bg-slate-900 text-white rounded-2xl shadow-2xl px-5 py-4 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5">
+      <div className="bg-slate-900 text-white shadow-2xl px-5 py-4 flex items-start gap-4" style={{ borderRadius: 2 }}>
+        <div className="w-10 h-10 bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0 mt-0.5" style={{ borderRadius: 2 }}>
           <Clock className="w-5 h-5 text-blue-400" aria-hidden="true" />
         </div>
         <div className="flex-1 min-w-0">
@@ -57,7 +57,8 @@ export default function QuoteReminder({ productId, productName }: Props) {
         <button
           onClick={dismiss}
           aria-label="Dismiss quote reminder"
-          className="shrink-0 p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer"
+          className="shrink-0 p-1.5 text-slate-500 hover:text-slate-300 hover:bg-slate-800 transition-colors cursor-pointer"
+          style={{ borderRadius: 2 }}
         >
           <X className="w-4 h-4" />
         </button>

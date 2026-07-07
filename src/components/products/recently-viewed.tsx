@@ -47,14 +47,15 @@ export default function RecentlyViewed({ currentId }: { currentId?: string }) {
     <section className="mt-16 pt-10 border-t border-slate-100">
       <div className="flex items-center gap-2 mb-6">
         <Clock className="w-4 h-4 text-slate-400" aria-hidden="true" />
-        <h2 className="font-semibold text-slate-900 text-lg">Recently Viewed</h2>
+        <h2 className="font-display text-xl text-slate-900 tracking-[-0.01em]">Recently Viewed</h2>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {items.map(item => (
           <Link
             key={item.id}
             href={`/products/${item.slug}`}
-            className="group flex flex-col bg-white border border-slate-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all duration-200"
+            className="group flex flex-col bg-white border border-slate-200 hover:border-slate-900 overflow-hidden transition-colors duration-300"
+            style={{ borderRadius: 2 }}
           >
             <div className="relative aspect-square bg-slate-50 overflow-hidden">
               {item.image ? (

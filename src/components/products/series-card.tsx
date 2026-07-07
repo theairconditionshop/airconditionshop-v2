@@ -35,14 +35,15 @@ export default function SeriesCard({ series, userRole, brandSlug }: Props) {
     <Link
       href={`/products/${brandSlug}/${series.slug}`}
       className={cn(
-        'group flex flex-col bg-white rounded-2xl overflow-hidden border border-slate-100/80',
-        'hover:border-slate-200 hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.18)] hover:-translate-y-0.5',
-        'transition-all duration-300 ease-out',
+        'group flex flex-col bg-white border border-slate-200 hover:border-slate-900',
+        'overflow-hidden transition-colors duration-300 cursor-pointer',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
       )}
+      style={{ borderRadius: 2 }}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
         {hero ? (
-          <Image src={hero.thumbnail_url ?? hero.url} alt={hero.alt_text || `${series.brand?.name ?? ''} ${series.name}`} fill sizes="(max-width:640px) 50vw, 33vw" className="object-cover group-hover:scale-[1.03] transition-transform duration-500" />
+          <Image src={hero.thumbnail_url ?? hero.url} alt={hero.alt_text || `${series.brand?.name ?? ''} ${series.name}`} fill sizes="(max-width:640px) 50vw, 33vw" className="object-cover transition-all duration-[600ms] ease-out group-hover:scale-[1.06]" />
         ) : (
           <div className={cn('w-full h-full bg-gradient-to-br flex flex-col items-center justify-center gap-2 p-6', gradient)}>
             {series.brand && <span className="text-[10px] font-bold tracking-[0.25em] text-white/30 uppercase">{series.brand.name}</span>}
@@ -53,15 +54,15 @@ export default function SeriesCard({ series, userRole, brandSlug }: Props) {
         {series.has_colours && (series.colours?.length ?? 0) > 0 && (
           <div className="absolute bottom-2.5 left-2.5 flex gap-1">
             {(series.colours ?? []).filter(c => c.is_active).slice(0, 4).map(c => (
-              <span key={c.id} className="w-3.5 h-3.5 rounded-full border border-white/70 shadow" style={{ backgroundColor: c.hex ?? '#e2e8f0' }} />
+              <span key={c.id} className="w-3.5 h-3.5 rounded-full border border-white/70" style={{ backgroundColor: c.hex ?? '#e2e8f0' }} />
             ))}
           </div>
         )}
       </div>
 
       <div className="flex flex-col flex-1 p-4 lg:p-5">
-        {series.brand && <p className="text-[11px] font-semibold tracking-[0.12em] text-slate-400 uppercase mb-1.5">{series.brand.name}</p>}
-        <h3 className="text-sm font-semibold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">{series.name}</h3>
+        {series.brand && <p className="text-[11px] font-semibold tracking-[0.15em] text-slate-400 uppercase mb-1.5">{series.brand.name}</p>}
+        <h3 className="text-sm font-semibold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors duration-300">{series.name}</h3>
         {btus.length > 0 && (
           <p className="text-[11px] text-slate-400 mt-1">{btus.length} sizes · {btus[0].toLocaleString()}–{btus[btus.length - 1].toLocaleString()} BTU</p>
         )}
@@ -69,7 +70,7 @@ export default function SeriesCard({ series, userRole, brandSlug }: Props) {
         <div className="mt-4 flex items-end justify-between">
           <div>
             {hide ? (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 border border-blue-100 text-xs font-semibold text-blue-700">Trade Price</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-blue-50 border border-blue-100 text-xs font-semibold text-blue-700" style={{ borderRadius: 2 }}>Trade Price</span>
             ) : fromPrice != null ? (
               <>
                 <p className="text-[10px] text-slate-400 leading-none mb-0.5">from</p>

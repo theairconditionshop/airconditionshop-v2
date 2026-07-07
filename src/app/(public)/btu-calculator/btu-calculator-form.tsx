@@ -116,24 +116,27 @@ export default function BtuCalculatorForm() {
 
   const dimLabel = isMetric ? 'm' : 'ft'
 
-  const selectClass = 'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150 cursor-pointer'
-  const inputClass  = 'h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150'
+  const selectClass = 'h-11 w-full border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150 cursor-pointer'
+  const inputClass  = 'h-11 w-full border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150'
+  const fieldRadius = { borderRadius: 2 }
 
   return (
     <div>
       {/* Metric / Imperial toggle */}
-      <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-xl w-fit mb-6 text-sm font-medium">
+      <div className="flex items-center gap-1 p-1 bg-slate-100 w-fit mb-6 text-sm font-medium" style={{ borderRadius: 2 }}>
         <button
           type="button"
           onClick={() => switchUnit('metric')}
-          className={`px-4 py-1.5 rounded-lg transition-all duration-150 ${isMetric ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`px-4 py-1.5 transition-colors duration-150 ${isMetric ? 'bg-white text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          style={{ borderRadius: 2 }}
         >
           Metric (m)
         </button>
         <button
           type="button"
           onClick={() => switchUnit('imperial')}
-          className={`px-4 py-1.5 rounded-lg transition-all duration-150 ${!isMetric ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+          className={`px-4 py-1.5 transition-colors duration-150 ${!isMetric ? 'bg-white text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+          style={{ borderRadius: 2 }}
         >
           Imperial (ft)
         </button>
@@ -151,7 +154,7 @@ export default function BtuCalculatorForm() {
                 id={field}
                 type="number" step="0.1"
                 {...register(field, { valueAsNumber: true })}
-                className={inputClass}
+                className={inputClass} style={fieldRadius}
                 placeholder={field === 'height' ? (isMetric ? '2.7' : '8.9') : field === 'length' ? (isMetric ? '5.0' : '16.4') : (isMetric ? '4.0' : '13.1')}
               />
               {errors[field] && (
@@ -163,19 +166,19 @@ export default function BtuCalculatorForm() {
 
         <div className="grid sm:grid-cols-2 gap-4">
           <SelectField label="Room type" id="roomType">
-            <select id="roomType" {...register('roomType')} className={selectClass}>
+            <select id="roomType" {...register('roomType')} className={selectClass} style={fieldRadius}>
               {ROOM_TYPES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
             </select>
           </SelectField>
           <SelectField label="Number of occupants" id="occupancy">
-            <select id="occupancy" {...register('occupancy')} className={selectClass}>
+            <select id="occupancy" {...register('occupancy')} className={selectClass} style={fieldRadius}>
               {OCCUPANCY_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </SelectField>
         </div>
 
         <SelectField label="Sun exposure" id="sunExposure">
-          <select id="sunExposure" {...register('sunExposure')} className={selectClass}>
+          <select id="sunExposure" {...register('sunExposure')} className={selectClass} style={fieldRadius}>
             {SUN_EXPOSURE.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
         </SelectField>
@@ -188,20 +191,20 @@ export default function BtuCalculatorForm() {
       {result && (
         <div className="mt-10 space-y-8">
           {/* Result cards */}
-          <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-blue-50 border border-blue-100 p-4 sm:p-6 overflow-hidden">
-            <h2 className="font-bold text-slate-900 text-xl mb-1">Your Result</h2>
+          <div className="bg-gradient-to-br from-blue-50 to-blue-50 border border-blue-100 p-4 sm:p-6 overflow-hidden" style={{ borderRadius: 2 }}>
+            <h2 className="font-display text-xl text-slate-900 mb-1 tracking-[-0.01em]">Your Result</h2>
             <p className="text-sm text-slate-500 mb-5">Based on your room measurements and conditions</p>
 
             <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-blue-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+              <div className="bg-white border border-blue-100 p-2.5 sm:p-4 text-center min-w-0" style={{ borderRadius: 2 }}>
                 <p className="text-lg sm:text-2xl font-bold text-blue-600 tabular-nums truncate">{result.btu.toLocaleString()}</p>
                 <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">BTU/hr</p>
               </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-blue-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+              <div className="bg-white border border-blue-100 p-2.5 sm:p-4 text-center min-w-0" style={{ borderRadius: 2 }}>
                 <p className="text-lg sm:text-2xl font-bold text-blue-600">{result.kw.toFixed(1)}</p>
                 <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">kW output</p>
               </div>
-              <div className="bg-white rounded-xl sm:rounded-2xl border border-blue-100 p-2.5 sm:p-4 text-center shadow-sm min-w-0">
+              <div className="bg-white border border-blue-100 p-2.5 sm:p-4 text-center min-w-0" style={{ borderRadius: 2 }}>
                 <p className="text-[11px] sm:text-sm lg:text-base font-bold text-blue-600 leading-tight tabular-nums">
                   {result.recommendedBtuRange.min.toLocaleString()}<span className="block sm:inline">–</span>{result.recommendedBtuRange.max.toLocaleString()}
                 </p>
@@ -252,7 +255,8 @@ export default function BtuCalculatorForm() {
                   const img = product.images?.find(i => i.is_primary) || product.images?.[0]
                   return (
                     <div key={product.id}
-                      className="bg-white rounded-2xl border border-slate-100 overflow-hidden hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                      className="bg-white border border-slate-200 hover:border-slate-900 overflow-hidden transition-colors duration-300"
+                      style={{ borderRadius: 2 }}>
                       {/* Image */}
                       <div className="h-40 bg-slate-50 flex items-center justify-center border-b border-slate-100 relative">
                         {img ? (
@@ -263,7 +267,7 @@ export default function BtuCalculatorForm() {
                         )}
                         {product.energy_rating && (
                           <div className="absolute top-3 right-3">
-                            <span className="flex items-center gap-1 bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow">
+                            <span className="flex items-center gap-1 bg-emerald-500 text-white text-xs font-bold px-2 py-1" style={{ borderRadius: 2 }}>
                               <Star aria-hidden="true" className="w-3 h-3" /> {product.energy_rating}
                             </span>
                           </div>
@@ -320,7 +324,7 @@ export default function BtuCalculatorForm() {
             )}
 
             {!loadingRecs && recommendations.length === 0 && (
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+              <div className="p-6 bg-slate-50 border border-slate-100 text-center" style={{ borderRadius: 2 }}>
                 <p className="text-sm text-slate-500 mb-4">
                   No products currently listed in this BTU range. Our team can source the right unit for you.
                 </p>
