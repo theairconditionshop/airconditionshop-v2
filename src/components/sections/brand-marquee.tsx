@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect, useRef } from 'react'
 import type { Brand } from '@/types/database'
 
 // ─── Official brand slugs — only these appear in the marquee ─────────────────
@@ -48,7 +51,7 @@ function BrandCard({ brand }: { brand: Brand }) {
           alt={brand.name}
           width={140}
           height={52}
-          className="object-contain pointer-events-none grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.06] transition-all duration-300 ease-out"
+          className="object-contain pointer-events-none group-hover:scale-[1.06] transition-transform duration-300 ease-out"
           style={{ maxHeight: '46px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }}
           loading="lazy"
           unoptimized
@@ -71,13 +74,51 @@ interface BrandMarqueeProps {
 }
 
 export default function BrandMarquee({ brands, duration = 30 }: BrandMarqueeProps) {
+  const scrollRef  = useRef<HTMLDivElement>(null)
+  const pausedRef  = useRef(false)
+  const resumeRef  = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
+  // Auto-advance the strip by nudging native scrollLeft. Because both the
+  // animation and the user's finger drive the same scrollLeft, they never fight:
+  // manual swipe just moves it, then the loop resumes from wherever it lands.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let raf = 0
+    let last = performance.now()
+
+    const step = (now: number) => {
+      const dt = (now - last) / 1000
+      last = now
+      if (!prefersReduced && !pausedRef.current && el.scrollWidth > el.clientWidth) {
+        const half = el.scrollWidth / 2                 // one copy of the list
+        el.scrollLeft += (half / duration) * dt         // full copy per `duration` seconds
+        if (el.scrollLeft >= half) el.scrollLeft -= half // seamless wrap
+      }
+      raf = requestAnimationFrame(step)
+    }
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [duration])
+
+  const pause = () => {
+    pausedRef.current = true
+    if (resumeRef.current) clearTimeout(resumeRef.current)
+  }
+  const scheduleResume = () => {
+    if (resumeRef.current) clearTimeout(resumeRef.current)
+    resumeRef.current = setTimeout(() => { pausedRef.current = false }, 1600)
+  }
+
   // Show only official brands; fall back to all brands if DB slugs differ
   const official = brands.filter(isOfficialBrand)
   const list = official.length > 0 ? official : brands
 
   if (!list.length) return null
 
-  // Double the list — CSS animates translateX(-50%) for a seamless loop
+  // Double the list so the scroll wrap is seamless
   const doubled = [...list, ...list]
 
   return (
@@ -101,11 +142,7 @@ export default function BrandMarquee({ brands, duration = 30 }: BrandMarqueeProp
       </div>
 
       {/* Marquee strip */}
-      <div
-        className="relative marquee-root"
-        style={{ '--marquee-duration': `${duration}s` } as React.CSSProperties}
-        aria-label="Official brand partners"
-      >
+      <div className="relative" aria-label="Official brand partners">
         {/* Edge fade — left */}
         <div
           aria-hidden="true"
@@ -119,10 +156,23 @@ export default function BrandMarquee({ brands, duration = 30 }: BrandMarqueeProp
           style={{ background: 'linear-gradient(to left, white 20%, transparent)' }}
         />
 
-        <div className="marquee-track py-2">
-          {doubled.map((brand, i) => (
-            <BrandCard key={`${brand.id}-${i}`} brand={brand} />
-          ))}
+        {/* Scrollable, swipeable track — auto-scrolls, pauses on hover/touch */}
+        <div
+          ref={scrollRef}
+          className="w-full overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ touchAction: 'pan-x', overscrollBehaviorX: 'contain' }}
+          onPointerEnter={pause}
+          onPointerLeave={scheduleResume}
+          onPointerDown={pause}
+          onPointerUp={scheduleResume}
+          onTouchStart={pause}
+          onTouchEnd={scheduleResume}
+        >
+          <div className="flex w-max py-2">
+            {doubled.map((brand, i) => (
+              <BrandCard key={`${brand.id}-${i}`} brand={brand} />
+            ))}
+          </div>
         </div>
       </div>
 
