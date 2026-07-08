@@ -418,6 +418,13 @@ export default function Navbar({ transparent = false }: NavbarProps) {
             Get a Quote
           </Button>
         </Link>
+        {/* Authenticated (non-admin, non-trade) customers: Sign Out */}
+        {profile && (
+          <button onClick={handleLogout} disabled={loggingOut}
+            className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50">
+            <LogOut className="w-4 h-4" />{loggingOut ? 'Signing out…' : 'Sign Out'}
+          </button>
+        )}
       </div>
     )
   }

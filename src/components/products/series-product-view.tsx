@@ -4,7 +4,7 @@ import { useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, ShieldCheck, Truck, MapPin, Zap, ZoomIn } from 'lucide-react'
+import { Check, ShieldCheck, Truck, MapPin, ZoomIn } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/pricing/resolver'
 import { resolveVariantPrice, findVariant } from '@/lib/pricing/variant-resolver'
@@ -271,13 +271,13 @@ export default function SeriesProductView({ series, role, hidePricing }: Props) 
         {(variant?.cooling_btu || variant?.seer || series.warranty_years) && (
           <Stagger className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4" gap={0.06}>
             {variant?.cooling_btu && (
-              <StaggerItem><SpecGauge icon={Zap} label="Cooling Capacity" value={variant.cooling_btu} max={24000} unit="BTU/hr" accent="blue" /></StaggerItem>
+              <StaggerItem><SpecGauge icon="zap" label="Cooling Capacity" value={variant.cooling_btu} max={24000} unit="BTU/hr" accent="blue" /></StaggerItem>
             )}
             {variant?.seer != null && (
-              <StaggerItem><SpecGauge icon={Zap} label="SEER Rating" value={variant.seer} max={8.5} decimals={1} accent="emerald" /></StaggerItem>
+              <StaggerItem><SpecGauge icon="zap" label="SEER Rating" value={variant.seer} max={8.5} decimals={1} accent="emerald" /></StaggerItem>
             )}
             {series.warranty_years != null && series.warranty_years > 0 && (
-              <StaggerItem><SpecGauge icon={ShieldCheck} label="Manufacturer Warranty" value={series.warranty_years} max={10} unit={series.warranty_years === 1 ? 'year' : 'years'} accent="orange" /></StaggerItem>
+              <StaggerItem><SpecGauge icon="shield" label="Manufacturer Warranty" value={series.warranty_years} max={10} unit={series.warranty_years === 1 ? 'year' : 'years'} accent="orange" /></StaggerItem>
             )}
           </Stagger>
         )}

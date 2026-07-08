@@ -2,11 +2,15 @@
 
 import { useRef } from 'react'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
-import type { LucideIcon } from 'lucide-react'
+import { Zap, ShieldCheck } from 'lucide-react'
 import { CountUp } from '@/components/motion/primitives'
 
+// Icon components cannot be passed as props from a Server Component to this
+// Client Component (RSC serialization limit). Callers pass a name string instead.
+const ICONS = { zap: Zap, shield: ShieldCheck } as const
+
 interface SpecGaugeProps {
-  icon: LucideIcon
+  icon: keyof typeof ICONS
   label: string
   value: number
   max: number
@@ -26,7 +30,8 @@ const ACCENT_BAR: Record<NonNullable<SpecGaugeProps['accent']>, string> = {
  * numbers worth a "wow" on the product detail page (cooling capacity, SEER,
  * warranty), distinct from the plain data-grid HvacSpecCard below it.
  */
-export default function SpecGauge({ icon: Icon, label, value, max, unit, decimals = 0, accent = 'blue' }: SpecGaugeProps) {
+export default function SpecGauge({ icon, label, value, max, unit, decimals = 0, accent = 'blue' }: SpecGaugeProps) {
+  const Icon = ICONS[icon]
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, amount: 'some' })
   const reduceMotion = useReducedMotion()

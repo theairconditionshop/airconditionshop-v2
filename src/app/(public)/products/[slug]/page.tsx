@@ -382,17 +382,17 @@ export default async function ProductPage({ params }: Props) {
                 <Stagger className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" gap={0.06}>
                   {product.cooling_btu && (
                     <StaggerItem>
-                      <SpecGauge icon={Zap} label="Cooling Capacity" value={product.cooling_btu} max={24000} unit="BTU/hr" accent="blue" />
+                      <SpecGauge icon="zap" label="Cooling Capacity" value={product.cooling_btu} max={24000} unit="BTU/hr" accent="blue" />
                     </StaggerItem>
                   )}
                   {product.seer && (
                     <StaggerItem>
-                      <SpecGauge icon={Zap} label="SEER Rating" value={product.seer} max={8.5} decimals={1} accent="emerald" />
+                      <SpecGauge icon="zap" label="SEER Rating" value={product.seer} max={8.5} decimals={1} accent="emerald" />
                     </StaggerItem>
                   )}
                   {isAcUnit && product.warranty_years != null && product.warranty_years > 0 && (
                     <StaggerItem>
-                      <SpecGauge icon={ShieldCheck} label="Manufacturer Warranty" value={product.warranty_years} max={10} unit={product.warranty_years === 1 ? 'year' : 'years'} accent="orange" />
+                      <SpecGauge icon="shield" label="Manufacturer Warranty" value={product.warranty_years} max={10} unit={product.warranty_years === 1 ? 'year' : 'years'} accent="orange" />
                     </StaggerItem>
                   )}
                 </Stagger>
