@@ -48,7 +48,15 @@ export default function Hero({ data }: { data: HeroData }) {
       {/* ── Background ── */}
       <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10 scale-110">
         {bgImage ? (
-          <Image src={bgImage} alt="Air conditioning in Malta" fill priority quality={82} sizes="100vw" className="object-cover" />
+          <Image
+            src={bgImage}
+            alt="Air conditioning in Malta"
+            fill
+            priority
+            quality={82}
+            sizes="100vw"
+            className="object-cover object-[center_28%] sm:object-[center_35%] lg:object-center"
+          />
         ) : (
           // Bright Malta-heat placeholder: warm golden sky settling into cool light
           <div className="absolute inset-0" style={{
