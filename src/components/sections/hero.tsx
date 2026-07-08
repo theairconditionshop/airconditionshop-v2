@@ -43,7 +43,7 @@ export default function Hero({ data }: { data: HeroData }) {
   return (
     <section
       ref={ref}
-      className="relative min-h-[100svh] flex flex-col justify-end overflow-hidden bg-[#f4f1ec]"
+      className="relative isolate min-h-[100svh] flex flex-col justify-end overflow-hidden bg-[#f4f1ec]"
     >
       {/* ── Background ── */}
       <motion.div style={{ y: bgY }} className="absolute inset-0 -z-10 scale-110">
@@ -100,9 +100,11 @@ export default function Hero({ data }: { data: HeroData }) {
       )}
 
       {/* Top scrim so the transparent navbar stays legible over any background */}
-      <div className="absolute top-0 inset-x-0 h-40 -z-10 bg-gradient-to-b from-black/35 to-transparent pointer-events-none" />
-      {/* Bottom fade into the white page */}
-      <div className="absolute bottom-0 inset-x-0 h-56 -z-10 bg-gradient-to-t from-white via-white/85 to-transparent pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-40 -z-10 bg-gradient-to-b from-black/55 to-transparent pointer-events-none" />
+      {/* Readability scrim so the hero copy stays legible over the photographic background */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/45 to-black/15 pointer-events-none" />
+      {/* Short fade into the page section below */}
+      <div className="absolute bottom-0 inset-x-0 h-20 -z-10 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
 
       {/* ── Content ── */}
       <motion.div style={{ y: fgY, opacity: fade }} className="relative z-10 w-full">
@@ -125,7 +127,7 @@ export default function Hero({ data }: { data: HeroData }) {
           </motion.div>
 
           {/* Headline — architectural, two-tone heat → cool */}
-          <h1 className="font-display text-[3.2rem] leading-[0.95] sm:text-7xl lg:text-8xl tracking-[-0.02em] text-slate-900 max-w-4xl">
+          <h1 className="font-display text-[3.2rem] leading-[0.95] sm:text-7xl lg:text-8xl tracking-[-0.02em] text-white max-w-4xl [text-shadow:0_2px_24px_rgba(0,0,0,0.35)]">
             <HeadlineLine text={line1} delay={0.35} reduce={!!reduce} tone="heat" />
             {line2 && (
               <span className="block">
@@ -139,7 +141,7 @@ export default function Hero({ data }: { data: HeroData }) {
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: EASE, delay: 0.9 }}
-            className="mt-6 text-base sm:text-lg text-slate-600 max-w-xl leading-relaxed"
+            className="mt-6 text-base sm:text-lg text-slate-100/90 max-w-xl leading-relaxed [text-shadow:0_1px_12px_rgba(0,0,0,0.4)]"
           >
             {description}
           </motion.p>
@@ -154,7 +156,7 @@ export default function Hero({ data }: { data: HeroData }) {
             <Magnetic strength={0.25}>
               <Link
                 href={ctaPrimary.href}
-                className="group flex items-center justify-center gap-2.5 px-8 h-14 bg-slate-900 text-white text-[15px] font-semibold hover:bg-blue-600 transition-colors duration-300"
+                className="group flex items-center justify-center gap-2.5 px-8 h-14 bg-white text-slate-900 text-[15px] font-semibold hover:bg-blue-600 hover:text-white transition-colors duration-300"
                 style={{ borderRadius: 2 }}
               >
                 {ctaPrimary.label}
@@ -163,12 +165,12 @@ export default function Hero({ data }: { data: HeroData }) {
             </Magnetic>
             <Link
               href={ctaSecondary.href}
-              className="group flex items-center justify-center gap-2 px-8 h-14 border border-slate-300 text-slate-800 text-[15px] font-semibold hover:border-slate-900 hover:bg-white transition-all duration-300"
+              className="group flex items-center justify-center gap-2 px-8 h-14 border border-white/40 text-white text-[15px] font-semibold backdrop-blur-sm hover:border-white hover:bg-white/10 transition-all duration-300"
               style={{ borderRadius: 2 }}
             >
               {ctaSecondary.label}
             </Link>
-            <a href="tel:+35679661889" className="hidden sm:flex items-center gap-2 px-4 h-14 text-sm text-slate-500 hover:text-blue-600 transition-colors">
+            <a href="tel:+35679661889" className="hidden sm:flex items-center gap-2 px-4 h-14 text-sm text-slate-200 hover:text-white transition-colors">
               <Phone className="w-4 h-4" /> +356 7966 1889
             </a>
           </motion.div>
@@ -178,10 +180,10 @@ export default function Hero({ data }: { data: HeroData }) {
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.9, delay: 1.3 }}
-            className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-black/10 pt-5"
+            className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-white/20 pt-5"
           >
             {TRUST.map(t => (
-              <span key={t} className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
+              <span key={t} className="flex items-center gap-2 text-[13px] font-medium text-slate-200">
                 <span className="w-1 h-1 rounded-full bg-blue-500" />{t}
               </span>
             ))}
@@ -193,7 +195,7 @@ export default function Hero({ data }: { data: HeroData }) {
 }
 
 function HeadlineLine({ text, delay, reduce, tone }: { text: string; delay: number; reduce: boolean; tone: 'heat' | 'cool' }) {
-  const color = tone === 'cool' ? 'text-blue-600' : 'text-slate-900'
+  const color = tone === 'cool' ? 'text-sky-300' : 'text-white'
   if (reduce) return <span className={`block ${color}`}>{text}</span>
   const words = text.split(' ')
   return (
