@@ -71,7 +71,7 @@ export default async function AdminSeriesPage() {
                   {s.is_active ? 'Live' : 'Hidden'}
                 </span>
               </Link>
-              <DuplicateButton id={s.id} entity="series" label={s.name} editPath={id => `/admin/series/${id}/edit`} />
+              <DuplicateButton id={s.id} entity="series" label={s.name} editBasePath="/admin/series" />
             </div>
           ))}
         </div>

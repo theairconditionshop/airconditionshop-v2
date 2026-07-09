@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Upload, Image as ImageIcon, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { uploadSizeError } from '@/lib/images/upload-limits'
 
 export default function MediaLibrary() {
   const [uploading, setUploading] = useState(false)
@@ -36,6 +37,8 @@ export default function MediaLibrary() {
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
+    const sizeError = uploadSizeError(Array.from(files))
+    if (sizeError) { toast.error(sizeError); return }
     setUploading(true)
     const formData = new FormData()
     Array.from(files).forEach(f => formData.append('files', f))
@@ -43,6 +46,8 @@ export default function MediaLibrary() {
     if (res.ok) {
       toast.success(`${files.length} file(s) uploaded`)
       router.refresh()
+    } else if (res.status === 413) {
+      toast.error('Upload too large — max 4 MB per upload.')
     } else {
       toast.error('Upload failed')
     }

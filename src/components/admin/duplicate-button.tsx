@@ -9,7 +9,9 @@ import { toast } from 'sonner'
  * POST /api/admin/{entity}/{id}/duplicate and jumps straight to editing the
  * copy. The fast path for entering families of near-identical items.
  */
-export default function DuplicateButton({ id, entity, label, editPath }: { id: string; entity: string; label: string; editPath: (id: string) => string }) {
+// `editBasePath` is a plain string (e.g. "/admin/products") — functions cannot
+// be passed from Server Components across the RSC boundary.
+export default function DuplicateButton({ id, entity, label, editBasePath }: { id: string; entity: string; label: string; editBasePath: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -20,7 +22,7 @@ export default function DuplicateButton({ id, entity, label, editPath }: { id: s
       const json = await res.json().catch(() => null)
       if (res.ok && json?.id) {
         toast.success(`${label} duplicated — editing the copy`)
-        router.push(editPath(json.id))
+        router.push(`${editBasePath}/${json.id}/edit`)
       } else {
         toast.error(json?.error ?? 'Duplicate failed — please try again')
       }

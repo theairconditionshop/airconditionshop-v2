@@ -203,7 +203,7 @@ export default async function AdminProductsPage({
                   </div>
                   <div className="flex items-center gap-3 text-xs">
                     <a href={`/admin/products/${r.id}/edit`} className="text-blue-600 font-medium">Edit</a>
-                    <DuplicateButton id={r.id} entity="products" label={r.name} editPath={id => `/admin/products/${id}/edit`} />
+                    <DuplicateButton id={r.id} entity="products" label={r.name} editBasePath="/admin/products" />
                     <DeleteButton id={r.id} entity="products" label={r.name} />
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default async function AdminProductsPage({
                           <span className="text-slate-200">|</span>
                           <a href={`/products/${r.slug}`} target="_blank" className="text-slate-400 hover:text-slate-600">View</a>
                           <span className="text-slate-200">|</span>
-                          <DuplicateButton id={r.id} entity="products" label={r.name} editPath={id => `/admin/products/${id}/edit`} />
+                          <DuplicateButton id={r.id} entity="products" label={r.name} editBasePath="/admin/products" />
                           <span className="text-slate-200">|</span>
                           <DeleteButton id={r.id} entity="products" label={r.name} />
                         </div>

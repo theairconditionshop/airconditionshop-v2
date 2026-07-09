@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { toast } from 'sonner'
 import { Upload, X, Star, Loader2, ImageIcon, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { MAX_UPLOAD_BYTES } from '@/lib/images/upload-limits'
 
 interface ProductImage {
   id: string
@@ -38,7 +39,7 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
 
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
     if (!allowed.includes(file.type)) { toast.error('Unsupported file type'); return }
-    if (file.size > 10 * 1024 * 1024) { toast.error('File too large (max 10 MB)'); return }
+    if (file.size > MAX_UPLOAD_BYTES) { toast.error('File too large (max 4 MB per upload)'); return }
 
     setUploading(true)
     const fd = new FormData()
