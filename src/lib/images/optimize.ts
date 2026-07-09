@@ -1,4 +1,20 @@
-import sharp from 'sharp'
+import type SharpType from 'sharp'
+
+// Lazy-load sharp so a native-module load failure surfaces as a readable
+// runtime error from the calling route instead of a module-load 500 that
+// takes down every route importing this file.
+let sharpModule: typeof SharpType | null = null
+async function getSharp(): Promise<typeof SharpType> {
+  if (!sharpModule) {
+    try {
+      sharpModule = (await import('sharp')).default
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      throw new Error(`Image engine unavailable (sharp failed to load): ${msg}`)
+    }
+  }
+  return sharpModule
+}
 
 const MAX_RAW_BYTES = 20 * 1024 * 1024
 
@@ -40,6 +56,7 @@ function rejectIfTooLarge(input: Buffer): void {
 export async function optimizeProductImage(input: Buffer): Promise<OptimizedProductImages> {
   rejectIfTooLarge(input)
 
+  const sharp = await getSharp()
   // Create a shared Sharp pipeline once — rotate handles EXIF orientation;
   // not calling withMetadata() strips all EXIF on output.
   const pipeline = sharp(input, { failOn: 'none' }).rotate()
@@ -83,6 +100,7 @@ export async function optimizeProductImage(input: Buffer): Promise<OptimizedProd
 export async function optimizeGeneralImage(input: Buffer): Promise<OptimizedImage> {
   rejectIfTooLarge(input)
 
+  const sharp = await getSharp()
   const result = await sharp(input, { failOn: 'none' })
     .rotate()
     .resize({ width: 2000, height: 2000, fit: 'inside', withoutEnlargement: true })
