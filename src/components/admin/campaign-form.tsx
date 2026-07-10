@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Campaign, CampaignStatus, CampaignType } from '@/types/database'
-import { uploadMediaFile } from '@/lib/media/client'
+import { uploadMediaFile, validateImageFile } from '@/lib/media/client'
 import ImageUploadField from '@/components/admin/image-upload-field'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -198,19 +198,25 @@ export default function CampaignForm({
     setGalleryUploading(true)
     setUploadError(null)
     try {
+      // Client-side validation — invalid files never reach the server.
+      for (const f of files) {
+        const invalid = await validateImageFile(f)
+        if (invalid) { setUploadError(invalid); return }
+      }
       // Use allSettled, not all — a single failed file must not discard
       // URLs that already succeeded and were persisted server-side.
-      const outcomes = await Promise.allSettled(files.map(uploadMediaFile))
+      const outcomes = await Promise.allSettled(files.map(f => uploadMediaFile(f)))
       const succeeded = outcomes.filter(o => o.status === 'fulfilled') as PromiseFulfilledResult<string>[]
-      const failed = outcomes.length - succeeded.length
+      const rejected  = outcomes.filter(o => o.status === 'rejected') as PromiseRejectedResult[]
       if (succeeded.length) {
         setGalleryImages((prev) => [...prev, ...succeeded.map(o => o.value)])
       }
-      if (failed > 0) {
+      if (rejected.length > 0) {
+        const reason = rejected[0].reason instanceof Error ? rejected[0].reason.message : 'Unknown error'
         setUploadError(
           succeeded.length
-            ? `${failed} of ${files.length} image(s) failed to upload. The rest were added.`
-            : 'Gallery upload failed. Please try again.'
+            ? `${rejected.length} of ${files.length} image(s) failed: ${reason} The rest were added.`
+            : reason
         )
       }
     } finally {

@@ -118,8 +118,10 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
         />
         <ImageUploadField
           label="Brand Logo"
-          hint="SVG or PNG with transparent background recommended. Displayed on the brand strip and brand pages."
+          hint="SVG preferred; PNG with transparent background also supported. Displayed on the brand strip and brand pages."
           aspectRatio="3 / 2"
+          formats={['SVG', 'PNG', 'WebP', 'JPG']}
+          allowSvg
           value={logoUrl}
           onChange={setLogoUrl}
         />
@@ -164,6 +166,9 @@ export default function BrandForm({ brand }: { brand?: Record<string, unknown> }
               label="Hero Image"
               hint="Wide banner image for the brand detail page. Leave blank to show logo only."
               aspectRatio="16 / 5"
+              recommendedWidth={1600}
+              recommendedHeight={900}
+              aspectRatioLabel="16:9 cropped to 16:5"
               value={heroUrl}
               onChange={setHeroUrl}
             />

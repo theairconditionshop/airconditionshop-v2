@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import Image from 'next/image'
 import { RefreshCw, X, ImageIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import { uploadMediaFile } from '@/lib/media/client'
+import { uploadMediaFile, validateImageFile, UploadError, STAGE_LABELS, type UploadStage } from '@/lib/media/client'
 
 interface Props {
   value: string | null
@@ -18,10 +18,12 @@ interface Props {
   recommendedHeight?: number
   /** Aspect ratio label shown to the admin, e.g. "21:9" — defaults to a reduced form of width/height */
   aspectRatioLabel?: string
-  /** Max upload size in MB shown to the admin (actual enforcement is separate, see handleFile) */
+  /** Max upload size in MB shown to the admin (enforcement uses the shared MAX_UPLOAD_BYTES) */
   maxSizeMb?: number
-  /** Formats shown to the admin — actual validation is via the accept attribute below */
+  /** Formats shown to the admin — actual validation is via validateImageFile */
   formats?: string[]
+  /** Allow SVG uploads (brand logos only) */
+  allowSvg?: boolean
 }
 
 function gcd(a: number, b: number): number {
@@ -42,37 +44,31 @@ export default function ImageUploadField({
   recommendedWidth,
   recommendedHeight,
   aspectRatioLabel,
-  maxSizeMb = 10,
-  formats = ['JPG', 'PNG', 'WebP', 'AVIF'],
+  maxSizeMb = 4,
+  formats = ['JPG', 'PNG', 'WebP'],
+  allowSvg = false,
 }: Props) {
-  const [uploading, setUploading] = useState(false)
+  const [stage, setStage]         = useState<UploadStage | null>(null)
   const [progress, setProgress]   = useState(0)
   const [dragging, setDragging]   = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const uploading = stage !== null
 
   const ratioLabel = aspectRatioLabel ?? (recommendedWidth && recommendedHeight ? reducedRatio(recommendedWidth, recommendedHeight) : null)
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file (SVG, PNG, WebP, JPG)')
+    // Client-side validation — invalid files never reach the server.
+    setStage('validating')
+    const invalid = await validateImageFile(file, { allowSvg })
+    if (invalid) {
+      setStage(null)
+      if (inputRef.current) inputRef.current.value = ''
+      toast.error(invalid)
       return
     }
-    if (file.size > maxSizeMb * 1024 * 1024) {
-      toast.error(`Image must be under ${maxSizeMb} MB`)
-      return
-    }
 
-    setUploading(true)
-    setProgress(10)
+    setProgress(0)
 
-    const interval = setInterval(() =>
-      setProgress(p => Math.min(p + 18, 88)), 220)
-
-    // Only the network call is allowed to produce the "upload failed" toast.
-    // Everything after a successful upload (state update) is handled outside
-    // this try/catch so a bug there can never be misreported as an upload
-    // failure when the file is already safely in Storage + the DB.
-    //
     // Note what this function deliberately does NOT do: delete the old
     // image. The old (superseded) file is left alone — if the surrounding
     // form's Save is never clicked, fails, or the browser closes, the old
@@ -81,24 +77,24 @@ export default function ImageUploadField({
     // scheduled orphan sweep (src/app/api/cron/cleanup-orphans/route.ts).
     let url: string
     try {
-      url = await uploadMediaFile(file)
-    } catch {
-      clearInterval(interval)
-      setUploading(false)
+      url = await uploadMediaFile(file, { onStage: setStage, onProgress: setProgress })
+    } catch (err) {
+      setStage(null)
       setProgress(0)
       if (inputRef.current) inputRef.current.value = ''
-      toast.error('Upload failed — please try again')
+      // uploadMediaFile already logged full diagnostics to the console.
+      toast.error(err instanceof UploadError ? err.message : 'Upload failed — see browser console for details')
       return
     }
 
-    clearInterval(interval)
+    setStage('complete')
     setProgress(100)
     onChange(url)
     toast.success('Image uploaded successfully')
-    setUploading(false)
+    setStage(null)
     setProgress(0)
     if (inputRef.current) inputRef.current.value = ''
-  }, [onChange, maxSizeMb])
+  }, [onChange, allowSvg])
 
   function handleRemove() {
     // Same reasoning as above: clearing the field only updates local/draft
@@ -142,6 +138,9 @@ export default function ImageUploadField({
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Maximum Size</p>
             <p className="text-xs font-semibold text-slate-700">{maxSizeMb} MB</p>
           </div>
+          <p className="w-full text-[10px] text-slate-400">
+            Images are automatically optimized to WebP. Large images may take a few seconds to process.
+          </p>
         </div>
       )}
 
@@ -149,7 +148,7 @@ export default function ImageUploadField({
       <input
         ref={inputRef}
         type="file"
-        accept="image/svg+xml,image/png,image/webp,image/jpeg,image/avif"
+        accept={`image/png,image/webp,image/jpeg,image/avif${allowSvg ? ',image/svg+xml' : ''}`}
         className="hidden"
         onChange={e => {
           const file = e.target.files?.[0]
@@ -201,17 +200,19 @@ export default function ImageUploadField({
           </div>
 
           {/* Upload progress overlay */}
-          {uploading && (
+          {uploading && stage && (
             <div className="absolute inset-0 flex flex-col items-center justify-center
                             bg-slate-950/70 backdrop-blur-sm gap-3">
               <div className="w-32 space-y-2">
                 <div className="h-1.5 rounded-full bg-white/20 overflow-hidden">
                   <div
-                    className="h-full bg-sky-400 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${progress}%` }}
+                    className={`h-full bg-sky-400 rounded-full transition-all duration-300 ease-out ${stage !== 'uploading' ? 'animate-pulse' : ''}`}
+                    style={{ width: stage === 'uploading' ? `${progress}%` : '100%' }}
                   />
                 </div>
-                <p className="text-xs text-white/70 text-center">Uploading {progress}%</p>
+                <p className="text-xs text-white/70 text-center">
+                  {stage === 'uploading' ? `Uploading… ${progress}%` : STAGE_LABELS[stage]}
+                </p>
               </div>
             </div>
           )}
@@ -234,7 +235,7 @@ export default function ImageUploadField({
           tabIndex={0}
           onKeyDown={e => e.key === 'Enter' && inputRef.current?.click()}
         >
-          {uploading ? (
+          {uploading && stage ? (
             <div className="flex flex-col items-center gap-3 px-6 w-full">
               <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center">
                 <div className="w-5 h-5 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
@@ -242,11 +243,13 @@ export default function ImageUploadField({
               <div className="w-full max-w-[160px] space-y-1.5">
                 <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
                   <div
-                    className="h-full bg-sky-500 rounded-full transition-all duration-300 ease-out"
-                    style={{ width: `${progress}%` }}
+                    className={`h-full bg-sky-500 rounded-full transition-all duration-300 ease-out ${stage !== 'uploading' ? 'animate-pulse' : ''}`}
+                    style={{ width: stage === 'uploading' ? `${progress}%` : '100%' }}
                   />
                 </div>
-                <p className="text-xs text-slate-500 text-center">Uploading {progress}%</p>
+                <p className="text-xs text-slate-500 text-center">
+                  {stage === 'uploading' ? `Uploading… ${progress}%` : STAGE_LABELS[stage]}
+                </p>
               </div>
             </div>
           ) : (

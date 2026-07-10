@@ -59,10 +59,10 @@ function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, un
       </Field>
       <ImageUploadField
         label="Background Image"
-        hint="Upload a high-quality HVAC photo. Recommended: 1920×1080px or wider."
+        hint="Desktop: 1920 × 1080 px · Tablet: 1200 × 900 px · Mobile: 900 × 1600 px. One desktop image is used everywhere; responsive cropping handles smaller screens."
         aspectRatio="16 / 9"
-        recommendedWidth={2560}
-        recommendedHeight={1440}
+        recommendedWidth={1920}
+        recommendedHeight={1080}
         value={(data.media_url as string) || null}
         onChange={url => {
           const next = { ...data, media_url: url ?? '' }

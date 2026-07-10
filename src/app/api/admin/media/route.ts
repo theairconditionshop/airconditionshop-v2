@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     const { error } = await db.storage.from('media').upload(path, uploadBuffer, { contentType })
     if (!error) {
       const { data: urlData } = db.storage.from('media').getPublicUrl(path)
-      await db.from('media').insert({
+      const { error: dbError } = await db.from('media').insert({
         filename:      `${token}.${ext}`,
         original_name: file.name,
         url:           urlData.publicUrl,
@@ -87,10 +87,18 @@ export async function POST(request: Request) {
         width:         finalWidth,
         height:        finalHeight,
       })
-      results.push({ path, url: urlData.publicUrl })
+      if (dbError) {
+        // Roll the file back out of Storage so a failed index insert doesn't
+        // leave an untracked orphan, then report the precise failure.
+        console.error('[media] DB insert failed for', file.name, ':', dbError.message)
+        await db.storage.from('media').remove([path])
+        results.push({ error: `Database insert failed: ${dbError.message}`, filename: file.name })
+      } else {
+        results.push({ path, url: urlData.publicUrl })
+      }
     } else {
-      console.error('[media] Upload failed for', file.name, ':', error.message)
-      results.push({ error: error.message, filename: file.name })
+      console.error('[media] Storage upload failed for', file.name, ':', error.message)
+      results.push({ error: `Storage error: ${error.message}`, filename: file.name })
     }
   }
 

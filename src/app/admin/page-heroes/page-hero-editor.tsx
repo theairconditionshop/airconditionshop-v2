@@ -124,8 +124,8 @@ export default function PageHeroEditor({ hero }: { hero: PageHeroRow }) {
               label="Desktop Hero"
               hint="Shown on screens ≥1280px wide."
               aspectRatio="21 / 9"
-              recommendedWidth={3840}
-              recommendedHeight={1646}
+              recommendedWidth={1920}
+              recommendedHeight={800}
               value={form.desktop_image_url}
               onChange={url => patch({ desktop_image_url: url })}
             />
@@ -133,8 +133,8 @@ export default function PageHeroEditor({ hero }: { hero: PageHeroRow }) {
               label="Tablet Hero"
               hint="768–1279px. Falls back to Desktop if not set."
               aspectRatio="4 / 3"
-              recommendedWidth={2048}
-              recommendedHeight={1536}
+              recommendedWidth={1200}
+              recommendedHeight={900}
               value={form.tablet_image_url}
               onChange={url => patch({ tablet_image_url: url })}
             />
@@ -142,8 +142,8 @@ export default function PageHeroEditor({ hero }: { hero: PageHeroRow }) {
               label="Mobile Hero"
               hint="≤767px. Falls back to Desktop if not set."
               aspectRatio="9 / 16"
-              recommendedWidth={1440}
-              recommendedHeight={2560}
+              recommendedWidth={900}
+              recommendedHeight={1600}
               value={form.mobile_image_url}
               onChange={url => patch({ mobile_image_url: url })}
             />

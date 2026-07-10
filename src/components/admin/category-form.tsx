@@ -71,8 +71,10 @@ export default function CategoryForm({ category }: { category?: Record<string, u
 
       <ImageUploadField
         label="Category Image"
-        hint="Displayed on the homepage category grid and category pages. Recommended: 800×600px."
+        hint="Displayed on the homepage category grid and category pages."
         aspectRatio="4 / 3"
+        recommendedWidth={1600}
+        recommendedHeight={900}
         value={imageUrl}
         onChange={setImageUrl}
       />

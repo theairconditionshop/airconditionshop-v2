@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { toast } from 'sonner'
 import { Upload, X, Star, Loader2, ImageIcon, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { MAX_UPLOAD_BYTES } from '@/lib/images/upload-limits'
+import { validateImageFile, uploadFileStaged, UploadError, STAGE_LABELS, type UploadStage } from '@/lib/media/client'
+import UploadRequirements from '@/components/admin/upload-requirements'
 import type { SeriesImage } from '@/types/database'
 
 interface Props {
@@ -24,31 +25,39 @@ export default function SeriesImageGallery({ seriesId, colourId, label, altConte
   const [images, setImages] = useState<SeriesImage[]>(
     [...initial].sort((a, b) => a.display_order - b.display_order)
   )
-  const [uploading, setUploading] = useState(false)
+  const [stage, setStage] = useState<UploadStage | null>(null)
+  const [progress, setProgress] = useState(0)
   const [dragOver, setDragOver] = useState(false)
   const [dragging, setDragging] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const uploading = stage !== null
   const canAdd = images.length < MAX
 
   async function uploadFile(file: File) {
-    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
-    if (!allowed.includes(file.type)) { toast.error('Unsupported file type'); return }
-    if (file.size > MAX_UPLOAD_BYTES) { toast.error('File too large (max 4 MB per upload)'); return }
-    setUploading(true)
-    const fd = new FormData()
-    fd.append('file', file)
-    if (colourId) fd.append('colour_id', colourId)
-    if (altContext) fd.append('alt_text', `${altContext} — ${label}`)
-    const res = await fetch(`/api/admin/series/${seriesId}/images`, { method: 'POST', body: fd })
-    if (res.ok) {
-      const img: SeriesImage = await res.json()
+    // Client-side validation — invalid files never reach the server.
+    setStage('validating')
+    const invalid = await validateImageFile(file)
+    if (invalid) { setStage(null); toast.error(invalid); return }
+
+    const extraFields: Record<string, string> = {}
+    if (colourId) extraFields.colour_id = colourId
+    if (altContext) extraFields.alt_text = `${altContext} — ${label}`
+
+    try {
+      const img = await uploadFileStaged({
+        url: `/api/admin/series/${seriesId}/images`, fieldName: 'file', file,
+        extraFields, onStage: setStage, onProgress: setProgress,
+      }) as SeriesImage
+      setStage('complete')
       setImages(prev => [...prev, img])
       toast.success('Image uploaded')
-    } else {
-      const err = await res.json().catch(() => ({}))
-      toast.error(err.error || 'Upload failed')
+    } catch (err) {
+      // uploadFileStaged already logged full diagnostics to the console.
+      toast.error(err instanceof UploadError ? err.message : 'Upload failed — see browser console for details')
+    } finally {
+      setStage(null)
+      setProgress(0)
     }
-    setUploading(false)
   }
 
   function handleFiles(files: FileList | null) {
@@ -144,17 +153,27 @@ export default function SeriesImageGallery({ seriesId, colourId, label, altConte
 
       {canAdd && (
         <div
+          role="button"
+          tabIndex={0}
+          aria-label={`Upload image to ${label} — click, press Enter, or drop an image here`}
+          onKeyDown={e => { if (!uploading && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); inputRef.current?.click() } }}
           onClick={() => !uploading && inputRef.current?.click()}
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
           onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files) }}
-          className={cn('w-full border-2 border-dashed rounded-lg py-5 flex flex-col items-center gap-1.5 transition-colors cursor-pointer',
+          className={cn('w-full border-2 border-dashed rounded-lg py-5 flex flex-col items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:outline-blue-500',
             dragOver ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50/50',
             uploading && 'pointer-events-none')}>
           {uploading ? <Loader2 className="w-5 h-5 text-blue-500 animate-spin" /> : <ImageIcon className="w-5 h-5 text-slate-400" />}
-          <span className="text-xs text-slate-500">{uploading ? 'Uploading…' : 'Drop or click to upload'}</span>
+          <span className="text-xs text-slate-500" aria-live="polite">
+            {stage
+              ? stage === 'uploading' ? `Uploading… ${progress}%` : STAGE_LABELS[stage]
+              : 'Drop or click to upload'}
+          </span>
         </div>
       )}
+
+      <UploadRequirements dimensions="1500 × 1500 px (square preferred)" />
     </div>
   )
 }

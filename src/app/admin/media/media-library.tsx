@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Upload, Image as ImageIcon, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { uploadSizeError } from '@/lib/images/upload-limits'
+import { validateImageFile, uploadFileStaged, UploadError, STAGE_LABELS, type UploadStage } from '@/lib/media/client'
+import UploadRequirements from '@/components/admin/upload-requirements'
 
 export default function MediaLibrary() {
-  const [uploading, setUploading] = useState(false)
+  const [stage, setStage] = useState<UploadStage | null>(null)
+  const [progress, setProgress] = useState(0)
+  const uploading = stage !== null
   const [cleaning, setCleaning] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
@@ -37,28 +40,50 @@ export default function MediaLibrary() {
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return
-    const sizeError = uploadSizeError(Array.from(files))
-    if (sizeError) { toast.error(sizeError); return }
-    setUploading(true)
-    const formData = new FormData()
-    Array.from(files).forEach(f => formData.append('files', f))
-    const res = await fetch('/api/admin/media', { method: 'POST', body: formData })
-    if (res.ok) {
-      toast.success(`${files.length} file(s) uploaded`)
-      router.refresh()
-    } else if (res.status === 413) {
-      toast.error('Upload too large — max 4 MB per upload.')
-    } else {
-      toast.error('Upload failed')
+
+    // Validate every file up front — invalid files never reach the server.
+    setStage('validating')
+    for (const f of Array.from(files)) {
+      const invalid = await validateImageFile(f, { allowSvg: true, allowPdf: true })
+      if (invalid) { setStage(null); toast.error(invalid); return }
     }
-    setUploading(false)
+
+    // Upload sequentially so each file gets real staged progress and each
+    // request stays well under the platform body limit.
+    let ok = 0
+    for (const f of Array.from(files)) {
+      try {
+        const data = await uploadFileStaged({
+          url: '/api/admin/media', fieldName: 'files', file: f,
+          onStage: setStage, onProgress: setProgress,
+        }) as { results?: { url?: string; error?: string }[] } | null
+        const first = data?.results?.[0]
+        if (!first?.url) throw new UploadError(first?.error || `"${f.name}" upload returned no URL`)
+        ok++
+      } catch (err) {
+        setStage(null)
+        setProgress(0)
+        toast.error(err instanceof UploadError ? err.message : `"${f.name}" failed — see browser console for details`)
+        if (ok > 0) router.refresh()
+        return
+      }
+    }
+    setStage('complete')
+    toast.success(`${ok} file(s) uploaded`)
+    router.refresh()
+    setStage(null)
+    setProgress(0)
   }
 
   return (
     <div className="space-y-6">
       {/* Upload zone */}
       <div
-        className="border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center cursor-pointer hover:border-sky-300 hover:bg-sky-50/30 transition-colors"
+        className="border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center cursor-pointer hover:border-sky-300 hover:bg-sky-50/30 focus-visible:outline-2 focus-visible:outline-sky-500 transition-colors"
+        role="button"
+        tabIndex={0}
+        aria-label="Upload media files — click, press Enter, or drop files here"
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); inputRef.current?.click() } }}
         onClick={() => inputRef.current?.click()}
         onDragOver={e => e.preventDefault()}
         onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files) }}>
@@ -73,12 +98,19 @@ export default function MediaLibrary() {
             )}
           </div>
           <div>
-            <p className="font-medium text-slate-700 text-sm">{uploading ? 'Uploading…' : 'Drop files here or click to browse'}</p>
-            <p className="text-xs text-slate-400 mt-1">Images (JPG, PNG, WebP) and PDFs supported</p>
+            <p className="font-medium text-slate-700 text-sm" aria-live="polite">
+              {stage
+                ? stage === 'uploading' ? `Uploading… ${progress}%` : STAGE_LABELS[stage]
+                : 'Drop files here or click to browse'}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">Images (JPG, PNG, WebP), SVG logos and PDFs supported</p>
           </div>
           {!uploading && <Button variant="outline" size="sm" type="button">Choose Files</Button>}
         </div>
       </div>
+
+      <UploadRequirements allowSvg />
+
 
       {/* Placeholder grid */}
       <div className="bg-white rounded-xl border border-slate-100 p-8 text-center">

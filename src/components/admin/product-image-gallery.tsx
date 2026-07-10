@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { toast } from 'sonner'
 import { Upload, X, Star, Loader2, ImageIcon, GripVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { MAX_UPLOAD_BYTES } from '@/lib/images/upload-limits'
+import { validateImageFile, uploadFileStaged, UploadError, STAGE_LABELS, type UploadStage } from '@/lib/media/client'
+import UploadRequirements from '@/components/admin/upload-requirements'
 
 interface ProductImage {
   id: string
@@ -27,33 +28,38 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
   const [images, setImages]     = useState<ProductImage[]>(
     [...initialImages].sort((a, b) => a.display_order - b.display_order)
   )
-  const [uploading, setUploading] = useState(false)
+  const [stage, setStage]         = useState<UploadStage | null>(null)
+  const [progress, setProgress]   = useState(0)
   const [dragOver, setDragOver]   = useState(false)
   const [dragging, setDragging]   = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  const uploading = stage !== null
   const canAdd = images.length < MAX_IMAGES
 
   async function uploadFile(file: File) {
     if (!canAdd) { toast.error(`Maximum ${MAX_IMAGES} images`); return }
 
-    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/avif']
-    if (!allowed.includes(file.type)) { toast.error('Unsupported file type'); return }
-    if (file.size > MAX_UPLOAD_BYTES) { toast.error('File too large (max 4 MB per upload)'); return }
+    // Client-side validation — invalid files never reach the server.
+    setStage('validating')
+    const invalid = await validateImageFile(file)
+    if (invalid) { setStage(null); toast.error(invalid); return }
 
-    setUploading(true)
-    const fd = new FormData()
-    fd.append('file', file)
-    const res = await fetch(`/api/admin/products/${productId}/images`, { method: 'POST', body: fd })
-    if (res.ok) {
-      const img: ProductImage = await res.json()
+    try {
+      const img = await uploadFileStaged({
+        url: `/api/admin/products/${productId}/images`, fieldName: 'file', file,
+        onStage: setStage, onProgress: setProgress,
+      }) as ProductImage
+      setStage('complete')
       setImages(prev => [...prev, img])
       toast.success('Image uploaded')
-    } else {
-      const err = await res.json().catch(() => ({}))
-      toast.error(err.error || 'Upload failed')
+    } catch (err) {
+      // uploadFileStaged already logged full diagnostics to the console.
+      toast.error(err instanceof UploadError ? err.message : 'Upload failed — see browser console for details')
+    } finally {
+      setStage(null)
+      setProgress(0)
     }
-    setUploading(false)
   }
 
   function handleFiles(files: FileList | null) {
@@ -207,10 +213,14 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
       {canAdd && (
         <div
           className={cn(
-            'border-2 border-dashed rounded-xl transition-colors duration-200 cursor-pointer',
+            'border-2 border-dashed rounded-xl transition-colors duration-200 cursor-pointer focus-visible:outline-2 focus-visible:outline-blue-500',
             dragOver ? 'border-blue-400 bg-blue-50/50' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50/50',
             uploading && 'pointer-events-none'
           )}
+          role="button"
+          tabIndex={0}
+          aria-label="Upload product images — click, press Enter, or drop images here"
+          onKeyDown={e => { if (!uploading && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); inputRef.current?.click() } }}
           onClick={() => !uploading && inputRef.current?.click()}
           onDragOver={e => { e.preventDefault(); setDragOver(true) }}
           onDragLeave={() => setDragOver(false)}
@@ -221,10 +231,12 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
           }}
         >
           <div className="flex flex-col items-center gap-2 py-8">
-            {uploading ? (
+            {uploading && stage ? (
               <>
                 <Loader2 className="w-7 h-7 text-blue-500 animate-spin" />
-                <p className="text-sm text-slate-500">Uploading…</p>
+                <p className="text-sm text-slate-500" aria-live="polite">
+                  {stage === 'uploading' ? `Uploading… ${progress}%` : STAGE_LABELS[stage]}
+                </p>
               </>
             ) : (
               <>
@@ -232,7 +244,7 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
                   <ImageIcon className="w-5 h-5 text-slate-400" />
                 </div>
                 <p className="text-sm font-medium text-slate-600">Drop images here or click to upload</p>
-                <p className="text-xs text-slate-400">JPG, PNG, WebP, AVIF · Max 10 MB each · {MAX_IMAGES - images.length} slot{MAX_IMAGES - images.length !== 1 ? 's' : ''} remaining</p>
+                <p className="text-xs text-slate-400">{MAX_IMAGES - images.length} slot{MAX_IMAGES - images.length !== 1 ? 's' : ''} remaining</p>
               </>
             )}
           </div>
@@ -242,6 +254,8 @@ export default function ProductImageGallery({ productId, initialImages = [] }: P
       {images.length === 0 && !canAdd && (
         <p className="text-sm text-slate-400 text-center py-4">Maximum images reached</p>
       )}
+
+      <UploadRequirements dimensions="1500 × 1500 px (square preferred)" />
     </div>
   )
 }
