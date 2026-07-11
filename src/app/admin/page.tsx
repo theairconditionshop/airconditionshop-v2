@@ -102,7 +102,7 @@ export default async function AdminDashboard() {
         {[
           { label: 'Edit Homepage',   href: '/admin/homepage',     desc: 'Update hero, sections, CTAs' },
           { label: 'Add Product',     href: '/admin/products/new', desc: 'Create a new product listing' },
-          { label: 'Write Blog Post', href: '/admin/blog/new',     desc: 'Publish news or a guide' },
+          { label: 'New Campaign',     href: '/admin/marketing/campaigns/new', desc: 'Publish news or a promotion' },
         ].map(q => (
           <a key={q.label} href={q.href}
             className="bg-white rounded-xl border border-slate-100 p-4 sm:p-5 hover:border-sky-200 transition-colors group">

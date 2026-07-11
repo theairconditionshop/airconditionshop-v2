@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { unstable_cache } from 'next/cache'
 import { getPublicSupabase } from '@/lib/supabase/public'
 import type {
-  Brand, Category, Product, BlogPost,
+  Brand, Category, Product,
   Testimonial, Faq, HomepageSection, SiteSetting,
   ProductSeries,
 } from '@/types/database'
@@ -255,39 +255,6 @@ export async function getAcFilterFacets(): Promise<AcFacets> {
   const refrigerants  = [...new Set((variants ?? []).map(v => v.refrigerant).filter((r): r is string => !!r))].sort()
   const colourNames   = [...new Set((colours ?? []).map(c => c.name).filter((n): n is string => !!n))].sort()
   return { btus, energyClasses, refrigerants, colours: colourNames }
-}
-
-// ── Blog ──────────────────────────────────────────────────────
-export async function getBlogPosts(opts?: {
-  category?: string
-  limit?: number
-  offset?: number
-}): Promise<BlogPost[]> {
-  const supabase = await createClient()
-  let query = supabase
-    .from('blog_posts')
-    .select('*, author:profiles(id, full_name, avatar_url)')
-    .eq('status', 'published')
-    .lte('published_at', new Date().toISOString())
-    .order('published_at', { ascending: false })
-
-  if (opts?.category) query = query.eq('category', opts.category)
-  if (opts?.limit)    query = query.limit(opts.limit)
-  if (opts?.offset)   query = query.range(opts.offset, (opts.offset + (opts.limit || 10)) - 1)
-
-  const { data } = await query
-  return (data as unknown as BlogPost[]) || []
-}
-
-export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('blog_posts')
-    .select('*, author:profiles(id, full_name, avatar_url)')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .single()
-  return data as unknown as BlogPost | null
 }
 
 export async function getProductsByBtuRange(minBtu: number, maxBtu: number, limit = 4): Promise<Product[]> {

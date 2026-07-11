@@ -7,16 +7,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let products: { data: { slug: string; updated_at: string }[] | null } = { data: [] }
   let categories: typeof products = { data: [] }
   let brands: typeof products = { data: [] }
-  let posts: typeof products = { data: [] }
+  let campaigns: typeof products = { data: [] }
   let series: { data: { slug: string; updated_at: string; brand: { slug: string } | null }[] | null } = { data: [] }
 
   try {
     const db = createAdminClient()
-    ;[products, categories, brands, posts, series] = await Promise.all([
+    ;[products, categories, brands, campaigns, series] = await Promise.all([
       db.from('products').select('slug, updated_at').eq('is_active', true),
       db.from('categories').select('slug, updated_at').eq('is_active', true),
       db.from('brands').select('slug, updated_at').eq('is_active', true),
-      db.from('blog_posts').select('slug, updated_at').eq('status', 'published'),
+      db.from('campaigns').select('slug, updated_at').in('status', ['active', 'ended']),
       db.from('product_series').select('slug, updated_at, brand:brands(slug)').eq('is_active', true) as unknown as typeof series,
     ])
   } catch {
@@ -27,7 +27,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: BASE,                          lastModified: new Date(), changeFrequency: 'weekly',  priority: 1.0 },
     { url: `${BASE}/products`,            lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
     { url: `${BASE}/brands`,              lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
-    { url: `${BASE}/blog`,                lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
     { url: `${BASE}/services`,            lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${BASE}/trade`,               lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE}/quote`,               lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
@@ -60,9 +59,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  const blogRoutes: MetadataRoute.Sitemap = (posts.data ?? []).map(p => ({
-    url: `${BASE}/blog/${p.slug}`,
-    lastModified: p.updated_at ? new Date(p.updated_at) : new Date(),
+  // Campaigns are the marketing/news system — one URL per live or past campaign
+  const campaignRoutes: MetadataRoute.Sitemap = (campaigns.data ?? []).map(c => ({
+    url: `${BASE}/campaigns/${c.slug}`,
+    lastModified: c.updated_at ? new Date(c.updated_at) : new Date(),
     changeFrequency: 'monthly',
     priority: 0.6,
   }))
@@ -77,5 +77,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     }))
 
-  return [...staticRoutes, ...productRoutes, ...categoryRoutes, ...brandRoutes, ...blogRoutes, ...seriesRoutes]
+  return [...staticRoutes, ...productRoutes, ...categoryRoutes, ...brandRoutes, ...campaignRoutes, ...seriesRoutes]
 }

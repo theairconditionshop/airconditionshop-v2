@@ -1,4 +1,4 @@
-// Server-side HTML sanitizer for CMS / blog content.
+// Server-side HTML sanitizer for CMS / campaign content.
 // Removes script execution vectors while preserving formatting HTML.
 // Apply to any HTML rendered with dangerouslySetInnerHTML in public pages.
 

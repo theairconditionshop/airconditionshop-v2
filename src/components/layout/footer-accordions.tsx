@@ -16,7 +16,7 @@ const PRODUCT_LINKS = [
 const COMPANY_LINKS = [
   { label: 'About Us',      href: '/about' },
   { label: 'Services',      href: '/services' },
-  { label: 'Blog',          href: '/blog' },
+  { label: 'Campaigns',     href: '/campaigns' },
   { label: 'Brands',        href: '/brands' },
   { label: 'Contact',       href: '/contact' },
   { label: 'Trade Account', href: '/trade' },

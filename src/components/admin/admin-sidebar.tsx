@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@/types/database'
 import {
-  LayoutDashboard, Package, BookOpen, Wrench, FileText, Users,
+  LayoutDashboard, LayoutGrid, Package, Wrench, FileText, Users,
   MessageSquare, Globe, Settings, Building2, ChevronDown, Megaphone,
   Tag, Layers, Image, Upload, Mail, X, ExternalLink, Star, HelpCircle,
 } from 'lucide-react'
@@ -30,9 +30,9 @@ const NAV_GROUPS: NavGroup[] = [
     group: 'Content',
     items: [
       { label: 'Homepage',     href: '/admin/homepage',            icon: Globe },
+      { label: 'Homepage Cards', href: '/admin/homepage-cards',    icon: LayoutGrid },
       { label: 'Page Heroes',  href: '/admin/page-heroes',         icon: Image },
       { label: 'Campaigns',    href: '/admin/marketing/campaigns', icon: Megaphone },
-      { label: 'Blog',         href: '/admin/blog',                icon: BookOpen },
       { label: 'Testimonials', href: '/admin/testimonials',        icon: Star },
       { label: 'FAQs',         href: '/admin/faqs',               icon: HelpCircle },
     ],

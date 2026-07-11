@@ -10,7 +10,7 @@ import { useSidebar } from './admin-shell'
 const TITLE_MAP: Record<string, string> = {
   '/admin':                         'Dashboard',
   '/admin/homepage':                'Homepage',
-  '/admin/blog':                    'Blog',
+  '/admin/homepage-cards':          'Homepage Cards',
   '/admin/products':                'Products',
   '/admin/categories':              'Categories',
   '/admin/brands':                  'Brands',

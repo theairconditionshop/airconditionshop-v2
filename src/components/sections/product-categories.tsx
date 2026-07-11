@@ -6,7 +6,7 @@ import {
   ArrowRight, ArrowUpRight, Snowflake, Layers, Network, Flame, Package,
   Box, Archive, Wrench, Settings, Wind, Droplets, CircleDot,
 } from 'lucide-react'
-import type { Category } from '@/types/database'
+import type { HomepageCard } from '@/types/database'
 import { Reveal, Stagger, StaggerItem } from '@/components/motion/primitives'
 
 const CATEGORY_ICONS: Record<string, React.ElementType> = {
@@ -24,8 +24,17 @@ const CATEGORY_ICONS: Record<string, React.ElementType> = {
   'spare-parts':              CircleDot,
 }
 
-export default function ProductCategories({ categories }: { categories: Category[] }) {
-  const displayed = categories.slice(0, 8)
+// Cards are fully admin-managed (Admin → Homepage Cards): title, subtitle,
+// image, destination, order and visibility all come from the database.
+export default function ProductCategories({ cards }: { cards: HomepageCard[] }) {
+  const displayed = cards
+  if (!displayed.length) return null
+
+  // Icon fallback for cards without an image, matched from the destination slug
+  function iconFor(href: string): React.ElementType {
+    const slug = href.split('/').filter(Boolean).pop() ?? ''
+    return CATEGORY_ICONS[slug] ?? Package
+  }
 
   return (
     <section className="bg-[#f8f9fa] py-20 lg:py-28 border-t border-slate-100">
@@ -58,13 +67,16 @@ export default function ProductCategories({ categories }: { categories: Category
 
         {/* Grid */}
         <Stagger className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4" gap={0.07}>
-          {displayed.map((category) => {
-            const imageUrl = category.image_url || null
-            const Icon = CATEGORY_ICONS[category.slug] ?? Package
+          {displayed.map((card) => {
+            const imageUrl = card.image_url || null
+            const Icon = iconFor(card.href)
+            const external = card.href.startsWith('http')
             return (
-              <StaggerItem key={category.id}>
+              <StaggerItem key={card.id}>
                 <Link
-                  href={`/products/category/${category.slug}`}
+                  href={card.href}
+                  target={external ? '_blank' : undefined}
+                  rel={external ? 'noopener noreferrer' : undefined}
                   className="group block bg-white border border-slate-200 hover:border-slate-900 transition-colors duration-300"
                   style={{ borderRadius: 2 }}
                 >
@@ -73,7 +85,7 @@ export default function ProductCategories({ categories }: { categories: Category
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
-                        alt={category.name}
+                        alt={card.title}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.07]"
@@ -89,8 +101,15 @@ export default function ProductCategories({ categories }: { categories: Category
 
                   {/* Label row on white */}
                   <div className="flex items-center justify-between gap-2 px-4 py-3.5 border-t border-slate-100">
-                    <span className="text-[13px] sm:text-sm font-semibold text-slate-900 leading-snug">
-                      {category.name}
+                    <span className="min-w-0">
+                      <span className="block text-[13px] sm:text-sm font-semibold text-slate-900 leading-snug">
+                        {card.title}
+                      </span>
+                      {card.subtitle && (
+                        <span className="block text-[11px] text-slate-400 leading-snug mt-0.5 truncate">
+                          {card.subtitle}
+                        </span>
+                      )}
                     </span>
                     <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-300 shrink-0" />
                   </div>

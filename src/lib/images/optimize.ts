@@ -93,7 +93,7 @@ export async function optimizeProductImage(input: Buffer): Promise<OptimizedProd
 }
 
 /**
- * Optimizes a general media upload (hero images, brand logos, blog covers).
+ * Optimizes a general media upload (hero images, brand logos, campaign covers).
  * Returns a single WebP image resized to max 2000 px wide with EXIF stripped.
  * Call isPassthrough() first — SVG and PDF must be uploaded as-is.
  */

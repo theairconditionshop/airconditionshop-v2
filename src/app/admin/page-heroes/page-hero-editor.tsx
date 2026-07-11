@@ -27,7 +27,6 @@ const PAGE_LABELS: Record<string, string> = {
   contact: 'Contact',
   quote: 'Quote Request',
   brands: 'Brands',
-  blog: 'Blog',
   warranty: 'Warranty',
   faq: 'FAQ',
   commercial: 'Commercial Solutions',

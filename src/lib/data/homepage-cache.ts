@@ -8,7 +8,7 @@
  */
 import { unstable_cache } from 'next/cache'
 import { getPublicSupabase } from '@/lib/supabase/public'
-import type { Brand, Category, Product, Testimonial, Faq, ProductSeries } from '@/types/database'
+import type { Brand, Category, Product, Testimonial, Faq, ProductSeries, HomepageCard } from '@/types/database'
 
 type HomepageSections = Record<string, Record<string, unknown>>
 
@@ -19,6 +19,7 @@ async function fetchHomepageData() {
     sectionsRes,
     brandsRes,
     categoriesRes,
+    cardsRes,
     productsRes,
     seriesRes,
     testimonialsRes,
@@ -27,6 +28,7 @@ async function fetchHomepageData() {
     db.from('homepage_sections').select('section_key, data'),
     db.from('brands').select('*').eq('is_active', true).order('display_order'),
     db.from('categories').select('*').eq('is_active', true).is('parent_id', null).order('display_order'),
+    db.from('homepage_cards').select('*').eq('is_active', true).order('display_order'),
     db.from('products')
       .select('*, brand:brands(*), category:categories(*), images:product_images(*)')
       .eq('is_active', true)
@@ -53,6 +55,7 @@ async function fetchHomepageData() {
     sections,
     brands:     (brandsRes.data     ?? []) as Brand[],
     categories: (categoriesRes.data ?? []) as Category[],
+    cards:      (cardsRes.data      ?? []) as HomepageCard[],
     products:   (productsRes.data   ?? []) as unknown as Product[],
     series:     (seriesRes.data     ?? []) as unknown as ProductSeries[],
     testimonials: (testimonialsRes.data ?? []) as Testimonial[],

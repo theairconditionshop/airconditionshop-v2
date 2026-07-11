@@ -30,7 +30,6 @@ const PAGE_ROUTES: Record<string, string> = {
   contact: '/contact',
   quote: '/quote',
   brands: '/brands',
-  blog: '/blog',
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {

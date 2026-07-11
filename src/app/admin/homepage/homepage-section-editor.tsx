@@ -36,7 +36,7 @@ const textareaCls = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-
 
 // ── Section editors ──────────────────────────────────────────────────────────
 
-function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function HeroEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   const cta1 = (data.cta_primary  as { label?: string; href?: string }) ?? {}
   const cta2 = (data.cta_secondary as { label?: string; href?: string }) ?? {}
 
@@ -67,7 +67,6 @@ function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, un
         onChange={url => {
           const next = { ...data, media_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
 
@@ -102,7 +101,7 @@ function HeroEditor({ data, onChange, onImageChange }: { data: Record<string, un
   )
 }
 
-function ServicesPageEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function ServicesPageEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <ImageUploadField
@@ -115,14 +114,13 @@ function ServicesPageEditor({ data, onChange, onImageChange }: { data: Record<st
         onChange={url => {
           const next = { ...data, engineer_photo_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
     </div>
   )
 }
 
-function TradePageEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function TradePageEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <ImageUploadField
@@ -135,7 +133,6 @@ function TradePageEditor({ data, onChange, onImageChange }: { data: Record<strin
         onChange={url => {
           const next = { ...data, warehouse_photo_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
       <ImageUploadField
@@ -148,7 +145,6 @@ function TradePageEditor({ data, onChange, onImageChange }: { data: Record<strin
         onChange={url => {
           const next = { ...data, installer_photo_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
       <ImageUploadField
@@ -161,14 +157,13 @@ function TradePageEditor({ data, onChange, onImageChange }: { data: Record<strin
         onChange={url => {
           const next = { ...data, counter_photo_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
     </div>
   )
 }
 
-function AboutPageEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function AboutPageEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <ImageUploadField
@@ -181,7 +176,6 @@ function AboutPageEditor({ data, onChange, onImageChange }: { data: Record<strin
         onChange={url => {
           const next = { ...data, showroom_photo_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
     </div>
@@ -228,7 +222,7 @@ function WhyChooseUsEditor({ data, onChange }: { data: Record<string, unknown>; 
   )
 }
 
-function CtaEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function CtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   const cta1 = (data.cta_primary  as { label?: string; href?: string }) ?? {}
   const cta2 = (data.cta_secondary as { label?: string; href?: string }) ?? {}
 
@@ -253,7 +247,6 @@ function CtaEditor({ data, onChange, onImageChange }: { data: Record<string, unk
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
       <div className="grid sm:grid-cols-2 gap-4">
@@ -284,7 +277,7 @@ function CtaEditor({ data, onChange, onImageChange }: { data: Record<string, unk
   )
 }
 
-function BtuPromoEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function BtuPromoEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <Field label="Heading" hint="Leave blank for default text">
@@ -306,14 +299,13 @@ function BtuPromoEditor({ data, onChange, onImageChange }: { data: Record<string
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
     </div>
   )
 }
 
-function TradeCtaEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function TradeCtaEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <ImageUploadField
@@ -326,14 +318,13 @@ function TradeCtaEditor({ data, onChange, onImageChange }: { data: Record<string
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
     </div>
   )
 }
 
-function ServicesEditor({ data, onChange, onImageChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void; onImageChange?: (d: Record<string, unknown>) => void }) {
+function ServicesEditor({ data, onChange }: { data: Record<string, unknown>; onChange: (d: Record<string, unknown>) => void }) {
   return (
     <div className="space-y-4">
       <Field label="Section heading">
@@ -355,7 +346,6 @@ function ServicesEditor({ data, onChange, onImageChange }: { data: Record<string
         onChange={url => {
           const next = { ...data, image_url: url ?? '' }
           onChange(next)
-          onImageChange?.(next)
         }}
       />
     </div>
@@ -461,29 +451,22 @@ export default function HomepageSectionEditor({ section }: { section: Section })
     else toast.error('Save failed. Please try again.')
   }
 
-  async function handleImageChange(next: Record<string, unknown>) {
-    setData(next)
-    setDirty(false)
-    const ok = await saveData(next)
-    if (ok) toast.success('Image saved automatically')
-    else {
-      setDirty(true)
-      toast.error('Auto-save failed — click Save Changes to retry.')
-    }
-  }
+  // Image changes (upload AND remove) are draft-only, exactly like text edits:
+  // nothing persists and the frontend does not change until "Save Changes".
+  // A file uploaded-then-abandoned is reclaimed by the nightly orphan sweep.
 
   const key = section.section_key
 
   function renderEditor() {
-    if (key === 'hero')           return <HeroEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'hero')           return <HeroEditor data={data} onChange={handleChange} />
     if (key === 'why_choose_us')  return <WhyChooseUsEditor data={data} onChange={handleChange} />
-    if (key === 'cta')            return <CtaEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
-    if (key === 'services')       return <ServicesEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
-    if (key === 'btu_promo' || key === 'btu_calculator') return <BtuPromoEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
-    if (key === 'trade_cta')      return <TradeCtaEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
-    if (key === 'services_page')  return <ServicesPageEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
-    if (key === 'trade_page')     return <TradePageEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
-    if (key === 'about_page')     return <AboutPageEditor data={data} onChange={handleChange} onImageChange={handleImageChange} />
+    if (key === 'cta')            return <CtaEditor data={data} onChange={handleChange} />
+    if (key === 'services')       return <ServicesEditor data={data} onChange={handleChange} />
+    if (key === 'btu_promo' || key === 'btu_calculator') return <BtuPromoEditor data={data} onChange={handleChange} />
+    if (key === 'trade_cta')      return <TradeCtaEditor data={data} onChange={handleChange} />
+    if (key === 'services_page')  return <ServicesPageEditor data={data} onChange={handleChange} />
+    if (key === 'trade_page')     return <TradePageEditor data={data} onChange={handleChange} />
+    if (key === 'about_page')     return <AboutPageEditor data={data} onChange={handleChange} />
     return <GenericEditor data={data} onChange={handleChange} />
   }
 

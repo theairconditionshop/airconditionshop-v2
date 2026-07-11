@@ -4,7 +4,6 @@ export type TradeApplicationStatus = 'pending' | 'approved' | 'rejected' | 'susp
 export type ProductAvailability = 'in_stock' | 'out_of_stock' | 'on_order' | 'discontinued'
 export type TradePriceMode = 'fixed' | 'discount'
 export type PriceVisibility = 'public' | 'trade_only'
-export type BlogStatus = 'draft' | 'published' | 'scheduled' | 'archived'
 export type EnquiryStatus = 'new' | 'read' | 'replied' | 'archived'
 export type ServiceType = 'installation' | 'repair' | 'maintenance' | 'inspection' | 'commercial' | 'coldroom' | 'other'
 export type ServiceRequestStatus = 'new' | 'reviewed' | 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
@@ -262,26 +261,6 @@ export interface ProductDocument {
   created_at: string
 }
 
-export interface BlogPost {
-  id: string
-  title: string
-  slug: string
-  excerpt: string | null
-  content: string | null
-  cover_url: string | null
-  author_id: string | null
-  category: string
-  tags: string[]
-  status: BlogStatus
-  published_at: string | null
-  seo_title: string | null
-  seo_desc: string | null
-  view_count: number
-  created_at: string
-  updated_at: string
-  author?: Profile
-}
-
 export interface Enquiry {
   id: string
   crm_contact_id: string | null
@@ -500,6 +479,18 @@ export interface HomepageSection {
   data: Record<string, unknown>
   updated_at: string
   updated_by: string | null
+}
+
+export interface HomepageCard {
+  id: string
+  title: string
+  subtitle: string | null
+  image_url: string | null
+  href: string
+  display_order: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface SiteSetting {
