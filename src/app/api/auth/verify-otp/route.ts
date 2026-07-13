@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { verifyOtpSession } from '@/lib/auth/otp'
+import { audit } from '@/lib/audit'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
@@ -13,7 +14,6 @@ export async function POST(request: Request) {
   const cookieStore = await cookies()
   const pendingUserId = cookieStore.get('pending_2fa')?.value
 
-  console.log('[verify-otp] Attempt — pendingUserId:', pendingUserId ?? 'MISSING')
 
   if (!pendingUserId) {
     return NextResponse.json({ success: false, error: 'Session expired. Please log in again.' }, { status: 400 })
@@ -27,15 +27,16 @@ export async function POST(request: Request) {
   }
 
   const valid = await verifyOtpSession(pendingUserId, code)
-  console.log('[verify-otp] verifyOtpSession result:', valid)
 
   if (!valid) {
+    await audit({ action: 'auth.2fa_failed', actorId: pendingUserId, request, metadata: { reason: 'invalid_or_expired_code' } })
     return NextResponse.json({ success: false, error: 'Incorrect or expired code.' }, { status: 400 })
   }
 
+  await audit({ action: 'auth.login', actorId: pendingUserId, entityType: 'profile', entityId: pendingUserId, request })
+
   // Set verified_2fa session cookie (1 day)
   const response = NextResponse.json({ success: true })
-  console.log('[verify-otp] OTP verified — setting verified_2fa cookie for userId:', pendingUserId)
   response.cookies.set('verified_2fa', pendingUserId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

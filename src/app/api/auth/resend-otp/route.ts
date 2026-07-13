@@ -35,7 +35,6 @@ export async function POST(request: Request) {
   let code: string
   try {
     code = await createOtpSession(pendingUserId, ip)
-    console.log('[resend-otp] OTP session created for:', pendingUserId)
   } catch (err) {
     console.error('[resend-otp] createOtpSession failed:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Failed to create verification session. Please try again.' }, { status: 500 })
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
 
   try {
     await sendOtpEmail({ email: profile.email, name: profile.full_name || '', code })
-    console.log('[resend-otp] OTP email resent to:', profile.email)
+    /* OTP email resent */
   } catch (err) {
     console.error('[resend-otp] sendOtpEmail failed:', err instanceof Error ? err.message : err)
     return NextResponse.json({ error: 'Failed to send verification email. Please try again.' }, { status: 500 })

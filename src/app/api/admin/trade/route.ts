@@ -9,6 +9,7 @@ import {
 } from '@/lib/resend/send'
 import { z } from 'zod'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { audit } from '@/lib/audit'
 
 const schema = z.object({
   userId:        z.string().uuid(),
@@ -68,6 +69,12 @@ export async function PATCH(request: Request) {
     db.from('profiles').update({ trade_status: status }).eq('id', userId),
     db.from('trade_applications').update(appUpdate).eq('id', applicationId),
   ])
+
+  await audit({
+    action: `trade.${status}`, actorId: profile.id, actorEmail: profile.email,
+    entityType: 'trade_application', entityId: applicationId, request,
+    metadata: { target_user: userId, reactivation: isReactivation },
+  })
 
   // Attempt email — capture failure without throwing
   let emailDelivered = true

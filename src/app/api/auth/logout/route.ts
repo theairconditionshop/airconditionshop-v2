@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { audit } from '@/lib/audit'
 
 // Server-side logout — the only place that can clear HttpOnly cookies.
 // Client-side supabase.auth.signOut() only destroys the Supabase session;
@@ -12,7 +13,9 @@ export async function POST(request: Request) {
   if (rl.limited) return rateLimitResponse(rl)
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   await supabase.auth.signOut()
+  if (user) await audit({ action: 'auth.logout', actorId: user.id, request })
 
   const response = NextResponse.json({ ok: true })
   response.cookies.delete('verified_2fa')

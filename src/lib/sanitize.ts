@@ -23,3 +23,27 @@ export function sanitizeHtml(html: string): string {
 export function safeJsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/<\/script>/gi, '<\\/script>')
 }
+
+/**
+ * Sanitizes an uploaded SVG's raw text before it is stored, removing every
+ * common script-execution vector. SVGs (brand logos) are served from the
+ * public storage bucket and could otherwise carry active content — even
+ * though we only ever render them inside <img> (which does not execute
+ * script), a raw SVG opened directly in a browser would. Defense in depth.
+ *
+ * Strips: <script>, <foreignObject> (can embed HTML/JS), on* handlers,
+ * javascript: URIs, external/data references in href/xlink:href, and
+ * <use> external references.
+ */
+export function sanitizeSvg(svg: string): string {
+  return svg
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<foreignObject\b[^<]*(?:(?!<\/foreignObject>)<[^<]*)*<\/foreignObject>/gi, '')
+    .replace(/<\/?(iframe|object|embed|applet|base|meta|link|handler|set|animate)\b[^>]*>/gi, '')
+    // event handlers: onclick, onload, onmouseover, onbegin, …
+    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '')
+    // javascript: in any attribute
+    .replace(/(href|xlink:href|src)(\s*=\s*)(["'])\s*javascript:[^"']*\3/gi, '$1$2$3#$3')
+    // external / data: refs in href/xlink:href (SVG <use>, <image> exfil vectors)
+    .replace(/(xlink:href|href)(\s*=\s*)(["'])\s*(?:data:|https?:|\/\/)[^"']*\3/gi, '$1$2$3#$3')
+}

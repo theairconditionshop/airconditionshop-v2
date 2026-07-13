@@ -3,6 +3,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { getRole } from '@/lib/auth/session'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const eventSchema = z.object({
   campaign_id: z.string().uuid(),
@@ -10,6 +11,12 @@ const eventSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  // Anti-spam: cap analytics events per IP (300/hour) so the table cannot be
+  // flooded by an automated client. Legitimate browsing stays well under this.
+  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  const rl = rateLimit(`campaign-analytics:${clientIp}`, 300, 60 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
+
   let body: unknown
   try { body = await req.json() } catch {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })

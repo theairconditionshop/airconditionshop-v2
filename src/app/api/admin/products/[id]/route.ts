@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
+import { audit } from '@/lib/audit'
 import { z } from 'zod'
 
 async function requireAdmin() {
@@ -67,10 +68,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   return NextResponse.json({ ok: true })
 }
 
-export async function DELETE(_: Request, { params }: { params: Promise<{ id: string }> }) {
-  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   const { id } = await params
   const db = createAdminClient()
   await db.from('products').delete().eq('id', id)
+  await audit({ action: 'product.delete', actorId: admin.id, actorEmail: admin.email, entityType: 'product', entityId: id, request })
   return NextResponse.json({ ok: true })
 }

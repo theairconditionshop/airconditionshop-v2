@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendPasswordChangedEmail } from '@/lib/resend/send'
 import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { audit } from '@/lib/audit'
 import { passwordSchema } from '@/lib/auth/password'
 
 const schema = z.object({ password: passwordSchema })
@@ -78,7 +79,8 @@ export async function POST(request: Request) {
   // longer matches, so existing sessions cannot be renewed after this call.
   // Access tokens (JWTs) remain valid until their 1-hour natural expiry —
   // this is inherent to stateless JWTs and is acceptable per OWASP guidance.
-  console.log('[set-password] Password updated — sessions invalidated for user:', authUser.user.id)
+
+  await audit({ action: 'auth.password_reset', actorId: authUser.user.id, entityType: 'profile', entityId: authUser.user.id, request })
 
   // Consume the verified cookie so this endpoint cannot be called a second time
   // with the same reset session.

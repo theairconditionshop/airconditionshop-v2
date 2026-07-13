@@ -1,9 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getRole } from '@/lib/auth/session'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+
+// PostgREST .or() filter strings are NOT parameterized — the characters
+// , . ( ) : * % \ " are structural. Strip them from user input so a crafted
+// query cannot inject extra filter conditions or reference other columns.
+function sanitizeSearchTerm(raw: string): string {
+  return raw.replace(/[,.()：:*%\\"'`]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 100)
+}
 
 export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get('q')?.trim() ?? ''
+  // Public multi-query endpoint — cap at 120 searches/min per IP.
+  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous'
+  const rl = rateLimit(`search:${clientIp}`, 120, 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
+
+  const raw = req.nextUrl.searchParams.get('q')?.trim() ?? ''
+  const q = sanitizeSearchTerm(raw)
   if (q.length < 2) return NextResponse.json([])
 
   const [supabase, userRole] = await Promise.all([createClient(), getRole()])

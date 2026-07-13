@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
 import { optimizeGeneralImage, isPassthrough } from '@/lib/images/optimize'
+import { sanitizeSvg } from '@/lib/sanitize'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
+import { audit } from '@/lib/audit'
 
 // SVG is allowed for brand logos (admin-only, trusted uploaders).
 // PDF is allowed for product data sheets.
@@ -24,7 +27,13 @@ async function requireAdmin() {
 }
 
 export async function POST(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  // Abuse protection: 60 uploaded files/hour per admin (a batch of several
+  // files is one request but each file consumes one slot below).
+  const rl = rateLimit(`media-upload:${admin.id}`, 60, 60 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
 
   const formData = await request.formData()
   const files    = formData.getAll('files') as File[]
@@ -52,10 +61,17 @@ export async function POST(request: Request) {
     let finalSize:   number = file.size
 
     if (isPassthrough(file.type)) {
-      // SVG and PDF: upload as-is — cannot be raster-converted
-      uploadBuffer = rawBuffer
-      contentType  = file.type
-      ext          = file.type === 'application/pdf' ? 'pdf' : 'svg'
+      // SVG and PDF: cannot be raster-converted. SVG is sanitized to strip
+      // any script/handler payload before storage (defense in depth).
+      if (file.type === 'image/svg+xml') {
+        uploadBuffer = Buffer.from(sanitizeSvg(rawBuffer.toString('utf8')), 'utf8')
+        contentType  = 'image/svg+xml'
+        ext          = 'svg'
+      } else {
+        uploadBuffer = rawBuffer
+        contentType  = 'application/pdf'
+        ext          = 'pdf'
+      }
     } else {
       try {
         const optimized  = await optimizeGeneralImage(rawBuffer)
@@ -106,7 +122,11 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  const admin = await requireAdmin()
+  if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const rl = rateLimit(`media-delete:${admin.id}`, 40, 60 * 60 * 1000)
+  if (rl.limited) return rateLimitResponse(rl)
 
   const body = await request.json().catch(() => ({}))
   const { url } = body as { url?: string }
@@ -118,14 +138,20 @@ export async function DELETE(request: Request) {
   if (!match) {
     return NextResponse.json({ deleted: false })
   }
+  // Reject path traversal in the derived storage key (defense in depth —
+  // the regex only captures the media/ prefix, but never resolve '..').
+  if (match[1].includes('..')) {
+    return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+  }
 
   const storagePath = match[1]
   const db = createAdminClient()
   const { error } = await db.storage.from('media').remove([storagePath])
   if (error) {
     console.error('[media] Delete failed for', storagePath, ':', error.message)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to delete file. Please try again.' }, { status: 500 })
   }
 
+  await audit({ action: 'media.delete', actorId: admin.id, actorEmail: admin.email, entityType: 'media', entityId: storagePath, request })
   return NextResponse.json({ deleted: true, path: storagePath })
 }

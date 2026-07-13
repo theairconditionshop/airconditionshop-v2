@@ -34,7 +34,6 @@ export async function POST(request: Request) {
   }
   const { next } = body
 
-  console.log('[post-login] userId:', userId, 'ip:', ip)
 
   const adminDb = createAdminClient()
 
@@ -53,13 +52,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ redirect: '/' })
   }
 
-  console.log('[post-login] Profile found — role:', profile.role, 'email:', profile.email)
 
   const role = profile.role as UserRole
 
   // Admin/staff require 2FA
   if (requiresTwoFactor(role)) {
-    console.log('[post-login] 2FA required for role:', role)
 
     if (!profile.email) {
       console.error('[post-login] Profile has no email — cannot send OTP')
@@ -69,7 +66,6 @@ export async function POST(request: Request) {
     let code: string
     try {
       code = await createOtpSession(userId, ip)
-      console.log('[post-login] OTP session created successfully')
     } catch (err) {
       console.error('[post-login] createOtpSession failed:', err instanceof Error ? err.message : err)
       return NextResponse.json({ error: 'Failed to create verification session. Please try again.' }, { status: 500 })
@@ -78,7 +74,7 @@ export async function POST(request: Request) {
     try {
       const { sendOtpEmail } = await import('@/lib/resend/send')
       await sendOtpEmail({ email: profile.email, name: profile.full_name || '', code })
-      console.log('[post-login] OTP email sent to:', profile.email)
+      /* OTP email sent */
     } catch (err) {
       console.error('[post-login] sendOtpEmail failed:', err instanceof Error ? err.message : err)
       return NextResponse.json({ error: 'Failed to send verification email. Please try again.' }, { status: 500 })

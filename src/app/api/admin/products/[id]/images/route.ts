@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getProfile } from '@/lib/auth/session'
 import { optimizeProductImage } from '@/lib/images/optimize'
+import { rateLimit, rateLimitResponse } from '@/lib/rate-limit'
 
 const ACCEPTED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/avif'])
 const MAX_RAW_BYTES  = 20 * 1024 * 1024  // 20 MB — reject before processing
@@ -15,7 +16,10 @@ async function requireAdmin() {
 // POST /api/admin/products/[id]/images — upload one image
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    if (!await requireAdmin()) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const admin = await requireAdmin()
+    if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    const rl = rateLimit(`product-image-upload:${admin.id}`, 60, 60 * 60 * 1000)
+    if (rl.limited) return rateLimitResponse(rl)
     const { id: productId } = await params
 
     const db = createAdminClient()
