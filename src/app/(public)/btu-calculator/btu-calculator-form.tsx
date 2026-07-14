@@ -7,108 +7,67 @@ import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import Image from 'next/image'
-import { calculateBtu, type BtuResult } from '@/lib/btu/calculator'
-import { ArrowRight, Loader2, Tag, Zap, Thermometer, Star } from 'lucide-react'
+import { calculateBtu, metresToFeet, type BtuResult } from '@/lib/btu/calculator'
+import { ArrowRight, Loader2, Tag, Zap, Phone } from 'lucide-react'
 
-const M_TO_FT = 3.28084
-
-// Metric schema (metres)
-const schemaMetric = z.object({
-  length:      z.number().min(1, 'Enter room length'),
-  width:       z.number().min(1, 'Enter room width'),
-  height:      z.number().min(1.5).max(10),
-  roomType:    z.enum(['bedroom', 'living', 'kitchen', 'office', 'commercial']),
-  occupancy:   z.enum(['1-2', '3-5', '6+']),
-  sunExposure: z.enum(['shaded', 'partial', 'full_sun']),
+// Dimensions are entered in metres OR feet (chosen by the toggle). Validation is
+// the same either way — a positive number. All BTU maths happens in feet.
+const schema = z.object({
+  length: z.number({ error: 'Enter room length' }).positive('Enter room length'),
+  width:  z.number({ error: 'Enter room width' }).positive('Enter room width'),
+  height: z.number({ error: 'Enter ceiling height' }).positive('Enter ceiling height'),
 })
 
-// Imperial schema (feet) — same fields, different labels/validation
-const schemaImperial = z.object({
-  length:      z.number().min(1, 'Enter room length'),
-  width:       z.number().min(1, 'Enter room width'),
-  height:      z.number().min(5).max(33),
-  roomType:    z.enum(['bedroom', 'living', 'kitchen', 'office', 'commercial']),
-  occupancy:   z.enum(['1-2', '3-5', '6+']),
-  sunExposure: z.enum(['shaded', 'partial', 'full_sun']),
-})
-
-type FormData = z.infer<typeof schemaMetric>
+type FormData = z.infer<typeof schema>
 
 interface RecommendedProduct {
   id: string; name: string; slug: string
   cooling_btu: number | null; retail_price: number | null; currency: string
-  energy_rating: string | null; room_size_min: number | null; room_size_max: number | null
   brand?: { name: string; slug: string }
   images?: { url: string; is_primary: boolean }[]
 }
 
-const ROOM_TYPES = [
-  { value: 'bedroom',    label: 'Bedroom' },
-  { value: 'living',     label: 'Living Room' },
-  { value: 'kitchen',    label: 'Kitchen' },
-  { value: 'office',     label: 'Office / Study' },
-  { value: 'commercial', label: 'Commercial Space' },
-]
-const OCCUPANCY_OPTS = [
-  { value: '1-2', label: '1–2 people' },
-  { value: '3-5', label: '3–5 people' },
-  { value: '6+',  label: '6+ people' },
-]
-const SUN_EXPOSURE = [
-  { value: 'shaded',   label: 'Low — north facing / shaded' },
-  { value: 'partial',  label: 'Moderate — partial sun' },
-  { value: 'full_sun', label: 'High — south/west facing, full sun' },
-]
-
-function SelectField({ label, id, children, className }: {
-  label: string; id: string; children: React.ReactNode; className?: string
-}) {
-  return (
-    <div className={`flex flex-col gap-1.5 ${className ?? ''}`}>
-      <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>
-      {children}
-    </div>
-  )
-}
+const DIM_META = {
+  length: { label: 'Room length' },
+  width:  { label: 'Room width' },
+  height: { label: 'Ceiling height' },
+} as const
 
 export default function BtuCalculatorForm() {
-  const [unit, setUnit]                     = useState<'metric' | 'imperial'>('metric')
-  const [result, setResult]                 = useState<BtuResult | null>(null)
+  const [unit, setUnit]                       = useState<'metric' | 'imperial'>('metric')
+  const [result, setResult]                   = useState<BtuResult | null>(null)
   const [recommendations, setRecommendations] = useState<RecommendedProduct[]>([])
-  const [loadingRecs, setLoadingRecs]       = useState(false)
+  const [loadingRecs, setLoadingRecs]         = useState(false)
 
   const isMetric = unit === 'metric'
-  const schema   = isMetric ? schemaMetric : schemaImperial
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<FormData>({
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting }, reset } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { height: isMetric ? 2.7 : 8.9, roomType: 'bedroom', occupancy: '1-2', sunExposure: 'partial' },
+    defaultValues: { height: isMetric ? 2.7 : 8.9 },
   })
+
+  const values = watch()
 
   function switchUnit(next: 'metric' | 'imperial') {
     setUnit(next)
     setResult(null)
     setRecommendations([])
-    reset({ height: next === 'metric' ? 2.7 : 8.9, roomType: 'bedroom', occupancy: '1-2', sunExposure: 'partial' })
+    reset({ height: next === 'metric' ? 2.7 : 8.9, length: undefined, width: undefined })
   }
 
   async function onSubmit(data: FormData) {
-    // Convert imperial → metric before calculating
-    const metricData = isMetric ? data : {
-      ...data,
-      length: data.length / M_TO_FT,
-      width:  data.width  / M_TO_FT,
-      height: data.height / M_TO_FT,
-    }
-    const btuResult = calculateBtu(metricData)
+    // Always calculate in FEET. If the user entered metres, convert first.
+    const feet = isMetric
+      ? { length: metresToFeet(data.length), width: metresToFeet(data.width), height: metresToFeet(data.height) }
+      : { length: data.length, width: data.width, height: data.height }
+
+    const btuResult = calculateBtu(feet)
     setResult(btuResult)
     setRecommendations([])
 
     setLoadingRecs(true)
     try {
-      const res = await fetch(
-        `/api/products/by-btu?min=${btuResult.recommendedBtuRange.min}&max=${btuResult.recommendedBtuRange.max}&limit=4`
-      )
+      const res = await fetch(`/api/products/by-btu?capacity=${btuResult.recommendedCapacity}&limit=24`)
       if (res.ok) setRecommendations(await res.json())
     } catch { /* silently ignore */ }
     finally { setLoadingRecs(false) }
@@ -116,7 +75,6 @@ export default function BtuCalculatorForm() {
 
   const dimLabel = isMetric ? 'm' : 'ft'
 
-  const selectClass = 'h-11 w-full border border-slate-200 bg-white px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150 cursor-pointer'
   const inputClass  = 'h-11 w-full border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-150'
   const fieldRadius = { borderRadius: 2 }
 
@@ -145,43 +103,43 @@ export default function BtuCalculatorForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Dimensions */}
         <div className="grid sm:grid-cols-3 gap-4">
-          {(['length', 'width', 'height'] as const).map(field => (
-            <div key={field} className="flex flex-col gap-1.5">
-              <label htmlFor={field} className="text-sm font-medium text-slate-700 capitalize">
-                {field === 'length' ? 'Room length' : field === 'width' ? 'Room width' : 'Ceiling height'} ({dimLabel})
-              </label>
-              <input
-                id={field}
-                type="number" step="0.1"
-                {...register(field, { valueAsNumber: true })}
-                className={inputClass} style={fieldRadius}
-                placeholder={field === 'height' ? (isMetric ? '2.7' : '8.9') : field === 'length' ? (isMetric ? '5.0' : '16.4') : (isMetric ? '4.0' : '13.1')}
-              />
-              {errors[field] && (
-                <p className="text-xs text-red-500">{errors[field]?.message as string}</p>
-              )}
-            </div>
-          ))}
+          {(['length', 'width', 'height'] as const).map(field => {
+            const raw = values[field]
+            const feetValue = isMetric && typeof raw === 'number' && raw > 0
+              ? metresToFeet(raw).toFixed(2)
+              : null
+            return (
+              <div key={field} className="flex flex-col gap-1.5">
+                <label htmlFor={field} className="text-sm font-medium text-slate-700">
+                  {DIM_META[field].label} ({dimLabel})
+                </label>
+                <input
+                  id={field}
+                  type="number" step="0.1"
+                  {...register(field, { valueAsNumber: true })}
+                  className={inputClass} style={fieldRadius}
+                  placeholder={field === 'height' ? (isMetric ? '2.7' : '8.9') : field === 'length' ? (isMetric ? '5.0' : '16.4') : (isMetric ? '4.0' : '13.1')}
+                />
+                {/* Metric mode: read-only converted feet shown underneath */}
+                {isMetric && (
+                  <input
+                    type="text"
+                    readOnly
+                    tabIndex={-1}
+                    aria-label={`${DIM_META[field].label} in feet (converted)`}
+                    value={feetValue != null ? `= ${feetValue} ft` : ''}
+                    placeholder="= ft"
+                    className="h-8 w-full border border-slate-100 bg-slate-50 px-3 text-xs text-slate-500 cursor-not-allowed focus:outline-none"
+                    style={fieldRadius}
+                  />
+                )}
+                {errors[field] && (
+                  <p className="text-xs text-red-500">{errors[field]?.message as string}</p>
+                )}
+              </div>
+            )
+          })}
         </div>
-
-        <div className="grid sm:grid-cols-2 gap-4">
-          <SelectField label="Room type" id="roomType">
-            <select id="roomType" {...register('roomType')} className={selectClass} style={fieldRadius}>
-              {ROOM_TYPES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
-            </select>
-          </SelectField>
-          <SelectField label="Number of occupants" id="occupancy">
-            <select id="occupancy" {...register('occupancy')} className={selectClass} style={fieldRadius}>
-              {OCCUPANCY_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </SelectField>
-        </div>
-
-        <SelectField label="Sun exposure" id="sunExposure">
-          <select id="sunExposure" {...register('sunExposure')} className={selectClass} style={fieldRadius}>
-            {SUN_EXPOSURE.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-          </select>
-        </SelectField>
 
         <Button type="submit" variant="brand" size="lg" className="w-full text-base" loading={isSubmitting}>
           Calculate My BTU Requirement
@@ -193,28 +151,21 @@ export default function BtuCalculatorForm() {
           {/* Result cards */}
           <div className="bg-gradient-to-br from-blue-50 to-blue-50 border border-blue-100 p-4 sm:p-6 overflow-hidden" style={{ borderRadius: 2 }}>
             <h2 className="font-display text-xl text-slate-900 mb-1 tracking-[-0.01em]">Your Result</h2>
-            <p className="text-sm text-slate-500 mb-5">Based on your room measurements and conditions</p>
+            <p className="text-sm text-slate-500 mb-5">Based on your room dimensions</p>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-6">
               <div className="bg-white border border-blue-100 p-2.5 sm:p-4 text-center min-w-0" style={{ borderRadius: 2 }}>
                 <p className="text-lg sm:text-2xl font-bold text-blue-600 tabular-nums truncate">{result.btu.toLocaleString()}</p>
-                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">BTU/hr</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">Required Cooling Capacity (BTU/hr)</p>
               </div>
               <div className="bg-white border border-blue-100 p-2.5 sm:p-4 text-center min-w-0" style={{ borderRadius: 2 }}>
-                <p className="text-lg sm:text-2xl font-bold text-blue-600">{result.kw.toFixed(1)}</p>
-                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">kW output</p>
-              </div>
-              <div className="bg-white border border-blue-100 p-2.5 sm:p-4 text-center min-w-0" style={{ borderRadius: 2 }}>
-                <p className="text-[11px] sm:text-sm lg:text-base font-bold text-blue-600 leading-tight tabular-nums">
-                  {result.recommendedBtuRange.min.toLocaleString()}<span className="block sm:inline">–</span>{result.recommendedBtuRange.max.toLocaleString()}
-                </p>
-                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">Rec. BTU</p>
+                <p className="text-lg sm:text-2xl font-bold text-blue-600 tabular-nums truncate">{result.recommendedCapacity.toLocaleString()}</p>
+                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium">Recommended AC (BTU)</p>
               </div>
             </div>
 
             <p className="text-sm text-slate-600 mb-5">
-              We recommend a unit between <strong>{result.recommendedBtuRange.min.toLocaleString()} – {result.recommendedBtuRange.max.toLocaleString()} BTU</strong>{' '}
-              ({(result.recommendedBtuRange.min / 3412).toFixed(1)} – {(result.recommendedBtuRange.max / 3412).toFixed(1)} kW) for your space.
+              We recommend a <strong>{result.recommendedCapacity.toLocaleString()} BTU</strong> air conditioner for your space.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -233,7 +184,7 @@ export default function BtuCalculatorForm() {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-slate-900">
-                {loadingRecs ? 'Finding matched units…' : recommendations.length > 0 ? 'Recommended for your room' : 'Browse Our Range'}
+                {loadingRecs ? 'Finding matched units…' : recommendations.length > 0 ? `${result.recommendedCapacity.toLocaleString()} BTU units in our range` : 'Browse Our Range'}
               </h3>
               {recommendations.length > 0 && (
                 <Link href="/products" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
@@ -265,13 +216,6 @@ export default function BtuCalculatorForm() {
                         ) : (
                           <div className="text-slate-300 text-sm font-medium">No image</div>
                         )}
-                        {product.energy_rating && (
-                          <div className="absolute top-3 right-3">
-                            <span className="flex items-center gap-1 bg-emerald-500 text-white text-xs font-bold px-2 py-1" style={{ borderRadius: 2 }}>
-                              <Star aria-hidden="true" className="w-3 h-3" /> {product.energy_rating}
-                            </span>
-                          </div>
-                        )}
                       </div>
 
                       <div className="p-4">
@@ -288,14 +232,6 @@ export default function BtuCalculatorForm() {
                             <div className="flex items-center gap-1.5 text-xs text-slate-500">
                               <Zap aria-hidden="true" className="w-3 h-3 text-blue-600" />
                               {product.cooling_btu.toLocaleString()} BTU
-                            </div>
-                          )}
-                          {(product.room_size_min || product.room_size_max) && (
-                            <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                              <Thermometer aria-hidden="true" className="w-3 h-3 text-blue-600" />
-                              {product.room_size_min && product.room_size_max
-                                ? `${product.room_size_min}–${product.room_size_max}m²`
-                                : product.room_size_max ? `Up to ${product.room_size_max}m²` : ''}
                             </div>
                           )}
                         </div>
@@ -335,6 +271,28 @@ export default function BtuCalculatorForm() {
                 </Link>
               </div>
             )}
+
+            {/* Expert advice CTA */}
+            <div className="mt-6 p-5 bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3" style={{ borderRadius: 2 }}>
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Need expert advice?</p>
+                <p className="text-sm text-slate-500">
+                  Call us on{' '}
+                  <a href="tel:+35679661889" className="font-semibold text-blue-600 hover:text-blue-700">+356 7966 1889</a>
+                  {' '}or request a quote.
+                </p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <a href="tel:+35679661889">
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Phone aria-hidden="true" className="w-3.5 h-3.5" /> Call
+                  </Button>
+                </a>
+                <Link href="/quote">
+                  <Button variant="brand" size="sm">Request a Quote</Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}

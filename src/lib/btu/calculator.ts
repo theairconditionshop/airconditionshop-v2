@@ -1,60 +1,47 @@
-export type RoomType = 'bedroom' | 'living' | 'kitchen' | 'office' | 'commercial'
-export type Occupancy = '1-2' | '3-5' | '6+'
-export type SunExposure = 'shaded' | 'partial' | 'full_sun'
+// BTU cooling-load calculator.
+//
+// STRICT RULE: all calculation is done in FEET. Metric inputs are converted to
+// feet first (1 m = 3.281 ft), then:
+//     volume_ft3 = length_ft × width_ft × height_ft
+//     BTU        = volume_ft3 × 7.5
+// The result is rounded to a whole number — decimals are never shown to users.
+//
+// Worked example (4 m × 4 m × 3 m):
+//   13.124 ft × 13.124 ft × 9.843 ft = 1695.35 ft³ × 7.5 = 12,715 BTU
 
+export const M_TO_FT = 3.281
+const BTU_PER_CUBIC_FT = 7.5
+
+// Standard AC capacities we recommend from, in BTU/hr (ascending).
+export const AC_CAPACITIES = [9000, 12000, 18000, 24000, 36000, 48000] as const
+
+/** Room dimensions, always in FEET. */
 export interface BtuInputs {
-  length: number     // metres
-  width: number      // metres
-  height: number     // metres
-  roomType: RoomType
-  occupancy: Occupancy
-  sunExposure: SunExposure
+  length: number
+  width: number
+  height: number
 }
 
 export interface BtuResult {
+  /** Calculated cooling load, whole BTU/hr. */
   btu: number
-  kw: number
-  recommendedBtuRange: { min: number; max: number }
+  /** Smallest standard AC capacity ≥ the calculated load. */
+  recommendedCapacity: number
 }
 
-const ROOM_TYPE_MULTIPLIER: Record<RoomType, number> = {
-  bedroom: 1.0,
-  living: 1.0,
-  office: 1.1,
-  kitchen: 1.25,
-  commercial: 1.4,
+/** 1 metre = 3.281 feet (spec-mandated factor). */
+export function metresToFeet(metres: number): number {
+  return metres * M_TO_FT
 }
 
-const OCCUPANCY_MULTIPLIER: Record<Occupancy, number> = {
-  '1-2': 1.0,
-  '3-5': 1.1,
-  '6+': 1.2,
-}
+export function calculateBtu({ length, width, height }: BtuInputs): BtuResult {
+  const volumeFt3 = length * width * height          // full floating-point precision
+  const btu = Math.round(volumeFt3 * BTU_PER_CUBIC_FT)
 
-const SUN_MULTIPLIER: Record<SunExposure, number> = {
-  shaded: 1.0,
-  partial: 1.1,
-  full_sun: 1.2,
-}
+  // Nearest suitable capacity = smallest standard size that meets or exceeds
+  // the requirement. Anything above the largest size falls back to the largest.
+  const recommendedCapacity =
+    AC_CAPACITIES.find(c => c >= btu) ?? AC_CAPACITIES[AC_CAPACITIES.length - 1]
 
-export function calculateBtu(inputs: BtuInputs): BtuResult {
-  const volume = inputs.length * inputs.width * inputs.height
-  const baseBtu = volume * 337
-
-  const multiplier =
-    ROOM_TYPE_MULTIPLIER[inputs.roomType] *
-    OCCUPANCY_MULTIPLIER[inputs.occupancy] *
-    SUN_MULTIPLIER[inputs.sunExposure]
-
-  const btu = Math.ceil(baseBtu * multiplier)
-  const kw = Math.round((btu / 3412) * 10) / 10
-
-  return {
-    btu,
-    kw,
-    recommendedBtuRange: {
-      min: Math.round(btu * 0.9 / 500) * 500,
-      max: Math.round(btu * 1.1 / 500) * 500,
-    },
-  }
+  return { btu, recommendedCapacity }
 }

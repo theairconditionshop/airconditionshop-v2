@@ -10,21 +10,30 @@ import { createClient } from '@/lib/supabase/server'
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
+  // `capacity` (exact nominal BTU label, e.g. 18000) is the calculator's
+  // recommendation path. `min`/`max` remain for any legacy range query.
+  const capacityRaw = searchParams.get('capacity')
+  const capacity = capacityRaw != null ? parseInt(capacityRaw) : null
   const min = parseInt(searchParams.get('min') || '0')
   const max = parseInt(searchParams.get('max') || '999999')
-  const limit = Math.min(parseInt(searchParams.get('limit') || '4'), 8)
+  const limit = Math.min(parseInt(searchParams.get('limit') || '4'), 24)
 
   const supabase = await createClient()
-  const { data } = await supabase
+  let query = supabase
     .from('product_variants')
-    .select('cooling_btu, retail_price, original_price, currency, series:product_series!inner(id, name, slug, is_active, brand:brands(name, slug), images:series_images(url, thumbnail_url, colour_id, is_primary))')
+    .select('btu, cooling_btu, retail_price, original_price, currency, series:product_series!inner(id, name, slug, is_active, brand:brands(name, slug), images:series_images(url, thumbnail_url, colour_id, is_primary))')
     .eq('is_active', true)
-    .not('cooling_btu', 'is', null)
-    .gte('cooling_btu', min)
-    .lte('cooling_btu', max)
-    .order('cooling_btu')
+
+  if (capacity != null && !Number.isNaN(capacity)) {
+    query = query.eq('btu', capacity).order('btu')
+  } else {
+    query = query.not('cooling_btu', 'is', null).gte('cooling_btu', min).lte('cooling_btu', max).order('cooling_btu')
+  }
+
+  const { data } = await query
 
   type Row = {
+    btu: number | null
     cooling_btu: number | null
     retail_price: number | null
     original_price: number | null
@@ -48,7 +57,7 @@ export async function GET(req: NextRequest) {
       id: s.id,
       name: brand ? `${brand.name} ${s.name}` : s.name,
       slug: brand?.slug ? `${brand.slug}/${s.slug}` : s.slug,
-      cooling_btu: row.cooling_btu,
+      cooling_btu: row.btu ?? row.cooling_btu,
       retail_price: row.retail_price ?? row.original_price,
       currency: row.currency ?? 'EUR',
       brand: brand ?? undefined,
